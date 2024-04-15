@@ -1,0 +1,31 @@
+name: DCVAE-Climate
+channels:
+  - conda-forge
+dependencies:
+  # Basics
+  - python=3.9 # Later versions don't work with Tensorflow 2.9.1
+  - libwebp>=1.3.2 # Earlier versions have a security vulnerability
+  - iris=3.8
+  - pandas=2.2
+  - cmocean=4.0
+  - parallel
+  # Get data from ERA5
+  # You'll need to register, see https://cds.climate.copernicus.eu/api-how-to
+  - cdsapi=0.6
+  # ML model building and diagnostics
+  # If you don't have a GPU, tensorflow-eigen might be faster
+  - tensorflow=2.9.1=gpu_py39hd4ae112_0
+  # Optional, code formatter
+  - black
+  # Optional - documentation generator
+  - sphinx=7.*
+  # Optional - needed only for monitoring jobs
+  - tmux
+
+# Tell python to look for modules in the root directory of the project
+# (A hack, needs to be edited for every installation, but makes code
+#  management much easier.)
+# Replace with the path to your project directory root.
+
+variables:
+  PYTHONPATH: /home/h03/hadpb/Projects/DCVAE_Climate:/home/mo-hadpb/Projects/DCVAE_Climate
