@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Default model training script &#8212; An ML Climate Model based on a DCVAE</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=d59dc883" />
+    <script src="../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Default model - plot training history" href="plot_history.html" />
+    <link rel="prev" title="Generic model specification file" href="specify.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="plot_history.html" title="Default model - plot training history"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="specify.html" title="Generic model specification file"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">DCVAE-Climate</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Default model</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Default model training script</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="default-model-training-script">
+<h1>Default model training script<a class="headerlink" href="#default-model-training-script" title="Link to this heading">¶</a></h1>
+<p>Script (<cite>autoencoder.py</cite>) to train the model specified in the <a class="reference internal" href="specify.html"><span class="doc">configuration file</span></a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="c1"># Convolutional Variational Autoencoder for the Precip work.</span>
+
+<span class="c1"># This is a generic model that can be used for any set of input and output fields</span>
+<span class="c1"># To make a specific model, copy this file, specify.py, validate.py, and validate_multi.py</span>
+<span class="c1"># to a new directory (makeDataset and autoencoderModel are generic - don&#39;t copy them).</span>
+<span class="c1"># Then edit specify.py to choose the input and output fields, and the training parameters.</span>
+<span class="c1"># Then run this file to train the model, and the validate scripts to test the result.</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+
+<span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+    <span class="s2">&quot;--epoch&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Restart from epoch&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+<span class="c1"># Load the data path, data source, and model specification</span>
+<span class="kn">from</span> <span class="nn">specify</span> <span class="kn">import</span> <span class="n">specification</span>
+<span class="kn">from</span> <span class="nn">ML_models.all_convolutional.makeDataset</span> <span class="kn">import</span> <span class="n">getDataset</span>
+<span class="kn">from</span> <span class="nn">ML_models.all_convolutional.autoencoderModel</span> <span class="kn">import</span> <span class="n">DCVAE</span><span class="p">,</span> <span class="n">getModel</span>
+
+
+<span class="c1"># Get Datasets</span>
+<span class="k">def</span> <span class="nf">getDatasets</span><span class="p">():</span>
+    <span class="c1"># Set up the training data</span>
+    <span class="n">trainingData</span> <span class="o">=</span> <span class="n">getDataset</span><span class="p">(</span><span class="n">specification</span><span class="p">,</span> <span class="n">purpose</span><span class="o">=</span><span class="s2">&quot;Train&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">trainingData</span> <span class="o">=</span> <span class="n">trainingData</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;shuffleBufferSize&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span>
+        <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;batchSize&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">trainingData</span> <span class="o">=</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">experimental_distribute_dataset</span><span class="p">(</span>
+        <span class="n">trainingData</span>
+    <span class="p">)</span>
+    <span class="n">validationData</span> <span class="o">=</span> <span class="n">getDataset</span><span class="p">(</span><span class="n">specification</span><span class="p">,</span> <span class="n">purpose</span><span class="o">=</span><span class="s2">&quot;Train&quot;</span><span class="p">)</span>
+    <span class="n">validationData</span> <span class="o">=</span> <span class="n">validationData</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;batchSize&quot;</span><span class="p">])</span>
+    <span class="n">validationData</span> <span class="o">=</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">experimental_distribute_dataset</span><span class="p">(</span>
+        <span class="n">validationData</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Set up the test data</span>
+    <span class="n">testData</span> <span class="o">=</span> <span class="n">getDataset</span><span class="p">(</span><span class="n">specification</span><span class="p">,</span> <span class="n">purpose</span><span class="o">=</span><span class="s2">&quot;Test&quot;</span><span class="p">)</span>
+    <span class="n">testData</span> <span class="o">=</span> <span class="n">testData</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;shuffleBufferSize&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span>
+        <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;batchSize&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">testData</span> <span class="o">=</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">experimental_distribute_dataset</span><span class="p">(</span><span class="n">testData</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">trainingData</span><span class="p">,</span> <span class="n">validationData</span><span class="p">,</span> <span class="n">testData</span><span class="p">)</span>
+
+
+<span class="c1"># Instantiate and run the model under the control of the distribution strategy</span>
+<span class="k">with</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">scope</span><span class="p">():</span>
+    <span class="n">trainingData</span><span class="p">,</span> <span class="n">validationData</span><span class="p">,</span> <span class="n">testData</span> <span class="o">=</span> <span class="n">getDatasets</span><span class="p">()</span>
+
+    <span class="n">autoencoder</span> <span class="o">=</span> <span class="n">getModel</span><span class="p">(</span><span class="n">specification</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">epoch</span><span class="p">)</span>
+
+    <span class="c1"># logfile to output the metrics</span>
+    <span class="n">log_FN</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/MLES/</span><span class="si">%s</span><span class="s2">/logs/Training&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span>
+        <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;modelName&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">log_FN</span><span class="p">)):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">log_FN</span><span class="p">))</span>
+    <span class="n">logfile_writer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">create_file_writer</span><span class="p">(</span><span class="n">log_FN</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">logfile_writer</span><span class="o">.</span><span class="n">as_default</span><span class="p">():</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="s2">&quot;OutputNames&quot;</span><span class="p">,</span>
+            <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;outputNames&quot;</span><span class="p">],</span>
+            <span class="n">step</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># For each Epoch: train, save state, and report progress</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">epoch</span><span class="p">,</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nEpochs&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="c1"># Train on all batches in the training data</span>
+        <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">trainingData</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;trainingMask&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">mbatch</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;trainingMask&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">batch</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">)</span>
+                <span class="n">batch</span> <span class="o">=</span> <span class="p">(</span><span class="n">batch</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">mbatch</span><span class="p">)</span>
+            <span class="n">per_replica_op</span> <span class="o">=</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">autoencoder</span><span class="o">.</span><span class="n">train_on_batch</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;optimizer&quot;</span><span class="p">])</span>
+            <span class="p">)</span>
+
+        <span class="n">end_training_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="c1"># Validation and output only every printInterval epochs</span>
+        <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;printInterval&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Accumulate average losses over all batches in the validation data</span>
+        <span class="n">autoencoder</span><span class="o">.</span><span class="n">update_metrics</span><span class="p">(</span><span class="n">validationData</span><span class="p">,</span> <span class="n">testData</span><span class="p">)</span>
+
+        <span class="c1"># Save model state</span>
+        <span class="n">save_dir</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/MLES/</span><span class="si">%s</span><span class="s2">/weights/Epoch_</span><span class="si">%04d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span>
+            <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;modelName&quot;</span><span class="p">],</span>
+            <span class="n">epoch</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">save_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">)</span>
+        <span class="n">autoencoder</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/ckpt&quot;</span> <span class="o">%</span> <span class="n">save_dir</span><span class="p">)</span>
+
+        <span class="c1"># Update the log file with current metrics</span>
+        <span class="n">autoencoder</span><span class="o">.</span><span class="n">updateLogfile</span><span class="p">(</span><span class="n">logfile_writer</span><span class="p">,</span> <span class="n">epoch</span><span class="p">)</span>
+
+        <span class="n">end_monitoring_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="c1"># Report progress</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Epoch: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epoch</span><span class="p">))</span>
+        <span class="n">autoencoder</span><span class="o">.</span><span class="n">printState</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;time: </span><span class="si">{}</span><span class="s2"> (+</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">end_training_time</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">end_monitoring_time</span> <span class="o">-</span> <span class="n">end_training_time</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/DCVAE_Climate.webp" alt="Logo"/>
+            </a></p>
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../get_data/index.html">Get the training data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../normalization/index.html">Normalize the data for model fitting</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">ML model specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and re-gridding</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how_to.html">How to reproduce or extend this work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Authors and acknowledgements</a></li>
+</ul>
+<h3><a href="https://github.com/philip-brohan/DCVAE_Climate">Get a copy</a></h3>
+
+<ul>
+    <li><a href="https://github.com/philip-brohan/DCVAE_Climate" rel="nofollow">Github repository</a></li>
+</ul>
+
+<h3>Found a bug, or have a suggestion?</h3>
+
+Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise an issue</a>.
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="plot_history.html" title="Default model - plot training history"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="specify.html" title="Generic model specification file"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">DCVAE-Climate</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Default model</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Default model training script</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>

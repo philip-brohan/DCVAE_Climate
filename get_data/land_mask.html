@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Land mask download &#8212; An ML Climate Model based on a DCVAE</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=d59dc883" />
+    <script src="../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Normalizing training data" href="../normalization/index.html" />
+    <link rel="prev" title="ERA5 data download and access" href="ERA5.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../normalization/index.html" title="Normalizing training data"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ERA5.html" title="ERA5 data download and access"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">DCVAE-Climate</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Get the data to be used</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Land mask download</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="land-mask-download">
+<h1>Land mask download<a class="headerlink" href="#land-mask-download" title="Link to this heading">¶</a></h1>
+<p>Script to download a land mask (it’s not really a land mask, but we’re only using it in <a class="reference internal" href="../utils/plots.html"><span class="doc">plotting</span></a>, so it’s fine).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="c1"># Retrieve a soil temperature file from ERA5-land</span>
+
+<span class="c1"># This is just an easy way to get a high-resolution land mask for plotting</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">cdsapi</span>
+
+<span class="n">opdir</span> <span class="o">=</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/ERA5/monthly/reanalysis&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">opdir</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">opdir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/land_mask.nc&quot;</span> <span class="o">%</span> <span class="n">opdir</span><span class="p">):</span> <span class="c1"># Only bother if we don&#39;t have it</span>
+
+    <span class="n">c</span> <span class="o">=</span> <span class="n">cdsapi</span><span class="o">.</span><span class="n">Client</span><span class="p">()</span>
+
+    <span class="c1"># Variable and date are arbitrary</span>
+    <span class="c1"># Just want something that is only defined in land grid-cells.</span>
+
+    <span class="n">ctrlB</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;variable&#39;</span><span class="p">:</span> <span class="s1">&#39;soil_temperature_level_1&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="s1">&#39;2001&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;month&#39;</span><span class="p">:</span> <span class="s1">&#39;03&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="s1">&#39;00:00&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;netcdf&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;product_type&#39;</span><span class="p">:</span> <span class="s1">&#39;monthly_averaged_reanalysis&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">c</span> <span class="o">=</span> <span class="n">cdsapi</span><span class="o">.</span><span class="n">Client</span><span class="p">()</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span>
+        <span class="s2">&quot;reanalysis-era5-land-monthly-means&quot;</span><span class="p">,</span>
+        <span class="n">ctrlB</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">.nc&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">opdir</span><span class="p">,</span> <span class="s1">&#39;land_mask&#39;</span><span class="p">),</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/DCVAE_Climate.webp" alt="Logo"/>
+            </a></p>
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Get the training data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../normalization/index.html">Normalize the data for model fitting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ML_default/index.html">ML model specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and re-gridding</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how_to.html">How to reproduce or extend this work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Authors and acknowledgements</a></li>
+</ul>
+<h3><a href="https://github.com/philip-brohan/DCVAE_Climate">Get a copy</a></h3>
+
+<ul>
+    <li><a href="https://github.com/philip-brohan/DCVAE_Climate" rel="nofollow">Github repository</a></li>
+</ul>
+
+<h3>Found a bug, or have a suggestion?</h3>
+
+Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise an issue</a>.
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../normalization/index.html" title="Normalizing training data"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ERA5.html" title="ERA5 data download and access"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">DCVAE-Climate</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Get the data to be used</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Land mask download</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>

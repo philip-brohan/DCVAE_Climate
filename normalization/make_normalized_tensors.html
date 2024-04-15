@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Assemble ERA5 normalized data into a set of tf.tensors &#8212; An ML Climate Model based on a DCVAE</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=d59dc883" />
+    <script src="../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Default model" href="../ML_default/index.html" />
+    <link rel="prev" title="Check normalization of ERA5 data" href="validate_for_month.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../ML_default/index.html" title="Default model"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="validate_for_month.html" title="Check normalization of ERA5 data"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">DCVAE-Climate</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Normalizing training data</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Assemble ERA5 normalized data into a set of tf.tensors</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="assemble-era5-normalized-data-into-a-set-of-tf-tensors">
+<h1>Assemble ERA5 normalized data into a set of tf.tensors<a class="headerlink" href="#assemble-era5-normalized-data-into-a-set-of-tf-tensors" title="Link to this heading">¶</a></h1>
+<p>The data <a class="reference internal" href="../get_data/ERA5.html"><span class="doc">download scripts</span></a> assemble selected ERA5 data in netCDF files. To use that data efficiently in analysis and modelling it is necessary both to normalize it, and to reformat it as a set of <cite>tf.tensors</cite>. These have consistent format and resolution and can be reassembled into a <cite>tf.data.Dataset`</cite> for ML model training.</p>
+<p>Script to make the set of tensors. Takes argument <cite>–variable</cite>, and uses <a class="reference internal" href="estimate_parameters.html"><span class="doc">precalculated normalization parameters</span></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="c1"># Make normalized tensors</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">from</span> <span class="nn">normalize.ERA5.makeDataset</span> <span class="kn">import</span> <span class="n">getDataset</span>
+<span class="kn">from</span> <span class="nn">normalize.ERA5.normalize</span> <span class="kn">import</span> <span class="n">match_normal</span><span class="p">,</span> <span class="n">load_fitted</span>
+
+<span class="n">sDir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+
+<span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+    <span class="s2">&quot;--variable&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Variable name&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+    <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+<span class="n">opdir</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/normalized_datasets/ERA5/</span><span class="si">%s</span><span class="s2">/&quot;</span> <span class="o">%</span> <span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">opdir</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">opdir</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">is_done</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">):</span>
+    <span class="n">fn</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%04d</span><span class="s2">-</span><span class="si">%02d</span><span class="s2">.tfd&quot;</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="n">opdir</span><span class="p">,</span>
+        <span class="n">year</span><span class="p">,</span>
+        <span class="n">month</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="c1"># Load the pre-calculated normalisation parameters</span>
+<span class="n">fitted</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">):</span>
+    <span class="n">cubes</span> <span class="o">=</span> <span class="n">load_fitted</span><span class="p">(</span><span class="n">month</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">)</span>
+    <span class="n">fitted</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">cubes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">cubes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">cubes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">])</span>
+
+
+<span class="c1"># Go through raw dataset  and make normalized tensors</span>
+<span class="n">trainingData</span> <span class="o">=</span> <span class="n">getDataset</span><span class="p">(</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">,</span>
+    <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">blur</span><span class="o">=</span><span class="mf">1.0e-9</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">trainingData</span><span class="p">:</span>
+    <span class="n">year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+    <span class="n">month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">5</span><span class="p">:</span><span class="mi">7</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">is_done</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">):</span>
+        <span class="k">continue</span>
+
+    <span class="c1"># normalize</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+    <span class="n">normalized</span> <span class="o">=</span> <span class="n">match_normal</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">fitted</span><span class="p">[</span><span class="n">month</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">ict</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">normalized</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">debugging</span><span class="o">.</span><span class="n">check_numerics</span><span class="p">(</span><span class="n">ict</span><span class="p">,</span> <span class="s2">&quot;Bad data </span><span class="si">%04d</span><span class="s2">-</span><span class="si">%02d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">))</span>
+
+    <span class="c1"># Write to file</span>
+    <span class="n">opfile</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%04d</span><span class="s2">-</span><span class="si">%02d</span><span class="s2">.tfd&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="n">opdir</span><span class="p">,</span>
+        <span class="n">year</span><span class="p">,</span>
+        <span class="n">month</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">sict</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">serialize_tensor</span><span class="p">(</span><span class="n">ict</span><span class="p">)</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">opfile</span><span class="p">,</span> <span class="n">sict</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Calls another script to make a single tensor:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="c1"># Read in monthly data from ERA5</span>
+<span class="c1"># Normalise: convert to normally distributed values on the range ~0-1</span>
+<span class="c1"># Convert into a TensorFlow tensor.</span>
+<span class="c1"># Serialise and store on $SCRATCH.</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">dask</span>
+
+<span class="c1"># Going to do external parallelism - run this on one core</span>
+<span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">threading</span><span class="o">.</span><span class="n">set_inter_op_parallelism_threads</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">dask</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">scheduler</span><span class="o">=</span><span class="s2">&quot;single-threaded&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">tensor_utils</span> <span class="kn">import</span> <span class="n">load_raw</span><span class="p">,</span> <span class="n">raw_to_tensor</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+
+<span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--year&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Year&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--month&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Integer month&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--variable&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Variable name&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+    <span class="s2">&quot;--opfile&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;tf data file name&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">opfile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">opfile</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/normalized_datasets/ERA5/</span><span class="si">%s</span><span class="s2">/</span><span class="si">%04d</span><span class="s2">-</span><span class="si">%02d</span><span class="s2">.tfd&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">month</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">opfile</span><span class="p">)):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">opfile</span><span class="p">))</span>
+
+<span class="c1"># Load and standardise data</span>
+<span class="n">qd</span> <span class="o">=</span> <span class="n">load_raw</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">)</span>
+<span class="n">ict</span> <span class="o">=</span> <span class="n">raw_to_tensor</span><span class="p">(</span><span class="n">qd</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">month</span><span class="p">)</span>
+<span class="n">tf</span><span class="o">.</span><span class="n">debugging</span><span class="o">.</span><span class="n">check_numerics</span><span class="p">(</span><span class="n">ict</span><span class="p">,</span> <span class="s2">&quot;Bad data </span><span class="si">%04d</span><span class="s2">-</span><span class="si">%02d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">month</span><span class="p">))</span>
+
+<span class="c1"># Write to file</span>
+<span class="n">sict</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">serialize_tensor</span><span class="p">(</span><span class="n">ict</span><span class="p">)</span>
+<span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">opfile</span><span class="p">,</span> <span class="n">sict</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Library functions to do the normalization:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Functions to normalize a data distribution based on SPI</span>
+<span class="c1"># The aim is to make a normalized distribution that is normally distributed</span>
+<span class="c1">#  with mean=0.5 and sd=0.2 (so almost all the data is in 0-1)</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">norm</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">iris</span>
+
+
+<span class="c1"># Load the pre-calculated fitted values</span>
+<span class="k">def</span> <span class="nf">load_fitted</span><span class="p">(</span><span class="n">month</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="s2">&quot;total_precipitation&quot;</span><span class="p">):</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">iris</span><span class="o">.</span><span class="n">load_cube</span><span class="p">(</span>
+        <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/normalization/ERA5/</span><span class="si">%s</span><span class="s2">/shape_m</span><span class="si">%02d</span><span class="s2">.nc&quot;</span>
+        <span class="o">%</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span> <span class="n">variable</span><span class="p">,</span> <span class="n">month</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">location</span> <span class="o">=</span> <span class="n">iris</span><span class="o">.</span><span class="n">load_cube</span><span class="p">(</span>
+        <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/normalization/ERA5/</span><span class="si">%s</span><span class="s2">/location_m</span><span class="si">%02d</span><span class="s2">.nc&quot;</span>
+        <span class="o">%</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span> <span class="n">variable</span><span class="p">,</span> <span class="n">month</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="n">iris</span><span class="o">.</span><span class="n">load_cube</span><span class="p">(</span>
+        <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/normalization/ERA5/</span><span class="si">%s</span><span class="s2">/scale_m</span><span class="si">%02d</span><span class="s2">.nc&quot;</span>
+        <span class="o">%</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span> <span class="n">variable</span><span class="p">,</span> <span class="n">month</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+
+
+<span class="c1"># Find the normal variate that matches the gamma cdf</span>
+<span class="k">def</span> <span class="nf">match_normal</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">gamma_p</span><span class="p">,</span> <span class="n">norm_mean</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">norm_sd</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+    <span class="n">cdf</span> <span class="o">=</span> <span class="n">gamma</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">gamma_p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">gamma_p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">gamma_p</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">cdf</span><span class="p">[</span><span class="n">cdf</span> <span class="o">&gt;</span> <span class="mf">0.99999</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.99999</span>  <span class="c1"># cdf=0 or 1 causes numerical failure</span>
+    <span class="n">cdf</span><span class="p">[</span><span class="n">cdf</span> <span class="o">&lt;</span> <span class="mf">0.00001</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.00001</span>  <span class="c1"># Should fix the gamma fit so this never happens</span>
+    <span class="n">spi</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">cdf</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">norm_mean</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">norm_sd</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">spi</span>
+
+
+<span class="c1"># Find the original value from the normalized one</span>
+<span class="k">def</span> <span class="nf">match_original</span><span class="p">(</span><span class="n">normalized</span><span class="p">,</span> <span class="n">gamma_p</span><span class="p">,</span> <span class="n">norm_mean</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">norm_sd</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+    <span class="n">cdf</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">normalized</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">norm_mean</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">norm_sd</span><span class="p">)</span>
+    <span class="n">original</span> <span class="o">=</span> <span class="n">gamma</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">cdf</span><span class="p">,</span> <span class="n">gamma_p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">gamma_p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">gamma_p</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">original</span>
+
+
+<span class="c1"># Normalise a cube (same as match_normal but for cubes)</span>
+<span class="k">def</span> <span class="nf">normalize_cube</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">norm_mean</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">norm_sd</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+    <span class="n">cdf</span> <span class="o">=</span> <span class="n">gamma</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">shape</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">location</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">cdf</span><span class="p">[</span><span class="n">cdf</span> <span class="o">&gt;</span> <span class="mf">0.99999</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.99999</span>  <span class="c1"># cdf=0 or 1 causes numerical failure</span>
+    <span class="n">cdf</span><span class="p">[</span><span class="n">cdf</span> <span class="o">&lt;</span> <span class="mf">0.00001</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.00001</span>  <span class="c1"># Most of these will be missing data</span>
+    <span class="n">spi</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">cdf</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">norm_mean</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">norm_sd</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">MaskedArray</span><span class="p">(</span><span class="n">spi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">mask</span><span class="p">,</span> <span class="n">shape</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">mask</span><span class="p">))</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">result</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="c1"># Convert a cube from normalized value to raw</span>
+<span class="c1">#  (same as match_original but for cubes)</span>
+<span class="k">def</span> <span class="nf">unnormalize_cube</span><span class="p">(</span><span class="n">normalized</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">norm_mean</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">norm_sd</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+    <span class="n">cdf</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">normalized</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">norm_mean</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">norm_sd</span><span class="p">)</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">gamma</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">cdf</span><span class="p">,</span> <span class="n">shape</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">location</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">scale</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">normalized</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">raw</span>
+    <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+</div>
+<p>Library functions to convert between <cite>tf.tensor`</cite> and <cite>iris.cube.cube</cite>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Utility functions for creating and manipulating normalized tensors</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">get_data.ERA5</span> <span class="kn">import</span> <span class="n">ERA5_monthly</span>
+<span class="kn">from</span> <span class="nn">utilities</span> <span class="kn">import</span> <span class="n">grids</span>
+<span class="kn">from</span> <span class="nn">normalize.ERA5.normalize</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">normalize_cube</span><span class="p">,</span>
+    <span class="n">unnormalize_cube</span><span class="p">,</span>
+    <span class="n">load_fitted</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="c1"># Load the data for 1 month</span>
+<span class="k">def</span> <span class="nf">load_raw</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="s2">&quot;total_precipitation&quot;</span><span class="p">):</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">ERA5_monthly</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+        <span class="n">variable</span><span class="o">=</span><span class="n">variable</span><span class="p">,</span>
+        <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span>
+        <span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">,</span>
+        <span class="n">grid</span><span class="o">=</span><span class="n">grids</span><span class="o">.</span><span class="n">E5sCube</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">raw</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">raw</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">mask</span> <span class="o">==</span> <span class="kc">True</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">return</span> <span class="n">raw</span>
+
+
+<span class="c1"># Convert raw cube to normalized tensor</span>
+<span class="k">def</span> <span class="nf">raw_to_tensor</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">month</span><span class="p">):</span>
+    <span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span> <span class="o">=</span> <span class="n">load_fitted</span><span class="p">(</span><span class="n">month</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="n">variable</span><span class="p">)</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">normalize_cube</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+    <span class="n">norm</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">raw</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">mask</span> <span class="o">==</span> <span class="kc">True</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">ict</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ict</span>
+
+
+<span class="c1"># Convert normalized tensor to cube</span>
+<span class="k">def</span> <span class="nf">tensor_to_cube</span><span class="p">(</span><span class="n">tensor</span><span class="p">):</span>
+    <span class="n">cube</span> <span class="o">=</span> <span class="n">grids</span><span class="o">.</span><span class="n">E5sCube</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">cube</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+    <span class="n">cube</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">MaskedArray</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">cube</span><span class="o">.</span><span class="n">data</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cube</span>
+
+
+<span class="c1"># Convert normalized tensor to raw values</span>
+<span class="k">def</span> <span class="nf">tensor_to_raw</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">month</span><span class="p">):</span>
+    <span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span> <span class="o">=</span> <span class="n">load_fitted</span><span class="p">(</span><span class="n">month</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="n">variable</span><span class="p">)</span>
+    <span class="n">cube</span> <span class="o">=</span> <span class="n">tensor_to_cube</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">unnormalize_cube</span><span class="p">(</span><span class="n">cube</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+    <span class="n">raw</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">raw</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">mask</span> <span class="o">==</span> <span class="kc">True</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">return</span> <span class="n">raw</span>
+</pre></div>
+</div>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/DCVAE_Climate.webp" alt="Logo"/>
+            </a></p>
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../get_data/index.html">Get the training data</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Normalize the data for model fitting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ML_default/index.html">ML model specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and re-gridding</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how_to.html">How to reproduce or extend this work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Authors and acknowledgements</a></li>
+</ul>
+<h3><a href="https://github.com/philip-brohan/DCVAE_Climate">Get a copy</a></h3>
+
+<ul>
+    <li><a href="https://github.com/philip-brohan/DCVAE_Climate" rel="nofollow">Github repository</a></li>
+</ul>
+
+<h3>Found a bug, or have a suggestion?</h3>
+
+Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise an issue</a>.
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../ML_default/index.html" title="Default model"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="validate_for_month.html" title="Check normalization of ERA5 data"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">DCVAE-Climate</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Normalizing training data</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Assemble ERA5 normalized data into a set of tf.tensors</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Get the data to be used &#8212; An ML Climate Model based on a DCVAE</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=d59dc883" />
+    <script src="../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ERA5 data download and access" href="ERA5.html" />
+    <link rel="prev" title="A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder" href="../index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ERA5.html" title="ERA5 data download and access"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">DCVAE-Climate</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Get the data to be used</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="get-the-data-to-be-used">
+<h1>Get the data to be used<a class="headerlink" href="#get-the-data-to-be-used" title="Link to this heading">¶</a></h1>
+<p>We are going to use monthly averaged surface variables from ERA5.</p>
+<dl class="simple">
+<dt>Four variables:</dt><dd><ul class="simple">
+<li><p>2m_temperature</p></li>
+<li><p>sea_surface_temperature</p></li>
+<li><p>mean_sea_level_pressure</p></li>
+<li><p>total_precipitation</p></li>
+</ul>
+</dd>
+</dl>
+<p>We also want a land-sea mask (for plotting only). Use a land-surface only variable from ERA5-land for this (we only need one month).</p>
+<p>We can download all this from the awesome <a class="reference external" href="https://cds.climate.copernicus.eu/cdsapp#!/home">Copernicus Climate Data Store</a></p>
+<p>Script to do the whole download (about 8Gb, will take a few hours). Only downloads data where it is not already on disc.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/bash</span>
+
+<span class="c1"># Run all the data downloads</span>
+
+<span class="c1"># Retrieves about 8Gb data.</span>
+<span class="c1"># Will take a few hours - depends on CDS load.</span>
+
+<span class="p">(</span><span class="n">cd</span> <span class="n">ERA5</span> <span class="o">&amp;&amp;</span> <span class="o">./</span><span class="n">get_data_for_period_ERA5</span><span class="o">.</span><span class="n">py</span> <span class="o">|</span> <span class="n">parallel</span> <span class="o">-</span><span class="n">j</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="p">(</span><span class="n">cd</span> <span class="n">land_mask</span> <span class="o">&amp;&amp;</span> <span class="o">./</span><span class="n">get_land_mask_from_ERA5_land</span><span class="o">.</span><span class="n">py</span><span class="p">)</span>
+
+</pre></div>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ERA5.html">Download and access ERA5 data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="land_mask.html">Download the land mask</a></li>
+</ul>
+</div>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/DCVAE_Climate.webp" alt="Logo"/>
+            </a></p>
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Get the training data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../normalization/index.html">Normalize the data for model fitting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ML_default/index.html">ML model specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and re-gridding</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how_to.html">How to reproduce or extend this work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Authors and acknowledgements</a></li>
+</ul>
+<h3><a href="https://github.com/philip-brohan/DCVAE_Climate">Get a copy</a></h3>
+
+<ul>
+    <li><a href="https://github.com/philip-brohan/DCVAE_Climate" rel="nofollow">Github repository</a></li>
+</ul>
+
+<h3>Found a bug, or have a suggestion?</h3>
+
+Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise an issue</a>.
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ERA5.html" title="ERA5 data download and access"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">DCVAE-Climate</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Get the data to be used</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>

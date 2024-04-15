@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Authors and acknowledgements &#8212; An ML Climate Model based on a DCVAE</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=d59dc883" />
+    <script src="_static/documentation_options.js?v=8d563738"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="How to reproduce and extend this work" href="how_to.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="how_to.html" title="How to reproduce and extend this work"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">DCVAE-Climate</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Authors and acknowledgements</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="authors-and-acknowledgements">
+<h1>Authors and acknowledgements<a class="headerlink" href="#authors-and-acknowledgements" title="Link to this heading">¶</a></h1>
+<p>This document is currently maintained by <a class="reference external" href="https://brohan.org">Philip Brohan</a> (philip.brohan &#64; metoffice.gov.uk). All criticism should be directed to him - put please <strong>don’t</strong> send email, <a class="reference external" href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise an issue</a> instead.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>All blame should go to the maintainer; credit is more widely distributed:</p>
+<ul class="simple">
+<li><p>This document was written by <a class="reference external" href="https://brohan.org">Philip Brohan</a> (Met Office). He was supported by the Met Office Hadley Centre Climate Programme funded by BEIS, and by the Met Office Weather and Climate Science for Service Partnership (WCSSP) South Africa as part of the Newton Fund.</p></li>
+<li><p>The <a class="reference external" href="https://www.tensorflow.org/">TensorFlow</a> library is used throughout.</p></li>
+<li><p>Training data used came from the <a class="reference external" href="https://www.ecmwf.int/en/forecasts/datasets/reanalysis-datasets/era5">ERA5 reanalysis</a> and were downloaded from the Copernicus <a class="reference external" href="https://cds.climate.copernicus.eu">Climate Change Service Climate Data Store</a>.</p></li>
+<li><p>This work used the <a class="reference external" href="https://gw4-isambard.github.io/docs/">Isambard UK National Tier-2 HPC Service</a> operated by GW4 and the UK Met Office, and funded by EPSRC (EP/P020224/1).</p></li>
+<li><p>This work benefited from AI assistance: Both <a class="reference external" href="https://github.com/features/copilot">Github Copilot</a> and <a class="reference external" href="https://chat.openai.com/">ChatGPT</a> were used to help write the code and documentation. In spite of this, the authors and maintainer are responsible for the entirety of the result.</p></li>
+<li><p>The calculations here make extensive use of <a class="reference external" href="https://www.gnu.org/software/parallel/">GNU Parallel</a> (<a class="reference external" href="https://www.usenix.org/publications/login/february-2011-volume-36-number-1/gnu-parallel-command-line-power-tool">Tange 2011</a>).</p></li>
+<li><p>This software is written in <a class="reference external" href="https://www.python.org/">python</a>, in an environment configured with <a class="reference external" href="https://docs.conda.io/en/latest/">conda</a>.</p></li>
+<li><p>The code and documentation use <a class="reference external" href="https://git-scm.com/">git</a> and <a class="reference external" href="https://github.com/">GitHub</a>. The documentation is written with <a class="reference external" href="https://www.sphinx-doc.org/en/master/index.html">sphinx</a>.</p></li>
+</ul>
+<p>Note that appearance on this list does not mean that the person or organization named endorses this work, agrees with any of it, or even knows of its existence.</p>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/DCVAE_Climate.webp" alt="Logo"/>
+            </a></p>
+<h3><a href="index.html">Table of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="get_data/index.html">Get the training data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="normalization/index.html">Normalize the data for model fitting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ML_default/index.html">ML model specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils/index.html">Utility functions for plotting and re-gridding</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="how_to.html">How to reproduce or extend this work</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Authors and acknowledgements</a></li>
+</ul>
+<h3><a href="https://github.com/philip-brohan/DCVAE_Climate">Get a copy</a></h3>
+
+<ul>
+    <li><a href="https://github.com/philip-brohan/DCVAE_Climate" rel="nofollow">Github repository</a></li>
+</ul>
+
+<h3>Found a bug, or have a suggestion?</h3>
+
+Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise an issue</a>.
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="how_to.html" title="How to reproduce and extend this work"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">DCVAE-Climate</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Authors and acknowledgements</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>

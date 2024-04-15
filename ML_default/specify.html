@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Generic model specification file &#8212; An ML Climate Model based on a DCVAE</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=d59dc883" />
+    <script src="../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Default model training script" href="training.html" />
+    <link rel="prev" title="Make the tf.data.Dataset inputs and outputs for the cross-region DCVAE" href="make_dataset.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="training.html" title="Default model training script"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="make_dataset.html" title="Make the tf.data.Dataset inputs and outputs for the cross-region DCVAE"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">DCVAE-Climate</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Default model</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Generic model specification file</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="generic-model-specification-file">
+<h1>Generic model specification file<a class="headerlink" href="#generic-model-specification-file" title="Link to this heading">¶</a></h1>
+<p>To instantiate a specific ML model, from the generic model design, we provide the inputs, outputs, and hyperparameters in a specification file.</p>
+<p>To create a specific model, copy this file and the <a class="reference internal" href="training.html"><span class="doc">training script (autoencoder.py)</span></a> to a new directory, and modify the inputs, outputs, and hyperparameters as needed.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Specification of the model</span>
+
+<span class="c1"># As far as possible, everything specific to the model should be in here</span>
+
+<span class="c1"># Then the model spec. and dataset input scripts can be generic.</span>
+<span class="c1"># Follow the instructions in autoencoder.py to use this.</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="n">specification</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;modelName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Default&quot;</span>
+
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;inputTensors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;ERA5/2m_temperature&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ERA5/mean_sea_level_pressure&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ERA5/total_precipitation&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;outputTensors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># If None, same as input</span>
+
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;outputNames&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;T2m&quot;</span><span class="p">,</span> <span class="s2">&quot;MSLP&quot;</span><span class="p">,</span> <span class="s2">&quot;Precip&quot;</span><span class="p">)</span>  <span class="c1"># For printout</span>
+
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nInputChannels&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;inputTensors&quot;</span><span class="p">])</span>
+<span class="k">if</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;outputTensors&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nOutputChannels&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;outputTensors&quot;</span><span class="p">])</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nOutputChannels&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nInputChannels&quot;</span><span class="p">]</span>
+
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;startYear&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Start and end years of training period</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;endYear&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># (if None, use all available)</span>
+
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;testSplit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">11</span>  <span class="c1"># Keep back test case every n months</span>
+
+<span class="c1"># Can use less than all the data (for testing)</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;maxTrainingMonths&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;maxTestMonths&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="c1"># What to do if there is more than one field/month</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;maxEnsembleCombinations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="mi">5</span>  <span class="c1"># Every possible combination of ensembles can get large</span>
+<span class="p">)</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;correlatedEnsembles&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="kc">False</span>  <span class="c1"># Ensemble member 1 in source 1 matches member 1 in source 2</span>
+<span class="p">)</span>
+
+<span class="c1"># Fit parameters</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nMonthsInEpoch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="kc">None</span>  <span class="c1"># Length of an epoch - if None, use all the data once</span>
+<span class="p">)</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nEpochs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">250</span>  <span class="c1"># How many epochs to train for</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;shuffleBufferSize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1000</span>  <span class="c1"># Buffer size for shuffling</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;batchSize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">32</span>  <span class="c1"># Arbitrary</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;beta&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.001</span>  <span class="c1"># Weighting factor for KL divergence of latent space</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;gamma&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.000</span>  <span class="c1"># Weighting factor for KL divergence of output</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;maxGradient&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># Numerical instability protection</span>
+
+<span class="c1"># Output control</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;printInterval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="mi">1</span>  <span class="c1"># How often to print metrics and save weights (epochs)</span>
+<span class="p">)</span>
+
+<span class="c1"># Optimization</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distribute</span><span class="o">.</span><span class="n">MirroredStrategy</span><span class="p">()</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;optimizer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;trainCache&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;testCache&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+
+<span class="c1"># Mask to specify a subset of data to train on</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;trainingMask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Train on all data</span>
+</pre></div>
+</div>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/DCVAE_Climate.webp" alt="Logo"/>
+            </a></p>
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../get_data/index.html">Get the training data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../normalization/index.html">Normalize the data for model fitting</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">ML model specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and re-gridding</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how_to.html">How to reproduce or extend this work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Authors and acknowledgements</a></li>
+</ul>
+<h3><a href="https://github.com/philip-brohan/DCVAE_Climate">Get a copy</a></h3>
+
+<ul>
+    <li><a href="https://github.com/philip-brohan/DCVAE_Climate" rel="nofollow">Github repository</a></li>
+</ul>
+
+<h3>Found a bug, or have a suggestion?</h3>
+
+Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise an issue</a>.
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="training.html" title="Default model training script"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="make_dataset.html" title="Make the tf.data.Dataset inputs and outputs for the cross-region DCVAE"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">DCVAE-Climate</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Default model</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Generic model specification file</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>
