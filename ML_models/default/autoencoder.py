@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Convolutional Variational Autoencoder for the Precip work.
+# Convolutional Variational Autoencoder.
 
 # This is a generic model that can be used for any set of input and output fields
 # To make a specific model, copy this file, specify.py, validate.py, and validate_multi.py
@@ -23,8 +23,8 @@ args = parser.parse_args()
 
 # Load the data path, data source, and model specification
 from specify import specification
-from ML_models.all_convolutional.makeDataset import getDataset
-from ML_models.all_convolutional.autoencoderModel import DCVAE, getModel
+from ML_models.default.makeDataset import getDataset
+from ML_models.default.autoencoderModel import DCVAE, getModel
 
 
 # Get Datasets

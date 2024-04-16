@@ -3,7 +3,7 @@
 # Plot time-series of training progress
 
 from specify import specification
-from ML_models.all_convolutional.gmUtils import loadHistory, plotTrainingMetrics
+from ML_models.default.gmUtils import loadHistory, plotTrainingMetrics
 
 import argparse
 

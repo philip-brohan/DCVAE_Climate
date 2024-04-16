@@ -59,9 +59,9 @@ args = parser.parse_args()
 
 from utilities import grids
 
-from ML_models.all_convolutional.makeDataset import getDataset
-from ML_models.all_convolutional.autoencoderModel import DCVAE, getModel
-from ML_models.all_convolutional.gmUtils import (
+from ML_models.default.makeDataset import getDataset
+from ML_models.default.autoencoderModel import DCVAE, getModel
+from ML_models.default.gmUtils import (
     computeScalarStats,
     plotScalarStats,
 )

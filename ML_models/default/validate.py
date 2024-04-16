@@ -10,10 +10,10 @@
 import tensorflow as tf
 
 
-from ML_models.all_convolutional.makeDataset import getDataset
-from ML_models.all_convolutional.autoencoderModel import DCVAE, getModel
+from ML_models.default.makeDataset import getDataset
+from ML_models.default.autoencoderModel import DCVAE, getModel
 
-from ML_models.all_convolutional.gmUtils import plotValidationField
+from ML_models.default.gmUtils import plotValidationField
 
 from specify import specification
 
