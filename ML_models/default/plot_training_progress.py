@@ -58,5 +58,10 @@ if args.comparator is not None:
 
 
 plotTrainingMetrics(
-    hts, fileName="training.webp", chts=chts, aymax=args.ymax, epoch=epoch
+    specification,
+    hts,
+    fileName="training.webp",
+    chts=chts,
+    aymax=args.ymax,
+    epoch=epoch,
 )

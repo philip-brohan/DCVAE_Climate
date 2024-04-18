@@ -47,7 +47,7 @@ specification["correlatedEnsembles"] = (
 specification["nMonthsInEpoch"] = (
     None  # Length of an epoch - if None, use all the data once
 )
-specification["nEpochs"] = 250  # How many epochs to train for
+specification["nEpochs"] = 500  # How many epochs to train for
 specification["shuffleBufferSize"] = 1000  # Buffer size for shuffling
 specification["batchSize"] = 32  # Arbitrary
 specification["beta"] = 0.001  # Weighting factor for KL divergence of latent space
@@ -61,7 +61,7 @@ specification["printInterval"] = (
 
 # Optimization
 specification["strategy"] = tf.distribute.MirroredStrategy()
-specification["optimizer"] = tf.keras.optimizers.Adam(1e-3)
+specification["optimizer"] = tf.keras.optimizers.Adam(5e-4)
 specification["trainCache"] = True
 specification["testCache"] = True
 
