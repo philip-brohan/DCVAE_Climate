@@ -180,9 +180,13 @@ def plotValidationField(specification, input, output, year, month, fileName):
             mflat = specification["trainingMask"].numpy().squeeze()
             varxm.data = np.ma.masked_where(mflat == 1, varxm.data, copy=True)
             varym.data = np.ma.masked_where(mflat == 1, varym.data, copy=True)
-        plots.plotScatterAxes(
-            ax_var[2], varxm, varym, vMin=-0.25, vMax=1.25, bins="log"
-        )
+            plots.plotScatterAxes(
+                ax_var[2], varxm, varym, vMin=-0.25, vMax=1.25, bins="log"
+            )
+        else:
+            plots.plotScatterAxes(
+                ax_var[2], varx, vary, vMin=-0.25, vMax=1.25, bins="log"
+            )
         # Fourth only if masked - scatter plot of input::output - where masked out of training
         if specification["trainingMask"] is not None:
             ax_var[3].set_xticks([0, 0.25, 0.5, 0.75, 1])
@@ -190,13 +194,15 @@ def plotValidationField(specification, input, output, year, month, fileName):
             mflat = specification["trainingMask"].numpy().squeeze()
             varx.data = np.ma.masked_where(mflat == 0, varx.data, copy=True)
             vary.data = np.ma.masked_where(mflat == 0, vary.data, copy=True)
-        plots.plotScatterAxes(ax_var[3], varx, vary, vMin=-0.25, vMax=1.25, bins="log")
+            plots.plotScatterAxes(
+                ax_var[3], varx, vary, vMin=-0.25, vMax=1.25, bins="log"
+            )
 
     fig.savefig(fileName)
 
 
 def plotTrainingMetrics(
-    hts, fileName="training.webp", chts=None, aymax=None, epoch=None
+    specification, hts, fileName="training.webp", chts=None, aymax=None, epoch=None
 ):
     fig = Figure(
         figsize=(15, 5),
@@ -315,9 +321,12 @@ def plotTrainingMetrics(
         ax_rmse[varI].set_title(hts["OutputNames"][varI], fontsize=comp_font_size)
         ax_rmse[varI].grid(color=(0, 0, 0, 1), linestyle="-", linewidth=0.1)
         addLine(ax_rmse[varI], hts, "Train_RMSE", (1, 0.5, 0.5, 1), 10, idx=varI)
-        addLine(ax_rmse[varI], hts, "Train_RMSE_masked", (0.5, 0.5, 1, 1), 10, idx=varI)
         addLine(ax_rmse[varI], hts, "Test_RMSE", (1, 0, 0, 1), 20, idx=varI)
-        addLine(ax_rmse[varI], hts, "Test_RMSE_masked", (0, 0, 1, 1), 20, idx=varI)
+        if specification["trainingMask"] is not None:
+            addLine(
+                ax_rmse[varI], hts, "Train_RMSE_masked", (0.5, 0.5, 1, 1), 10, idx=varI
+            )
+            addLine(ax_rmse[varI], hts, "Test_RMSE_masked", (0, 0, 1, 1), 20, idx=varI)
         if chts is not None:
             for idx in range(len(chts["OutputNames"])):
                 if chts["OutputNames"][idx] == hts["OutputNames"][varI]:
