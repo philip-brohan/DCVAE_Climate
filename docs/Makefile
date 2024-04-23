@@ -4,7 +4,7 @@
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
-BUILDDIR      = $(DATADIR)/Projects.ghpg/ML_region_sharing.ghpg
+BUILDDIR      = $(DATADIR)/Projects.ghpg/DCVAE.ghpg
 
 # Internal variables.
 ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(SPHINXOPTS) .
