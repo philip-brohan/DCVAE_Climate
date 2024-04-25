@@ -11,7 +11,7 @@ import tensorflow as tf
 
 
 from ML_models.default.makeDataset import getDataset
-from ML_models.default.autoencoderModel import DCVAE, getModel
+from ML_models.default.autoencoderModel import getModel
 
 from ML_models.default.gmUtils import plotValidationField
 

@@ -22,6 +22,14 @@ dependencies:
   # Optional - needed only for monitoring jobs
   - tmux
 
+  # Some packages are only available via pip
+  - pip
+  - pip:
+      # For bilinear interpolation
+      - tensorflow-addons==0.18
+      # For input space search
+      - tensorflow-probability==0.17
+
 # Tell python to look for modules in the root directory of the project
 # (A hack, needs to be edited for every installation, but makes code
 #  management much easier.)
