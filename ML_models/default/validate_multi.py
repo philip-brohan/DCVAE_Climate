@@ -82,10 +82,11 @@ all_stats["dtp"] = []
 all_stats["target"] = {}
 all_stats["generated"] = {}
 for case in dataset:
+    generated = autoencoder.call(case, training=False)
     stats = computeScalarStats(
         specification,
-        autoencoder,
         case,
+        generated,
         min_lat=args.min_lat,
         max_lat=args.max_lat,
         min_lon=args.min_lon,
