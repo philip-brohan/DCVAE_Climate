@@ -253,6 +253,11 @@ class DCVAE(tf.keras.Model):
         generated = self.generate(latent, training=training)
         return generated
 
+    # Make a random latent space vector
+    def makeLatent(self, batchSize=1):
+        latent = self.reparameterize(tf.zeros([batchSize, 12, 23, 20], tf.float32), 1)
+        return latent
+
     # Utility function to calculte fit of sample to N(mean,logvar)
     # Used in loss calculation
     def log_normal_pdf(self, sample, mean, logvar, raxis=1):

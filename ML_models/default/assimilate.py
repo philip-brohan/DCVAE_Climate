@@ -21,27 +21,23 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--epoch", help="Epoch", type=int, required=False, default=250)
 parser.add_argument(
-    "--year", help="Year to fit to", type=int, required=False, default=1969
+    "--year", help="Year to fit to", type=int, required=False, default=None
 )
 parser.add_argument(
-    "--month", help="Month to fit to", type=int, required=False, default=3
+    "--month", help="Month to fit to", type=int, required=False, default=None
 )
-fitted = []
 for field in specification["outputNames"]:
     parser.add_argument(
         "--%s" % field,
         help="Fit to %s?" % field,
-        dest=fitted[field],
         default=False,
         action="store_true",
     )
-masked = []
 for field in specification["outputNames"]:
     parser.add_argument(
         "--%s_mask" % field,
         help="Mask for fit to %s?" % field,
         type=str,
-        dest=masked[field],
         default=None,
     )
 parser.add_argument(
@@ -58,6 +54,15 @@ parser.add_argument(
     action="store_true",
 )
 args = parser.parse_args()
+args_dict = vars(args)
+# Load the masks, if specified
+fitted = {}
+masked = {}
+for field in specification["outputNames"]:
+    masked[field] = None
+    if args_dict["%s_mask" % field] is not None:
+        masked[field] = np.load(args_dict["%s_mask" % field])
+    fitted[field] = args_dict[field]
 
 purpose = "Test"
 if args.training:
@@ -89,7 +94,7 @@ autoencoder = getModel(specification, args.epoch)
 # We are using the model in inference mode - (does this have any effect?)
 autoencoder.trainable = False
 
-latent = tf.Variable(tf.random.normal(shape=(1, autoencoder.latent_dim)))
+latent = tf.Variable(autoencoder.makeLatent())
 if specification["outputTensors"] is not None:
     target = tf.constant(input[2][0], dtype=tf.float32)
 else:
@@ -101,19 +106,20 @@ def decodeFit():
     generated = autoencoder.generate(latent, training=False)
     for field in specification["outputNames"]:
         if fitted[field]:
+            field_idx = specification["outputNames"].index(field)
             mask = masked[field]
             if mask is not None:
                 mask = tf.constant(mask, dtype=tf.float32)
                 result = result + tf.reduce_mean(
                     tf.keras.metrics.mean_squared_error(
-                        tf.boolean_mask(generated[:, :, :, field], mask),
-                        tf.boolean_mask(target[:, :, :, field], mask),
+                        tf.boolean_mask(generated[0, :, :, field_idx], mask),
+                        tf.boolean_mask(target[:, :, field_idx], mask),
                     )
                 )
             else:
                 result = result + tf.reduce_mean(
                     tf.keras.metrics.mean_squared_error(
-                        generated[:, :, :, field], target[:, :, :, field]
+                        generated[:, :, :, field_idx], target[:, :, field_idx]
                     )
                 )
     return result
