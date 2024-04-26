@@ -50,7 +50,7 @@ specification["nMonthsInEpoch"] = (
 specification["nEpochs"] = 500  # How many epochs to train for
 specification["shuffleBufferSize"] = 1000  # Buffer size for shuffling
 specification["batchSize"] = 32  # Arbitrary
-specification["beta"] = 0.01  # Weighting factor for KL divergence of latent space
+specification["beta"] = 1.0  # Weighting factor for KL divergence of latent space
 specification["gamma"] = 0.000  # Weighting factor for KL divergence of output
 specification["maxGradient"] = 5  # Numerical instability protection
 

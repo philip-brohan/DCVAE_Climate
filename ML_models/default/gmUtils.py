@@ -116,7 +116,7 @@ def plotValidationField(specification, input, output, year, month, fileName):
     )
     canvas = FigureCanvas(fig)
     font = {
-        "family": "sans-serif",
+        "family": "DejaVu Sans",
         "sans-serif": "Arial",
         "weight": "normal",
         "size": 12,
