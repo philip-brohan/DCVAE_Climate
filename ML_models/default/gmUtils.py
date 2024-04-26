@@ -393,7 +393,7 @@ def plotTrainingMetrics(
 
 # Get target and encoded scalar statistics for one test case
 def computeScalarStats(
-    specification, model, x, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180
+    specification, x, generated, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180
 ):
     nFields = specification["nOutputChannels"]
 
@@ -402,8 +402,6 @@ def computeScalarStats(
     year = int(dateStr[:4])
     month = int(dateStr[5:7])
     dtp = datetime.date(year, month, 15)
-    # Pass the test field through the autoencoder
-    generated = model.call(x, training=False)
 
     def tensor_to_cube(t):
         result = grids.E5sCube.copy()
