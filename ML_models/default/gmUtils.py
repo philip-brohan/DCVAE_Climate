@@ -216,7 +216,7 @@ def plotTrainingMetrics(
     )
     canvas = FigureCanvas(fig)
     font = {
-        "family": "sans-serif",
+        "family": "DejaVu Sans",
         "sans-serif": "Arial",
         "weight": "normal",
         "size": 12,
@@ -474,7 +474,7 @@ def plotScalarStats(all_stats, specification, fileName="multi.webp"):
     )
     canvas = FigureCanvas(fig)
     font = {
-        "family": "sans-serif",
+        "family": "DejaVu Sans",
         "sans-serif": "Arial",
         "weight": "normal",
         "size": 14,

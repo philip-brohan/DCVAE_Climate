@@ -161,7 +161,7 @@ def getDataset(specification, purpose):
             specification["outputTensors"],
             purpose,
             specification["startYear"],
-            specification["endyear"],
+            specification["endYear"],
             specification["testSplit"],
             specification["maxTrainingMonths"],
             specification["maxTestMonths"],

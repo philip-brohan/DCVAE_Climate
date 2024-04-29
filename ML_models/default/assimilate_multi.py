@@ -84,19 +84,15 @@ for field in specification["outputNames"]:
     fitted[field] = args_dict[field]
 
 # Set up the test data
-purpose = "test"
+purpose = "Test"
 if args.training:
-    purpose = "training"
-testData = getDataset(
-    purpose=purpose, startyear=args.startyear, endyear=args.endyear, shuffle=False
-)
+    purpose = "Train"
+testData = getDataset(specification, purpose=purpose)
 testData = testData.batch(1)
 
 
 # Load the trained model
 autoencoder = getModel(specification, args.epoch)
-
-latent = tf.Variable(autoencoder.makeLatent())
 
 
 def decodeFit():
@@ -130,6 +126,7 @@ all_stats["target"] = {}
 all_stats["generated"] = {}
 for case in testData:
     target = case[1][0]
+    latent = tf.Variable(autoencoder.makeLatent())
     if any(fitted.values()):
         loss = tfp.math.minimize(
             decodeFit,
@@ -142,10 +139,6 @@ for case in testData:
         specification,
         case,
         generated,
-        min_lat=args.min_lat,
-        max_lat=args.max_lat,
-        min_lon=args.min_lon,
-        max_lon=args.max_lon,
     )
     all_stats["dtp"].append(stats["dtp"])
     for key in stats["target"].keys():
