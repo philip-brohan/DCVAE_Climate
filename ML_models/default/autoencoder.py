@@ -60,7 +60,7 @@ with specification["strategy"].scope():
     autoencoder = getModel(specification, epoch=args.epoch)
 
     # logfile to output the metrics
-    log_FN = ("%s/MLES/%s/logs/Training") % (
+    log_FN = ("%s/DCVAE-Climate/%s/logs/Training") % (
         os.getenv("SCRATCH"),
         specification["modelName"],
     )
@@ -97,7 +97,7 @@ with specification["strategy"].scope():
         autoencoder.update_metrics(validationData, testData)
 
         # Save model state
-        save_dir = "%s/MLES/%s/weights/Epoch_%04d" % (
+        save_dir = "%s/DCVAE-Climate/%s/weights/Epoch_%04d" % (
             os.getenv("SCRATCH"),
             specification["modelName"],
             epoch,

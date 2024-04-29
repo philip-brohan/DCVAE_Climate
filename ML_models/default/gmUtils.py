@@ -40,7 +40,7 @@ def listify(input):
 # Load the history of a model from the Tensorboard logs
 def loadHistory(LSC, offset=-1, max_epoch=None):
     history = {}
-    summary_dir = "%s/MLES/%s/logs/Training" % (os.getenv("SCRATCH"), LSC)
+    summary_dir = "%s/DCVAE-Climate/%s/logs/Training" % (os.getenv("SCRATCH"), LSC)
     Rfiles = os.listdir(summary_dir)
     Rfiles.sort(key=lambda x: os.path.getmtime(os.path.join(summary_dir, x)))
     filename = Rfiles[offset]

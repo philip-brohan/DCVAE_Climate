@@ -125,7 +125,10 @@ all_stats["dtp"] = []
 all_stats["target"] = {}
 all_stats["generated"] = {}
 for case in testData:
-    target = case[1][0]
+    if specification["outputTensors"] is not None:
+        target = tf.constant(case[2][0], dtype=tf.float32)
+    else:
+        target = tf.constant(case[1][0], dtype=tf.float32)
     latent = tf.Variable(autoencoder.makeLatent())
     if any(fitted.values()):
         loss = tfp.math.minimize(
