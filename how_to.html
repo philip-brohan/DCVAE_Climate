@@ -7,9 +7,9 @@
 
     <title>How to reproduce and extend this work &#8212; An ML Climate Model based on a DCVAE</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=d59dc883" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=87629129" />
     <script src="_static/documentation_options.js?v=8d563738"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -68,6 +68,14 @@
   <span class="o">-</span> <span class="n">sphinx</span><span class="o">=</span><span class="mf">7.</span><span class="o">*</span>
   <span class="c1"># Optional - needed only for monitoring jobs</span>
   <span class="o">-</span> <span class="n">tmux</span>
+
+  <span class="c1"># Some packages are only available via pip</span>
+  <span class="o">-</span> <span class="n">pip</span>
+  <span class="o">-</span> <span class="n">pip</span><span class="p">:</span>
+      <span class="c1"># For bilinear interpolation</span>
+      <span class="o">-</span> <span class="n">tensorflow</span><span class="o">-</span><span class="n">addons</span><span class="o">==</span><span class="mf">0.18</span>
+      <span class="c1"># For input space search</span>
+      <span class="o">-</span> <span class="n">tensorflow</span><span class="o">-</span><span class="n">probability</span><span class="o">==</span><span class="mf">0.17</span>
 
 <span class="c1"># Tell python to look for modules in the root directory of the project</span>
 <span class="c1"># (A hack, needs to be edited for every installation, but makes code</span>

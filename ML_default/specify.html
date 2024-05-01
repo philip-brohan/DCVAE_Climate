@@ -7,9 +7,9 @@
 
     <title>Generic model specification file &#8212; An ML Climate Model based on a DCVAE</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=d59dc883" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=87629129" />
     <script src="../_static/documentation_options.js?v=8d563738"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -59,11 +59,14 @@
 <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;inputTensors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
     <span class="s2">&quot;ERA5/2m_temperature&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ERA5/mean_sea_level_pressure&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ERA5/total_precipitation&quot;</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;outputTensors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># If None, same as input</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;outputTensors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;ERA5/2m_temperature&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ERA5/mean_sea_level_pressure&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ERA5/total_precipitation&quot;</span><span class="p">,</span>
+<span class="p">)</span>  <span class="c1"># If None, same as input</span>
 
-<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;outputNames&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;T2m&quot;</span><span class="p">,</span> <span class="s2">&quot;MSLP&quot;</span><span class="p">,</span> <span class="s2">&quot;Precip&quot;</span><span class="p">)</span>  <span class="c1"># For printout</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;outputNames&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;T2m&quot;</span><span class="p">,</span> <span class="s2">&quot;MSLP&quot;</span><span class="p">,</span> <span class="s2">&quot;Precip&quot;</span><span class="p">]</span>  <span class="c1"># For printout</span>
 
 <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nInputChannels&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;inputTensors&quot;</span><span class="p">])</span>
 <span class="k">if</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;outputTensors&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -92,10 +95,10 @@
 <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nMonthsInEpoch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
     <span class="kc">None</span>  <span class="c1"># Length of an epoch - if None, use all the data once</span>
 <span class="p">)</span>
-<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nEpochs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">250</span>  <span class="c1"># How many epochs to train for</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nEpochs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>  <span class="c1"># How many epochs to train for</span>
 <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;shuffleBufferSize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1000</span>  <span class="c1"># Buffer size for shuffling</span>
 <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;batchSize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">32</span>  <span class="c1"># Arbitrary</span>
-<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;beta&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.001</span>  <span class="c1"># Weighting factor for KL divergence of latent space</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;beta&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.05</span>  <span class="c1"># Weighting factor for KL divergence of latent space</span>
 <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;gamma&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.000</span>  <span class="c1"># Weighting factor for KL divergence of output</span>
 <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;maxGradient&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># Numerical instability protection</span>
 
@@ -106,7 +109,7 @@
 
 <span class="c1"># Optimization</span>
 <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distribute</span><span class="o">.</span><span class="n">MirroredStrategy</span><span class="p">()</span>
-<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;optimizer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;optimizer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="mf">5e-4</span><span class="p">)</span>
 <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;trainCache&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;testCache&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 

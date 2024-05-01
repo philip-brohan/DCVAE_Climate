@@ -7,9 +7,9 @@
 
     <title>A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder &#8212; An ML Climate Model based on a DCVAE</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=d59dc883" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=87629129" />
     <script src="_static/documentation_options.js?v=8d563738"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,6 +36,43 @@
             
   <section id="a-machine-learning-climate-model-based-on-a-deep-convolutional-variational-autoencoder">
 <h1>A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder<a class="headerlink" href="#a-machine-learning-climate-model-based-on-a-deep-convolutional-variational-autoencoder" title="Link to this heading">¶</a></h1>
+<p>This is an example of how to build a climate model using Machine Learning (ML). It’s designed to be used as a training tool for those new to ML, but to be powerful enough to be adapted into something of value for science work.</p>
+<section id="background">
+<h2>Background<a class="headerlink" href="#background" title="Link to this heading">¶</a></h2>
+<p>Climate Scientists are mostly used to using physical models (<a class="reference external" href="https://www.ipcc-data.org/guidelines/pages/gcm_guide.html">GCMs</a>). It is important to understand that ML models are quite a different thing - don’t think of an ML model as a new variant of GCM.</p>
+<ul class="simple">
+<li><p>When building a GCM we specify how the model behaves. The aim is to make the model as close to physical reality as possible. The results produced by the model are then an emergent property, and they will be correct if the model is an adequate representation of the real world. So, with a GCM, the focus is on the model itself.</p></li>
+<li><p>When building an ML model, we specify what the model learns. The aim is to make the model as good as possible at predicting the data we have given it. The results produced by the model are then a prediction, and they will be correct if the model has learned the patterns in the data. So, with an ML model, the focus is on the data used in training, and the model is an emergent property - ML models do have to correspond to reality, but they don’t have to do so in any way we’d recognize as physics.</p></li>
+</ul>
+<p>So physical modellers care primarily about the physical correctness of their model, and only secondarily about their validation statistics. ML modellers care primarily about their validation statistics, and the issue of physical correctness does not arise. (Of course this is a simplification - real science is much more complex than this, but it is nonetheless an important distinction.)</p>
+<p>A result of this is that GCMs are, in a sense, all trying to do the same thing - they are all trying to represent the same set of physical equations. ML models can be much more diverse - each is trying to predict its training data, and the training data can be anything. So GCMs are generic: one GCM - many applications. ML models are specific: we should expect to train a new model for each new problem. (It is possible to train generic ML models, but this is difficult, expensive, and will be less accurate than training a specific model. The majority of ML models used in climate will be problem-specific)</p>
+<p>So the first task is to choose a problem. This model is built to study monthly precipitation - in particular to represent the spatial distribution of precipitation (to what extent can we infer the precipitation in London given the precipitation in Birmingham), and the relationship between precipitation and other variables (how does precipitation relate to 2m-air temperature and mean-sea-level pressure). This is a convenient example problem, but note that the model may well be of interest even if you don’t care about precipitation: The model we are training here is precipitation-specific, but the model code and structure are much more generic - you could take the same model specification, and the same software, and train it on a different dataset, to make an ML model of use for your own work.</p>
+</section>
+<section id="design-decisions">
+<h2>Design Decisions<a class="headerlink" href="#design-decisions" title="Link to this heading">¶</a></h2>
+<p>Our aim, with a climate model, is typically to generate an estimate of some future climate state, so the obvious tool is a <a class="reference external" href="https://en.wikipedia.org/wiki/Generative_artificial_intelligence">generative model</a>. That is, a model that will make new, plausible climate states.</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="_images/Slide1.PNG"><img alt="_images/Slide1.PNG" src="_images/Slide1.PNG" style="width: 95%;" /></a>
+<figcaption>
+<p><span class="caption-text">Illustration of a generative model outputting a climate state.</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>So how do we make such a model? A principal virtue of ML, is that there are already several well established ML methods for making generative models, here we will use a <a class="reference external" href="https://en.wikipedia.org/wiki/Autoencoder#Variational_autoencoder_(VAE)">Variational AutoEncoder</a> (VAE). The VAE is a generative model factory - it learns such models from example inputs.</p>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="_images/Slide2.PNG"><img alt="_images/Slide2.PNG" src="_images/Slide2.PNG" style="width: 95%;" /></a>
+<figcaption>
+<p><span class="caption-text">Illustration of a VAE - a factory for making generative models given examples of the desired output.</span><a class="headerlink" href="#id2" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>The main virtue of the VAE is that it provides a specifically-constrained model state vector, which offers additional ways to control the model output, effectively allowing us to do data assimilation. See <a class="reference external" href="http://brohan.org/Proxy_20CR/">this detailed discussion of the model design</a> for details.</p>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="_images/Slide3.PNG"><img alt="_images/Slide3.PNG" src="_images/Slide3.PNG" style="width: 95%;" /></a>
+<figcaption>
+<p><span class="caption-text">How the VAE works - train a pair of CNNs to encode the training data into a normally-distributed embedding space, and then to (re)generate the data from the embedding.</span><a class="headerlink" href="#id3" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>Our model is an example of a <a class="reference external" href="https://en.wikipedia.org/wiki/Convolutional_neural_network">Deep Convolutional Variational AutoEncoder</a> (DCVAE). This is a VAE with a convolutional neural network (CNN) as the encoder and decoder. The CNN is a good choice for this problem because it is good at learning spatial patterns. We will build the model using the <a class="reference external" href="https://www.tensorflow.org/">TensorFlow</a> deep learning framework.</p>
+</section>
 <section id="appendices">
 <h2>Appendices<a class="headerlink" href="#appendices" title="Link to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">

@@ -7,9 +7,9 @@
 
     <title>Default model training script &#8212; An ML Climate Model based on a DCVAE</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=d59dc883" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=87629129" />
     <script src="../_static/documentation_options.js?v=8d563738"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -44,7 +44,7 @@
 <p>Script (<cite>autoencoder.py</cite>) to train the model specified in the <a class="reference internal" href="specify.html"><span class="doc">configuration file</span></a>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
 
-<span class="c1"># Convolutional Variational Autoencoder for the Precip work.</span>
+<span class="c1"># Convolutional Variational Autoencoder.</span>
 
 <span class="c1"># This is a generic model that can be used for any set of input and output fields</span>
 <span class="c1"># To make a specific model, copy this file, specify.py, validate.py, and validate_multi.py</span>
@@ -67,8 +67,8 @@
 
 <span class="c1"># Load the data path, data source, and model specification</span>
 <span class="kn">from</span> <span class="nn">specify</span> <span class="kn">import</span> <span class="n">specification</span>
-<span class="kn">from</span> <span class="nn">ML_models.all_convolutional.makeDataset</span> <span class="kn">import</span> <span class="n">getDataset</span>
-<span class="kn">from</span> <span class="nn">ML_models.all_convolutional.autoencoderModel</span> <span class="kn">import</span> <span class="n">DCVAE</span><span class="p">,</span> <span class="n">getModel</span>
+<span class="kn">from</span> <span class="nn">ML_models.default.makeDataset</span> <span class="kn">import</span> <span class="n">getDataset</span>
+<span class="kn">from</span> <span class="nn">ML_models.default.autoencoderModel</span> <span class="kn">import</span> <span class="n">DCVAE</span><span class="p">,</span> <span class="n">getModel</span>
 
 
 <span class="c1"># Get Datasets</span>
@@ -104,7 +104,7 @@
     <span class="n">autoencoder</span> <span class="o">=</span> <span class="n">getModel</span><span class="p">(</span><span class="n">specification</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">epoch</span><span class="p">)</span>
 
     <span class="c1"># logfile to output the metrics</span>
-    <span class="n">log_FN</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/MLES/</span><span class="si">%s</span><span class="s2">/logs/Training&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span>
+    <span class="n">log_FN</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/</span><span class="si">%s</span><span class="s2">/logs/Training&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span>
         <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span>
         <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;modelName&quot;</span><span class="p">],</span>
     <span class="p">)</span>
@@ -141,7 +141,7 @@
         <span class="n">autoencoder</span><span class="o">.</span><span class="n">update_metrics</span><span class="p">(</span><span class="n">validationData</span><span class="p">,</span> <span class="n">testData</span><span class="p">)</span>
 
         <span class="c1"># Save model state</span>
-        <span class="n">save_dir</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/MLES/</span><span class="si">%s</span><span class="s2">/weights/Epoch_</span><span class="si">%04d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="n">save_dir</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/</span><span class="si">%s</span><span class="s2">/weights/Epoch_</span><span class="si">%04d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
             <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span>
             <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;modelName&quot;</span><span class="p">],</span>
             <span class="n">epoch</span><span class="p">,</span>
