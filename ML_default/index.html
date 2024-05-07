@@ -14,7 +14,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Default model fixed structure" href="VAE.html" />
-    <link rel="prev" title="Assemble ERA5 normalized data into a set of tf.tensors" href="../normalization/make_normalized_tensors.html" /> 
+    <link rel="prev" title="A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder" href="../index.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -26,7 +26,7 @@
           <a href="VAE.html" title="Default model fixed structure"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="../normalization/make_normalized_tensors.html" title="Assemble ERA5 normalized data into a set of tf.tensors"
+          <a href="../index.html" title="A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">DCVAE-Climate</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Default model</a></li> 
@@ -40,11 +40,11 @@
             
   <section id="default-model">
 <h1>Default model<a class="headerlink" href="#default-model" title="Link to this heading">¶</a></h1>
-<p>Following <a class="reference external" href="http://brohan.org/Proxy_20CR/">previous work</a>, we will base our models on the <a class="reference external" href="https://en.wikipedia.org/wiki/Variational_autoencoder">Deep Convolutional Variational AutoEncoder (VAE)</a>. The difference from the previous work is that  this model consists entirely of convolutional layers - the dense layer that previously output the latent space vector has been replaced by additional convolutions. The weakness of this is that it reduces the ability of the model to transfer information between locations, so we add some additional convolutional layers to help with this.</p>
-<figure class="align-center" id="id1" style="width: 95%">
-<a class="reference internal image-reference" href="../_images/Model_structure.png"><img alt="../_images/Model_structure.png" src="../_images/Model_structure.png" style="width: 95%;" /></a>
+<p>The model is a Deep Convolutional <a class="reference external" href="https://en.wikipedia.org/wiki/Variational_autoencoder">Variational Autoencoder</a>. It takes <span class="xref std std-doc">input data &lt;make_dataset&gt;`</span> on a 721x1440 grid (same as ERA5), and encodes and decodes the data to both produce a target output on the same grid and make the encoded version (the embedding) distributed as a unit normal. The <a class="reference internal" href="VAE.html"><span class="doc">structure of the model</span></a> (12 convolutional layers in the encoder, 11 in the decoder) is fixed, but input and output data, and the hyperparameters (learning rate, batch size, beta, etc) can be changed. They are set in a <a class="reference internal" href="specify.html"><span class="doc">specification file</span></a>.</p>
+<figure class="align-center" id="id2" style="width: 95%">
+<a class="reference internal image-reference" href="../_images/Slide3.PNG"><img alt="../_images/Slide3.PNG" src="../_images/Slide3.PNG" style="width: 95%;" /></a>
 <figcaption>
-<p><span class="caption-text">The structure of the VAE used to train the generator</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
+<p><span class="caption-text">The structure of the VAE used to train the generator</span><a class="headerlink" href="#id2" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>The model structure and data flows are defined in files that should not need modification:</p>
@@ -69,6 +69,13 @@
 <li class="toctree-l1"><a class="reference internal" href="validate_multi.html">Validate on time-series</a></li>
 </ul>
 </div>
+<p>We are using a <a class="reference external" href="https://en.wikipedia.org/wiki/Variational_autoencoder">Variational Autoencoder</a>, because we want to be able to <a class="reference external" href="https://brohan.org/Proxy_20CR">assimilate data into it</a>.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="assimilation.html">Assimilate a single month</a></li>
+<li class="toctree-l1"><a class="reference internal" href="assimilate_multi.html">Assimilate a time-series</a></li>
+</ul>
+</div>
 </section>
 
 
@@ -82,6 +89,20 @@
               <img class="logo" src="../_static/DCVAE_Climate.webp" alt="Logo"/>
             </a></p>
 <h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Detailed specification of the ML model</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../get_data/index.html">How to download the training data</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../normalization/index.html">How to convert and normalize the data</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="specify.html">Specify the details of the model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_dataset.html">Assemble the normalized data into training and test datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="training.html">Train the model</a></li>
+</ul>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../get_data/index.html">Get the training data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../normalization/index.html">Normalize the data for model fitting</a></li>
@@ -115,7 +136,7 @@ Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise
           <a href="VAE.html" title="Default model fixed structure"
              >next</a> |</li>
         <li class="right" >
-          <a href="../normalization/make_normalized_tensors.html" title="Assemble ERA5 normalized data into a set of tf.tensors"
+          <a href="../index.html" title="A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">DCVAE-Climate</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Default model</a></li> 

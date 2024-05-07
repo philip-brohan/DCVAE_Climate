@@ -13,7 +13,7 @@
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Authors and acknowledgements" href="credits.html" />
+    <link rel="next" title="Setting up the software environment" href="environment.html" />
     <link rel="prev" title="Plotting utilities" href="utils/plots.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -23,7 +23,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="credits.html" title="Authors and acknowledgements"
+          <a href="environment.html" title="Setting up the software environment"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="utils/plots.html" title="Plotting utilities"
@@ -40,54 +40,37 @@
             
   <section id="how-to-reproduce-and-extend-this-work">
 <h1>How to reproduce and extend this work<a class="headerlink" href="#how-to-reproduce-and-extend-this-work" title="Link to this heading">¶</a></h1>
-<p>This project is designed to be easy to reproduce and extend. Everything involved is kept under version control in a <a class="reference external" href="https://en.wikipedia.org/wiki/Git">git repository</a>. The repository is hosted on <a class="reference external" href="https://github.com/">GitHub</a> (and the documentation made with <a class="reference external" href="https://pages.github.com/">GitHub Pages</a>). The repository is <a class="reference external" href="https://github.com/philip-brohan/DCVAE_Climate">https://github.com/philip-brohan/DCVAE_Climate</a>; it contains everything you need to reproduce or extend this work.</p>
-<p>If you are familiar with GitHub, you already know what to do (fork or clone <a class="reference external" href="https://github.com/philip-brohan/DCVAE_Climate">the repository</a>): If you’d prefer not to bother with that, you can download the whole thing as <a class="reference external" href="https://github.com/philip-brohan/DCVAE_Climate/archive/master.zip">a zip file</a>.</p>
-<p>As well as downloading the software, some setup is necessary to run it successfully:</p>
-<p>These scripts need to know where to put their output files. They rely on an environment variable <code class="docutils literal notranslate"><span class="pre">SCRATCH</span></code> - set this variable to a directory with plenty of free disc space.</p>
-<p>These scripts will only work in a environment with the appropriate software and libraries available. I use <a class="reference external" href="https://docs.conda.io/en/latest/">conda</a> to manage the required environment - which is specified in a yaml file:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">name</span><span class="p">:</span> <span class="n">DCVAE</span><span class="o">-</span><span class="n">Climate</span>
-<span class="n">channels</span><span class="p">:</span>
-  <span class="o">-</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span>
-<span class="n">dependencies</span><span class="p">:</span>
-  <span class="c1"># Basics</span>
-  <span class="o">-</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.9</span> <span class="c1"># Later versions don&#39;t work with Tensorflow 2.9.1</span>
-  <span class="o">-</span> <span class="n">libwebp</span><span class="o">&gt;=</span><span class="mf">1.3.2</span> <span class="c1"># Earlier versions have a security vulnerability</span>
-  <span class="o">-</span> <span class="n">iris</span><span class="o">=</span><span class="mf">3.8</span>
-  <span class="o">-</span> <span class="n">pandas</span><span class="o">=</span><span class="mf">2.2</span>
-  <span class="o">-</span> <span class="n">cmocean</span><span class="o">=</span><span class="mf">4.0</span>
-  <span class="o">-</span> <span class="n">parallel</span>
-  <span class="c1"># Get data from ERA5</span>
-  <span class="c1"># You&#39;ll need to register, see https://cds.climate.copernicus.eu/api-how-to</span>
-  <span class="o">-</span> <span class="n">cdsapi</span><span class="o">=</span><span class="mf">0.6</span>
-  <span class="c1"># ML model building and diagnostics</span>
-  <span class="c1"># If you don&#39;t have a GPU, tensorflow-eigen might be faster</span>
-  <span class="o">-</span> <span class="n">tensorflow</span><span class="o">=</span><span class="mf">2.9.1</span><span class="o">=</span><span class="n">gpu_py39hd4ae112_0</span>
-  <span class="c1"># Optional, code formatter</span>
-  <span class="o">-</span> <span class="n">black</span>
-  <span class="c1"># Optional - documentation generator</span>
-  <span class="o">-</span> <span class="n">sphinx</span><span class="o">=</span><span class="mf">7.</span><span class="o">*</span>
-  <span class="c1"># Optional - needed only for monitoring jobs</span>
-  <span class="o">-</span> <span class="n">tmux</span>
-
-  <span class="c1"># Some packages are only available via pip</span>
-  <span class="o">-</span> <span class="n">pip</span>
-  <span class="o">-</span> <span class="n">pip</span><span class="p">:</span>
-      <span class="c1"># For bilinear interpolation</span>
-      <span class="o">-</span> <span class="n">tensorflow</span><span class="o">-</span><span class="n">addons</span><span class="o">==</span><span class="mf">0.18</span>
-      <span class="c1"># For input space search</span>
-      <span class="o">-</span> <span class="n">tensorflow</span><span class="o">-</span><span class="n">probability</span><span class="o">==</span><span class="mf">0.17</span>
-
-<span class="c1"># Tell python to look for modules in the root directory of the project</span>
-<span class="c1"># (A hack, needs to be edited for every installation, but makes code</span>
-<span class="c1">#  management much easier.)</span>
-<span class="c1"># Replace with the path to your project directory root.</span>
-
-<span class="n">variables</span><span class="p">:</span>
-  <span class="n">PYTHONPATH</span><span class="p">:</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">h03</span><span class="o">/</span><span class="n">hadpb</span><span class="o">/</span><span class="n">Projects</span><span class="o">/</span><span class="n">DCVAE_Climate</span><span class="p">:</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">mo</span><span class="o">-</span><span class="n">hadpb</span><span class="o">/</span><span class="n">Projects</span><span class="o">/</span><span class="n">DCVAE_Climate</span>
-</pre></div>
+<p>To reproduce and extent this work, go through the following steps.</p>
+<ol class="arabic simple">
+<li><p>Get a <a class="reference external" href="https://github.com/">GitHub</a> account (it’s free).</p></li>
+<li><p><a class="reference external" href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo">Fork</a> <a class="reference external" href="https://github.com/philip-brohan/DCVAE_Climate">this repository</a>. That is - make your own copy of it in your GitHub account.</p></li>
+<li><p><a class="reference external" href="https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository">Clone</a> your fork to your local machine.</p></li>
+<li><p>(You don’t have to do the steps above if you just want to download the code and data to run it locally. You can download the whole thing as <a class="reference external" href="https://github.com/philip-brohan/DCVAE_Climate/archive/refs/heads/main.zip">a zip file</a>. But I do strongly recommend them - it makes it much easier to keep track of what you’ve done, and to share your work with others.)</p></li>
+<li><p><a class="reference internal" href="environment.html"><span class="doc">Set up the necessary software environment</span></a>.</p></li>
+<li><dl class="simple">
+<dt>Run the scripts to reproduce the work:</dt><dd><ol class="arabic simple">
+<li><p><a class="reference internal" href="get_data/index.html"><span class="doc">Download the data</span></a></p></li>
+<li><p><a class="reference internal" href="normalization/index.html"><span class="doc">Normalise the data</span></a></p></li>
+<li><p><a class="reference internal" href="ML_default/training.html"><span class="doc">Train the model</span></a></p></li>
+<li><p><a class="reference internal" href="ML_default/validation.html"><span class="doc">Evaluate the model</span></a></p></li>
+<li><p><a class="reference internal" href="ML_default/assimilation.html"><span class="doc">Assimilate temperature and pressure to calculate precipitation</span></a></p></li>
+</ol>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Now you are ready to extend the work. You can try:</dt><dd><ol class="arabic simple">
+<li><p>Retraining the model on different data.</p></li>
+<li><p>Changing the model hyperparameters - maybe training rate or beta.</p></li>
+<li><p>Changing the model: More layers? Different activation functions? Different loss function? More features?</p></li>
+<li><p>Whatever - be creative. And share your results!</p></li>
+</ol>
+</dd>
+</dl>
+</li>
+</ol>
+<div class="toctree-wrapper compound">
 </div>
-<p>Install <a class="reference external" href="https://docs.conda.io/en/latest/">anaconda or miniconda</a>, <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html#managing-envs">create and activate the environment in that yaml file</a>, and all the scripts in this repository should run successfully.</p>
-<p>The project documentation (these web pages) are included in the repository (in the <a class="reference external" href="https://github.com/philip-brohan/DCVAE_Climate/tree/main/docs">docs directory</a>). The documentation is in <a class="reference external" href="https://en.wikipedia.org/wiki/ReStructuredText">reStructuredText</a> format, and uses the <a class="reference external" href="https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html">Sphinx</a> documentation generator.</p>
 </section>
 
 
@@ -131,7 +114,7 @@ Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="credits.html" title="Authors and acknowledgements"
+          <a href="environment.html" title="Setting up the software environment"
              >next</a> |</li>
         <li class="right" >
           <a href="utils/plots.html" title="Plotting utilities"
