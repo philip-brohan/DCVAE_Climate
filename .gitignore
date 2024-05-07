@@ -130,9 +130,11 @@ dmypy.json
 
 # Figures
 *.png 
+*.PNG
 *.pdf
 *.webp
 *.jpg
+*.JPG
 
 # Apple crap
 Thumbs.db
@@ -143,3 +145,6 @@ Thumbs.db
 
 # SCRATCH dir
 SCRATCH
+
+# ? Some kind of temporary backup?
+~$*

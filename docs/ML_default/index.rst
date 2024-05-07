@@ -1,9 +1,9 @@
 Default model
 =============
 
-Following `previous work <http://brohan.org/Proxy_20CR/>`_, we will base our models on the `Deep Convolutional Variational AutoEncoder (VAE) <https://en.wikipedia.org/wiki/Variational_autoencoder>`_. The difference from the previous work is that  this model consists entirely of convolutional layers - the dense layer that previously output the latent space vector has been replaced by additional convolutions. The weakness of this is that it reduces the ability of the model to transfer information between locations, so we add some additional convolutional layers to help with this.
+The model is a Deep Convolutional `Variational Autoencoder <https://en.wikipedia.org/wiki/Variational_autoencoder>`_. It takes :doc:`input data <make_dataset> on a 721x1440 grid (same as ERA5), and encodes and decodes the data to both produce a target output on the same grid and make the encoded version (the embedding) distributed as a unit normal. The :doc:`structure of the model <VAE>` (12 convolutional layers in the encoder, 11 in the decoder) is fixed, but input and output data, and the hyperparameters (learning rate, batch size, beta, etc) can be changed. They are set in a :doc:`specification file <specify>`.
 
-.. figure:: Model_structure.png
+.. figure:: ../Illustrations/Slide3.PNG
    :width: 95%
    :align: center
    :figwidth: 95%
@@ -39,4 +39,13 @@ And to test the training success there are scripts for plotting the training his
    Plot training_history <plot_history>
    Validate on single month <validation>
    Validate on time-series <validate_multi>
+
+We are using a `Variational Autoencoder <https://en.wikipedia.org/wiki/Variational_autoencoder>`_, because we want to be able to `assimilate data into it <https://brohan.org/Proxy_20CR>`_.
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   Assimilate a single month <assimilation>
+   Assimilate a time-series <assimilate_multi>
 

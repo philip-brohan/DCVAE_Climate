@@ -21,9 +21,97 @@ So the first task is to choose a problem. This model is built to study monthly p
 Design Decisions
 ----------------
 
-Our aim, with a climate model, is typically to generate an estimate of some future climate state, so the obvious tool is a `generative model <https://en.wikipedia.org/wiki/Generative_artificial_intelligence>`_. There are already several well established ML methods for making generative models, here we will use a `Variational AutoEncoder <https://en.wikipedia.org/wiki/Autoencoder#Variational_autoencoder_(VAE)>`_ (VAE). The main virtue of the VAE is that it provides a specifically-constrained model state vector, which offers additional ways to control the model output, effectively allowing us to do data assimilation. See `this detailed discussion of the model design <http://brohan.org/Proxy_20CR/>`_ for details.
+Our aim, with a climate model, is typically to generate an estimate of some future climate state, so the obvious tool is a `generative model <https://en.wikipedia.org/wiki/Generative_artificial_intelligence>`_. That is, a model that will make new, plausible climate states.
 
-Our model is an example of a `Deep Convolutional Variational AutoEncoder <https://en.wikipedia.org/wiki/Convolutional_neural_network>`_ (DCVAE). This is a VAE with a convolutional neural network (CNN) as the encoder and decoder. The CNN is a good choice for this problem because it is good at learning spatial patterns. We will build the model using the `TensorFlow <https://www.tensorflow.org/>`_ deep learning framework.
+.. figure:: Illustrations/Slide1.PNG
+   :align: center
+   :width: 95%
+
+   Illustration of a generative model outputting a climate state.
+
+So how do we make such a model? A principal virtue of ML, is that there are already several well established ML methods for making generative models, here we will use a `Variational AutoEncoder <https://en.wikipedia.org/wiki/Autoencoder#Variational_autoencoder_(VAE)>`_ (VAE). The VAE is a generative model factory - it learns such models from example inputs. The main virtue of the VAE is that it provides a specifically-constrained model state vector, which offers additional ways to control the model output, effectively allowing us to do `data assimilation <http://brohan.org/Proxy_20CR/>`_.
+
+.. figure:: Illustrations/Slide2.PNG
+   :align: center
+   :width: 95%
+
+   Illustration of a VAE - a factory for making generative models given examples of the desired output.
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   Detailed specification of the ML model <ML_default/index>
+
+
+Training data
+-------------
+
+To learn the model, we need good quality training data. We are modelling the relationships between 2m temperature, mean-sea-level-pressure, and precipitation, so we need training data for these three variables. We will get these data from the ERA5 reanalysis.
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   How to download the training data <get_data/index>
+
+That provides the data, in original units (degrees Kelvin, pascals, and mm/s) as a collection of `netCDF <https://www.unidata.ucar.edu/software/netcdf/>`_ files. To use the data in an ML model, we need to make several transformations:
+
+#. Regrid to a :doc:`standard grid  <utils/grids>` (not strictly necessary if we are only using ERA5 output, but I regrid it anyway to move the longitude range from 0-360 to -180-180 - let's have the UK in the middle of the map).
+#. Convert the data from `netCDF <https://www.unidata.ucar.edu/software/netcdf/>`_ to an efficient format for ML (I use serialized `tf.tensors <https://www.tensorflow.org/api_docs/python/tf/Tensor>`_).
+#. Normalize the data to be approximately normally distributed on the range 0-1 (I use quantile mapping).
+
+.. figure:: ../normalize/ERA5/monthly_precip_1969_03.png
+   :align: center
+   :width: 95%
+
+   Precipitation (map and PDF) for March 1969. Raw data above, normalized data below.
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   How to convert and normalize the data <normalization/index>
+
+Training the model
+------------------
+
+Once we have the data in the right format, we can train the model. The details are in the :doc:`ML model specification <ML_default/index>`. The key steps are:
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   Specify the details of the model <ML_default/specify>
+   Assemble the normalized data into training and test datasets <ML_default/make_dataset>
+   Train the model <ML_default/training>
+
+.. figure:: ../ML_models/default/training.webp
+   :align: center
+   :width: 95%
+
+   Model training progress plot. (:doc:`More details <ML_default/plot_history>`)
+
+We want to see the loss function get down close to zero, for both the training data (pale lines), and for the test data (darker lines). If the individual variable values are below one, then the model has skill - it's better than climatology.
+
+Validating the trained model
+----------------------------
+
+Once we have trained the model, we need to validate it. This is a crucial step - the model is only useful if it can predict data it has not seen before. We already know if the model has skill - we can see that from the training loss, but it's worth looking in more detail:
+
+.. figure:: ../ML_models/default/comparison.webp
+   :align: center
+   :width: 95%
+
+   Model validation for a single month: Target on the left, model output in the middle, scatter comparison on the right. (:doc:`More details <ML_default/validation>`)
+
+And as well as looking at individual months, we can look at the model's performance over the whole dataset:
+
+.. figure:: ../ML_models/default/multi.webp
+   :align: center
+   :width: 95%
+
+   Model validation time-series: Global-mean values for each month in the test dataset - target in black, model output in red. (:doc:`More details <ML_default/validate_multi>`)
 
 Appendices
 ----------

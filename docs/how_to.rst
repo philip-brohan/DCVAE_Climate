@@ -1,20 +1,30 @@
 How to reproduce and extend this work
 =====================================
 
-This project is designed to be easy to reproduce and extend. Everything involved is kept under version control in a `git repository <https://en.wikipedia.org/wiki/Git>`_. The repository is hosted on `GitHub <https://github.com/>`_ (and the documentation made with `GitHub Pages <https://pages.github.com/>`_). The repository is `<https://github.com/philip-brohan/DCVAE_Climate>`_; it contains everything you need to reproduce or extend this work.
+To reproduce and extent this work, go through the following steps.
 
-If you are familiar with GitHub, you already know what to do (fork or clone `the repository <https://github.com/philip-brohan/DCVAE_Climate>`_): If you'd prefer not to bother with that, you can download the whole thing as `a zip file <https://github.com/philip-brohan/DCVAE_Climate/archive/master.zip>`_.
+#. Get a `GitHub <https://github.com/>`_ account (it's free).
+#. `Fork <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo>`_ `this repository <https://github.com/philip-brohan/DCVAE_Climate>`_. That is - make your own copy of it in your GitHub account.
+#. `Clone <https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository>`_ your fork to your local machine.
+#. (You don't have to do the steps above if you just want to download the code and data to run it locally. You can download the whole thing as `a zip file <https://github.com/philip-brohan/DCVAE_Climate/archive/refs/heads/main.zip>`_. But I do strongly recommend them - it makes it much easier to keep track of what you've done, and to share your work with others.)
+#. :doc:`Set up the necessary software environment <environment>`.
+#. Run the scripts to reproduce the work:
+    #. :doc:`Download the data <get_data/index>`
+    #. :doc:`Normalise the data <normalization/index>`
+    #. :doc:`Train the model <ML_default/training>`
+    #. :doc:`Evaluate the model <ML_default/validation>`
+    #. :doc:`Assimilate temperature and pressure to calculate precipitation <ML_default/assimilation>`
+#. Now you are ready to extend the work. You can try:
+    #. Retraining the model on different data.
+    #. Changing the model hyperparameters - maybe training rate or beta.
+    #. Changing the model: More layers? Different activation functions? Different loss function? More features?
+    #. Whatever - be creative. And share your results!
 
 
-As well as downloading the software, some setup is necessary to run it successfully:
+..
+   I Want the sub-pages of this page only accessible by inline links - so :hidden: here.
 
-These scripts need to know where to put their output files. They rely on an environment variable ``SCRATCH`` - set this variable to a directory with plenty of free disc space.
+.. toctree::
+   :hidden:
 
-These scripts will only work in a environment with the appropriate software and libraries available. I use `conda <https://docs.conda.io/en/latest/>`_ to manage the required environment - which is specified in a yaml file:
-
-.. literalinclude:: ../environment/DCVAE-Climate.yml
-
-Install `anaconda or miniconda <https://docs.conda.io/en/latest/>`_, `create and activate the environment in that yaml file <https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html#managing-envs>`_, and all the scripts in this repository should run successfully.
-
-The project documentation (these web pages) are included in the repository (in the `docs directory <https://github.com/philip-brohan/DCVAE_Climate/tree/main/docs>`_). The documentation is in `reStructuredText <https://en.wikipedia.org/wiki/ReStructuredText>`_ format, and uses the `Sphinx <https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html>`_ documentation generator.
-
+   environment

@@ -19,7 +19,7 @@ from specify import specification
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--epoch", help="Epoch", type=int, required=False, default=250)
+parser.add_argument("--epoch", help="Epoch", type=int, required=False, default=500)
 parser.add_argument(
     "--year", help="Year to fit to", type=int, required=False, default=None
 )

@@ -13,7 +13,7 @@ logging.getLogger("matplotlib.font_manager").disabled = True
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--epoch", help="Epoch", type=int, required=False, default=250)
+parser.add_argument("--epoch", help="Epoch", type=int, required=False, default=500)
 parser.add_argument(
     "--startyear", help="First year to plot", type=int, required=False, default=None
 )

@@ -107,10 +107,10 @@ def plotValidationField(specification, input, output, year, month, fileName):
     fig = Figure(
         figsize=(figScale * sum(wRatios), figScale * nFields),
         dpi=100,
-        facecolor=(0.5, 0.5, 0.5, 1),
+        facecolor=(1, 1, 1, 1),
         edgecolor=None,
         linewidth=0.0,
-        frameon=False,
+        frameon=True,
         subplotpars=None,
         tight_layout=None,
     )
@@ -122,18 +122,6 @@ def plotValidationField(specification, input, output, year, month, fileName):
         "size": 12,
     }
     matplotlib.rc("font", **font)
-    axb = fig.add_axes([0, 0, 1, 1])
-    axb.set_axis_off()
-    axb.add_patch(
-        Rectangle(
-            (0, 0),
-            1,
-            1,
-            facecolor=(1.0, 1.0, 1.0, 1),
-            fill=True,
-            zorder=1,
-        )
-    )
 
     # Each variable a row in it's own subfigure
     subfigs = fig.subfigures(nFields, 1, wspace=0.01)
@@ -207,10 +195,10 @@ def plotTrainingMetrics(
     fig = Figure(
         figsize=(15, 5),
         dpi=100,
-        facecolor=(0.5, 0.5, 0.5, 1),
+        facecolor=(1, 1, 1, 1),
         edgecolor=None,
         linewidth=0.0,
-        frameon=False,
+        frameon=True,
         subplotpars=None,
         tight_layout=None,
     )
@@ -223,20 +211,6 @@ def plotTrainingMetrics(
     }
     matplotlib.rc("font", **font)
 
-    # Plain background
-    axb = fig.add_axes([0, 0, 1, 1])
-    axb.set_axis_off()
-    axb.add_patch(
-        Rectangle(
-            (0, 0),
-            1,
-            1,
-            facecolor=(0.95, 0.95, 0.95, 1),
-            fill=True,
-            zorder=1,
-        )
-    )
-
     def addLine(ax, dta, key, col, z, idx=0, rscale=1):
         dtp = [listify(x)[idx] for x in dta[key] if len(listify(x)) > idx]
         dta2 = [
@@ -244,8 +218,6 @@ def plotTrainingMetrics(
             for i in range(len(dta[key]))
             if len(listify(dta[key][i])) > idx
         ]
-        # print(dtp)
-        # sys.exit(0)
         ax.add_line(
             Line2D(
                 dta2,
@@ -465,10 +437,10 @@ def plotScalarStats(all_stats, specification, fileName="multi.webp"):
     fig = Figure(
         figsize=(figScale * sum(wRatios), figScale * nFields),
         dpi=300,
-        facecolor=(0.5, 0.5, 0.5, 1),
+        facecolor=(1, 1, 1, 1),
         edgecolor=None,
         linewidth=0.0,
-        frameon=False,
+        frameon=True,
         subplotpars=None,
         tight_layout=None,
     )
@@ -480,17 +452,6 @@ def plotScalarStats(all_stats, specification, fileName="multi.webp"):
         "size": 14,
     }
     matplotlib.rc("font", **font)
-    axb = fig.add_axes([0, 0, 1, 1])
-    axb.add_patch(
-        Rectangle(
-            (0, 0),
-            1,
-            1,
-            facecolor=(0.95, 0.95, 0.95, 1),
-            fill=True,
-            zorder=1,
-        )
-    )
 
     # Plot a variable in its subfigure
     def plot_var(sfig, ts, t, m, label):
