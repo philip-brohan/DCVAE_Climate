@@ -1,7 +1,7 @@
 Default model
 =============
 
-The model is a Deep Convolutional `Variational Autoencoder <https://en.wikipedia.org/wiki/Variational_autoencoder>`_. It takes :doc:`input data <make_dataset> on a 721x1440 grid (same as ERA5), and encodes and decodes the data to both produce a target output on the same grid and make the encoded version (the embedding) distributed as a unit normal. The :doc:`structure of the model <VAE>` (12 convolutional layers in the encoder, 11 in the decoder) is fixed, but input and output data, and the hyperparameters (learning rate, batch size, beta, etc) can be changed. They are set in a :doc:`specification file <specify>`.
+The model is a Deep Convolutional `Variational Autoencoder <https://en.wikipedia.org/wiki/Variational_autoencoder>`_. It takes :doc:`input data <make_dataset>`` on a 721x1440 grid (same as ERA5), and encodes and decodes the data to both produce a target output on the same grid and make the encoded version (the embedding) distributed as a unit normal. The :doc:`structure of the model <VAE>` (12 convolutional layers in the encoder, 11 in the decoder) is fixed, but input and output data, and the hyperparameters (learning rate, batch size, beta, etc) can be changed. They are set in a :doc:`specification file <specify>`.
 
 .. figure:: ../Illustrations/Slide3.PNG
    :width: 95%

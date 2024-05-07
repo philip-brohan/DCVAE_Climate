@@ -1,7 +1,7 @@
 Default model - make time-series by assimilating all test months into trained model
 ===================================================================================
 
-.. figure:: ../../ML_models/default/assimilate_multi.webp
+.. figure:: ../../ML_models/default/assimilate_multi_T+P.webp
    :width: 95%
    :align: center
    :figwidth: 95%

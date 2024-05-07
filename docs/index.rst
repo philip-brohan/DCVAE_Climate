@@ -113,6 +113,65 @@ And as well as looking at individual months, we can look at the model's performa
 
    Model validation time-series: Global-mean values for each month in the test dataset - target in black, model output in red. (:doc:`More details <ML_default/validate_multi>`)
 
+Clearly the VAE works usefully - good accuracy for T2m and MSLP, and reasonable accuracy for precipitation. The model is not perfect, but it is a useful tool for understanding the relationships between these variables.
+
+Using as a generative model
+---------------------------
+
+So the DCVAE works well - it can convert fields of T2m and MSLP into an embedding, and then convert that embedding back into fields of T2m, MSLP, and Precip. But we want a generative model - to make new fields of T2m, MSLP, and Precip. To test this we just take the decoder half of the model, and generate the output fields from a random embedding. 
+
+To do this we use the :doc:`assimilation scripts <ML_default/assimilation>` but don't assimilate anything - just generate the fields from a random embedding.
+
+.. figure:: ../ML_models/default/assimilated_free.webp
+   :align: center
+   :width: 95%
+
+   Left-hand column - a sample field from the test dataset. Centre column - a field generated from a random embedding. (Note that these columns should not be the same, but the centre column should look like the same sort of thing as the left-hand column). (:doc:`More details <ML_default/assimilate>`)
+
+It's hard to say exactly how well this works - the model generated fields are not the same as the test dataset fields, but they are similar. 
+
+But the value of the method is not in unconstrained generation, but in constrained generation. We can do the same, but assimilating T2m and MSLP:
+
+.. figure:: ../ML_models/default/assimilated_T+P.webp
+   :align: center
+   :width: 95%
+
+   Left-hand column - a sample field from the test dataset. Centre column - a field generated from an embedding chosen to match the T2m and MSLP. (Precip is calculated by the model). (:doc:`More details <ML_default/assimilation>`)
+
+And if we make the time-series diagnostic the same way, we can see the point of the model:
+
+.. figure:: ../ML_models/default/assimilate_multi_T+P.webp
+   :align: center
+   :width: 95%
+
+   Global-mean values for each month in the test dataset - ERA5 data in black, model output in red. Here T2m and MSLP have been assimilated, Precip is calculated by the model. (:doc:`More details <ML_default/assimilate_multi>`)
+
+We can not compare `observed` (ERA5) and modelled precipitation, where the modelled precipitation is calculated from observed T2m and MSLP. We can see a notable divergence between the ERA5 and modelled precipitation before about 1980 - this demonstrates the biases in the ERA5 precipitation product.
+
+And we can go on to do an attribution study: Does the trend in precip have a common origin with the trend in T2m? We can test this by only assimilating MSLP - don't force the T2m trend - and seeing what the calculated Precip does.
+
+.. figure:: ../ML_models/default/assimilate_multi_P_only.webp
+   :align: center
+   :width: 95%
+
+   Global-mean values for each month in the test dataset - ERA5 data in black, model output in red. MSLP has been assimilated, T2m and Precip are calculated by the model. (:doc:`More details <ML_default/assimilate_multi>`)
+
+The model is now answering the question 'What would the global Precip trend have looked like if there were no temperature trend?' And the answer is clear - the Precip trend is driven by the T2m trend - or at least by a common factor (the CO2 increase).
+
+Conclusions
+-----------
+
+If we want to understand, predict, and attribute climate change, we don't need a GCM. We can use ML (and specifically the DCVAE) to build an alternative model, and then use the ML model to answer the questions we have. 
+
+Next steps
+----------
+
+This model is trained on monthly T2m, MSLP and Precip. But we could use the same model design on other variables, or at other time-scales. It's just a matter of getting the data, normalizing it, and training the model. What else can we investigate the same way?
+
+The model is pretty good, but it could be better. Can we improve the model design, or find better hyperparameters?
+
+Go on - :doc:`try it yourself <how_to>`.
+
 Appendices
 ----------
 
@@ -120,10 +179,7 @@ Appendices
    :titlesonly:
    :maxdepth: 1
 
-   Get the training data <get_data/index>
-   Normalize the data for model fitting <normalization/index>
-   ML model specification <ML_default/index>
-   Utility functions for plotting and re-gridding <utils/index>
+   Utility functions for plotting and regridding <utils/index>
 
 
 Small print
@@ -137,5 +193,4 @@ Small print
    Authors and acknowledgements <credits>
 
 
-  
 This document is crown copyright (2024). It is published under the terms of the `Open Government Licence <https://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/>`_. Source code included is published under the terms of the `BSD licence <https://opensource.org/licenses/BSD-2-Clause>`_.

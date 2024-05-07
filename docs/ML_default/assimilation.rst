@@ -1,7 +1,7 @@
 Default model - assimilate test data for a single month into trained model
 ==========================================================================
 
-.. figure:: ../../ML_models/default/assimilated.webp
+.. figure:: ../../ML_models/default/assimilated_T+P.webp
    :width: 95%
    :align: center
    :figwidth: 95%
