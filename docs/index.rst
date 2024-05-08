@@ -3,6 +3,8 @@ A Machine Learning Climate Model based on a Deep Convolutional Variational AutoE
 
 This is an example of how to build a climate model using Machine Learning (ML). It's designed to be used as a training tool for those new to ML, but to be powerful enough to be adapted into something of value for science work.
 
+The fundamental objective is to build a model that is useful for climate science - in particular, in this case, to predict and attribute changes in precipitation - but using ML, rather than a traditional physical model. A great virtue of this approach is the ML model is *dramatically* cheaper than a physical model, both to create and to use.
+
 Background
 ----------
 
