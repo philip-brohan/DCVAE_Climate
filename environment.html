@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Setting up the software environment &#8212; An ML Climate Model based on a DCVAE</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=87629129" />
+    <script src="_static/documentation_options.js?v=8d563738"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="index.html">DCVAE-Climate</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Setting up the software environment</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="setting-up-the-software-environment">
+<h1>Setting up the software environment<a class="headerlink" href="#setting-up-the-software-environment" title="Link to this heading">¶</a></h1>
+<p>To run the scripts in this repository, you will need to set up an environment with the necessary compute resources.</p>
+<p>First, you will need to assign some disc space for the output files. The scripts in this repository will write a lot of data to disc, and you will need to have a few hundred gigabytes of free space available. They rely on an environment variable <code class="docutils literal notranslate"><span class="pre">SCRATCH</span></code>.</p>
+<ul class="simple">
+<li><p>Set the <code class="docutils literal notranslate"><span class="pre">SCRATCH</span></code> environment variable to a directory with plenty of free disc space.</p></li>
+</ul>
+<p>Then, you will need to install some software. The software is all open-source, and should be available for most operating systems (but it’s only been tested on Linux-x86). By far the easiest way to do this is to use <a class="reference external" href="https://docs.conda.io/en/latest/">conda</a>:</p>
+<ul class="simple">
+<li><p>Install <a class="reference external" href="https://docs.conda.io/en/latest/">anaconda or miniconda</a>.</p></li>
+</ul>
+<p>When you have conda installed, you can create an environment with all the necessary software by using the YML file in this repository:</p>
+<ul class="simple">
+<li><p>Edit the YML file <code class="docutils literal notranslate"><span class="pre">DCVAE-Climate.yml</span></code> to set the <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> environment variable to the directory you have installed the code in.</p></li>
+<li><p>Create and activate the <code class="docutils literal notranslate"><span class="pre">DCVAE-Climate</span></code> environment specified in the YML file <code class="docutils literal notranslate"><span class="pre">DCVAE-Climate.yml</span></code>.</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">name</span><span class="p">:</span> <span class="n">DCVAE</span><span class="o">-</span><span class="n">Climate</span>
+<span class="n">channels</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span>
+<span class="n">dependencies</span><span class="p">:</span>
+  <span class="c1"># Basics</span>
+  <span class="o">-</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.9</span> <span class="c1"># Later versions don&#39;t work with Tensorflow 2.9.1</span>
+  <span class="o">-</span> <span class="n">libwebp</span><span class="o">&gt;=</span><span class="mf">1.3.2</span> <span class="c1"># Earlier versions have a security vulnerability</span>
+  <span class="o">-</span> <span class="n">iris</span><span class="o">=</span><span class="mf">3.8</span>
+  <span class="o">-</span> <span class="n">pandas</span><span class="o">=</span><span class="mf">2.2</span>
+  <span class="o">-</span> <span class="n">cmocean</span><span class="o">=</span><span class="mf">4.0</span>
+  <span class="o">-</span> <span class="n">parallel</span>
+  <span class="c1"># Get data from ERA5</span>
+  <span class="c1"># You&#39;ll need to register, see https://cds.climate.copernicus.eu/api-how-to</span>
+  <span class="o">-</span> <span class="n">cdsapi</span><span class="o">=</span><span class="mf">0.6</span>
+  <span class="c1"># ML model building and diagnostics</span>
+  <span class="c1"># If you don&#39;t have a GPU, tensorflow-eigen might be faster</span>
+  <span class="o">-</span> <span class="n">tensorflow</span><span class="o">=</span><span class="mf">2.9.1</span><span class="o">=</span><span class="n">gpu_py39hd4ae112_0</span>
+  <span class="c1"># Optional, code formatter</span>
+  <span class="o">-</span> <span class="n">black</span>
+  <span class="c1"># Optional - documentation generator</span>
+  <span class="o">-</span> <span class="n">sphinx</span><span class="o">=</span><span class="mf">7.</span><span class="o">*</span>
+  <span class="c1"># Optional - needed only for monitoring jobs</span>
+  <span class="o">-</span> <span class="n">tmux</span>
+
+  <span class="c1"># Some packages are only available via pip</span>
+  <span class="o">-</span> <span class="n">pip</span>
+  <span class="o">-</span> <span class="n">pip</span><span class="p">:</span>
+      <span class="c1"># For bilinear interpolation</span>
+      <span class="o">-</span> <span class="n">tensorflow</span><span class="o">-</span><span class="n">addons</span><span class="o">==</span><span class="mf">0.18</span>
+      <span class="c1"># For input space search</span>
+      <span class="o">-</span> <span class="n">tensorflow</span><span class="o">-</span><span class="n">probability</span><span class="o">==</span><span class="mf">0.17</span>
+
+<span class="c1"># Tell python to look for modules in the root directory of the project</span>
+<span class="c1"># (A hack, needs to be edited for every installation, but makes code</span>
+<span class="c1">#  management much easier.)</span>
+<span class="c1"># Replace with the path to your project directory root.</span>
+
+<span class="n">variables</span><span class="p">:</span>
+  <span class="n">PYTHONPATH</span><span class="p">:</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">h03</span><span class="o">/</span><span class="n">hadpb</span><span class="o">/</span><span class="n">Projects</span><span class="o">/</span><span class="n">DCVAE_Climate</span><span class="p">:</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">mo</span><span class="o">-</span><span class="n">hadpb</span><span class="o">/</span><span class="n">Projects</span><span class="o">/</span><span class="n">DCVAE_Climate</span>
+</pre></div>
+</div>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/DCVAE_Climate.webp" alt="Logo"/>
+            </a></p>
+<h3><a href="index.html">Table of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="get_data/index.html">Get the training data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="normalization/index.html">Normalize the data for model fitting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ML_default/index.html">ML model specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils/index.html">Utility functions for plotting and re-gridding</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="how_to.html">How to reproduce or extend this work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="credits.html">Authors and acknowledgements</a></li>
+</ul>
+<h3><a href="https://github.com/philip-brohan/DCVAE_Climate">Get a copy</a></h3>
+
+<ul>
+    <li><a href="https://github.com/philip-brohan/DCVAE_Climate" rel="nofollow">Github repository</a></li>
+</ul>
+
+<h3>Found a bug, or have a suggestion?</h3>
+
+Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise an issue</a>.
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="index.html">DCVAE-Climate</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Setting up the software environment</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>
