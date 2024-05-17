@@ -11,7 +11,7 @@ import iris.analysis
 import iris.coord_systems
 
 # Define a standard-cube to work with
-# Identical to that used in ERA5, except that the longitude cut is moved
+# Identical to that used in CPM5, except that the longitude cut is moved
 #  to mid pacific (-180) instead of over the UK (0)
 resolution = 1
 xmin = -90
