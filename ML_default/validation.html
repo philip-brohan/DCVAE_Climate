@@ -44,11 +44,11 @@
 <figure class="align-center" id="id1" style="width: 95%">
 <a class="reference internal image-reference" href="../_images/comparison.webp"><img alt="../_images/comparison.webp" src="../_images/comparison.webp" style="width: 95%;" /></a>
 <figcaption>
-<p><span class="caption-text">Left-hand column is the target, next column is the DCVAE output, right-hand two columns are scatter plots of target and output - the first one is for regions with training data, the second for regions without.</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
+<p><span class="caption-text">Left-hand column is the target, middle column is the DCVAE output, right-hand column is a scatter plot of target and output.</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
-<p>Script (<cite>validate.py</cite>) to make the validation figure</p>
-<p>By default, it will use a random month from the test set, but you can specify a month using the <cite>–year</cite> and <cite>–month</cite> arguments. The <cite>–training</cite> argument will take months from the training set instead of the test set.</p>
+<p>To validate the autoencoder, we can run the trained model using a month from the test dataset as input: The output fields should look like the inputs. Use script <cite>validate.py</cite> to make the validation figure</p>
+<p>By default, it will use a random month from the test set, but you can specify a month using the <cite>–year</cite> and <cite>–month</cite> arguments. The <cite>–training</cite> argument will take months from the training set instead of the test set, and <cite>–epoch</cite> will use a specific epoch.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
 
 <span class="c1"># Plot a validation figure for the autoencoder.</span>
@@ -58,12 +58,15 @@
 <span class="c1">#  2) Autoencoder output</span>
 <span class="c1">#  3) scatter plot</span>
 
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="c1"># Supress TensorFlow moaning about cuda - we don&#39;t need a GPU for this</span>
+<span class="c1"># Also the warning message confuses people.</span>
+<span class="kn">import</span> <span class="nn">os</span>
 
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TF_CPP_MIN_LOG_LEVEL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;3&quot;</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">from</span> <span class="nn">ML_models.default.makeDataset</span> <span class="kn">import</span> <span class="n">getDataset</span>
 <span class="kn">from</span> <span class="nn">ML_models.default.autoencoderModel</span> <span class="kn">import</span> <span class="n">getModel</span>
-
 <span class="kn">from</span> <span class="nn">ML_models.default.gmUtils</span> <span class="kn">import</span> <span class="n">plotValidationField</span>
 
 <span class="kn">from</span> <span class="nn">specify</span> <span class="kn">import</span> <span class="n">specification</span>
@@ -695,11 +698,8 @@
 <li class="toctree-l1"><a class="reference internal" href="make_dataset.html">Assemble the normalized data into training and test datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="training.html">Train the model</a></li>
 </ul>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../get_data/index.html">Get the training data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../normalization/index.html">Normalize the data for model fitting</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">ML model specification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and re-gridding</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and regridding</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../how_to.html">How to reproduce or extend this work</a></li>

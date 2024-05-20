@@ -14,7 +14,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Assemble ERA5 normalized data into a set of tf.tensors" href="make_normalized_tensors.html" />
-    <link rel="prev" title="Estimate normalization parameters for ERA5 data" href="estimate_parameters.html" /> 
+    <link rel="prev" title="Check gamma parameters for ERA5 data" href="validate_for_fields.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -26,7 +26,7 @@
           <a href="make_normalized_tensors.html" title="Assemble ERA5 normalized data into a set of tf.tensors"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="estimate_parameters.html" title="Estimate normalization parameters for ERA5 data"
+          <a href="validate_for_fields.html" title="Check gamma parameters for ERA5 data"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">DCVAE-Climate</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Normalizing training data</a> &#187;</li>
@@ -42,11 +42,12 @@
   <section id="check-normalization-of-era5-data">
 <h1>Check normalization of ERA5 data<a class="headerlink" href="#check-normalization-of-era5-data" title="Link to this heading">¶</a></h1>
 <figure class="align-center" id="id1" style="width: 95%">
-<a class="reference internal image-reference" href="../_images/monthly.png"><img alt="../_images/monthly.png" src="../_images/monthly.png" style="width: 95%;" /></a>
+<a class="reference internal image-reference" href="../_images/monthly_precip_1969_03.png"><img alt="../_images/monthly_precip_1969_03.png" src="../_images/monthly_precip_1969_03.png" style="width: 95%;" /></a>
 <figcaption>
-<p><span class="caption-text">Raw temperature (top) and normalized equivalent (bottom) for a month.</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
+<p><span class="caption-text">Raw precipitation (top) and normalized equivalent (bottom) for a March 1969.</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
+<p>If successful, the normalized data should be approximately normally distributed with mean=0.5 and standard deviation=0.2 (whatever the distribution of the input data is. The script <cite>plot_distribution_monthly.py</cite> compares normalized and original data (spatial distribution and histogram) for a month. (Takes <cite>–variable</cite>, <cite>–year</cite>, and <cite>–month</cite> as arguments.)</p>
 <p>Script to make the plot:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
 
@@ -200,11 +201,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../ML_default/make_dataset.html">Assemble the normalized data into training and test datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ML_default/training.html">Train the model</a></li>
 </ul>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../get_data/index.html">Get the training data</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Normalize the data for model fitting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../ML_default/index.html">ML model specification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and re-gridding</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and regridding</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../how_to.html">How to reproduce or extend this work</a></li>
@@ -233,7 +231,7 @@ Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise
           <a href="make_normalized_tensors.html" title="Assemble ERA5 normalized data into a set of tf.tensors"
              >next</a> |</li>
         <li class="right" >
-          <a href="estimate_parameters.html" title="Estimate normalization parameters for ERA5 data"
+          <a href="validate_for_fields.html" title="Check gamma parameters for ERA5 data"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">DCVAE-Climate</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Normalizing training data</a> &#187;</li>

@@ -14,7 +14,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="ERA5 data download and access" href="ERA5.html" />
-    <link rel="prev" title="A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder" href="../index.html" /> 
+    <link rel="prev" title="Default model - make time-series by assimilating all test months into trained model" href="../ML_default/assimilate_multi.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -26,7 +26,7 @@
           <a href="ERA5.html" title="ERA5 data download and access"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="../index.html" title="A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder"
+          <a href="../ML_default/assimilate_multi.html" title="Default model - make time-series by assimilating all test months into trained model"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">DCVAE-Climate</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Get the data to be used</a></li> 
@@ -52,7 +52,8 @@
 </dl>
 <p>We also want a land-sea mask (for plotting only). Use a land-surface only variable from ERA5-land for this (we only need one month).</p>
 <p>We can download all this from the awesome <a class="reference external" href="https://cds.climate.copernicus.eu/cdsapp#!/home">Copernicus Climate Data Store</a></p>
-<p>Script to do the whole download (about 8Gb, will take a few hours). Only downloads data where it is not already on disc.</p>
+<p>You will need to <a class="reference external" href="https://cds.climate.copernicus.eu/api-how-to">register with the CDS</a> before downloading. (You will also need to install the CDS API - but you’ve already done that, it’s in the <a class="reference internal" href="../environment.html"><span class="doc">conda environment</span></a>).</p>
+<p>The script to do the whole download (about 8Gb, will take a few hours) is <cite>download_all_data.sh</cite> in the <cite>get_data</cite> directory. It only downloads data where it is not already on disc (so you can just run it again if it fails part way through).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/bash</span>
 
 <span class="c1"># Run all the data downloads</span>
@@ -85,11 +86,22 @@
               <img class="logo" src="../_static/DCVAE_Climate.webp" alt="Logo"/>
             </a></p>
 <h3><a href="../index.html">Table of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ML_default/index.html">Detailed specification of the ML model</a></li>
+</ul>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Get the training data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../normalization/index.html">Normalize the data for model fitting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../ML_default/index.html">ML model specification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and re-gridding</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">How to download the training data</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../normalization/index.html">How to convert and normalize the data</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ML_default/specify.html">Specify the details of the model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ML_default/make_dataset.html">Assemble the normalized data into training and test datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ML_default/training.html">Train the model</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and regridding</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../how_to.html">How to reproduce or extend this work</a></li>
@@ -118,7 +130,7 @@ Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise
           <a href="ERA5.html" title="ERA5 data download and access"
              >next</a> |</li>
         <li class="right" >
-          <a href="../index.html" title="A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder"
+          <a href="../ML_default/assimilate_multi.html" title="Default model - make time-series by assimilating all test months into trained model"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">DCVAE-Climate</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Get the data to be used</a></li> 

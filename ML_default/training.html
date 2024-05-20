@@ -42,6 +42,7 @@
   <section id="default-model-training-script">
 <h1>Default model training script<a class="headerlink" href="#default-model-training-script" title="Link to this heading">¶</a></h1>
 <p>Script (<cite>autoencoder.py</cite>) to train the model specified in the <a class="reference internal" href="specify.html"><span class="doc">configuration file</span></a>.</p>
+<p>This script trains the model. It takes plenty of resources (a GPU - or several - is <em>strongly</em> recommended).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
 
 <span class="c1"># Convolutional Variational Autoencoder.</span>
@@ -55,6 +56,10 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">time</span>
+
+<span class="c1"># Cut down on the TensorFlow warning messages</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TF_CPP_MIN_LOG_LEVEL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;3&quot;</span>
+
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">import</span> <span class="nn">argparse</span>
@@ -179,11 +184,22 @@
               <img class="logo" src="../_static/DCVAE_Climate.webp" alt="Logo"/>
             </a></p>
 <h3><a href="../index.html">Table of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Detailed specification of the ML model</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../get_data/index.html">How to download the training data</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../normalization/index.html">How to convert and normalize the data</a></li>
+</ul>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../get_data/index.html">Get the training data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../normalization/index.html">Normalize the data for model fitting</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">ML model specification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and re-gridding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="specify.html">Specify the details of the model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_dataset.html">Assemble the normalized data into training and test datasets</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Train the model</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and regridding</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../how_to.html">How to reproduce or extend this work</a></li>

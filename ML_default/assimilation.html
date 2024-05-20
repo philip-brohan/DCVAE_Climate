@@ -44,11 +44,11 @@
 <figure class="align-center" id="id1" style="width: 95%">
 <a class="reference internal image-reference" href="../_images/assimilated_T+P.webp"><img alt="../_images/assimilated_T%2BP.webp" src="../_images/assimilated_T%2BP.webp" style="width: 95%;" /></a>
 <figcaption>
-<p><span class="caption-text">Left-hand column is the target, next column is the DCVAE output assimilating T2m and MSLP, right-hand columns is a scatter plot of target and output.</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
+<p><span class="caption-text">Left-hand column is the target, middle column is the DCVAE output assimilating T2m and MSLP, right-hand column is a scatter plot of target and output.</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
-<p>Script (<cite>assimilate.py</cite>) to make the figure</p>
-<p>By default, it will use a random month from the test set, but you can specify a month using the <cite>–year</cite> and <cite>–month</cite> arguments. The <cite>–training</cite> argument will take months from the training set instead of the test set. By default it won’t assimilate anything, specify variables to assimilate as arguments (so the figure above has agguments <code class="docutils literal notranslate"><span class="pre">--T2m</span></code> and <code class="docutils literal notranslate"><span class="pre">--MSLP</span></code>).</p>
+<p>The objective is not just a good autoencoder, but a generator that is useful in making new output fields. The script <cite>assimilate.py</cite> generates new months using the trained model.</p>
+<p>By default, it will use a random month from the test set, but you can specify a month using the <cite>–year</cite> and <cite>–month</cite> arguments. The <cite>–training</cite> argument will take months from the training set instead of the test set. By default, it won’t assimilate anything, specify variables to assimilate as arguments (so the figure above has arguments <code class="docutils literal notranslate"><span class="pre">--T2m</span></code> and <code class="docutils literal notranslate"><span class="pre">--MSLP</span></code>). Note that if you don’t assimilate anything - the model output won’t look like the model input. <cite>–epoch</cite> uses the model from a specific epoch.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
 
 <span class="c1"># Find a point in latent space that maximises the fit to some given input fields,</span>
@@ -57,6 +57,11 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># Supress TensorFlow moaning about cuda - we don&#39;t need a GPU for this</span>
+<span class="c1"># Also the warning message confuses people.</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TF_CPP_MIN_LOG_LEVEL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;3&quot;</span>
+
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">tensorflow_probability</span> <span class="k">as</span> <span class="nn">tfp</span>
 
@@ -760,11 +765,8 @@
 <li class="toctree-l1"><a class="reference internal" href="make_dataset.html">Assemble the normalized data into training and test datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="training.html">Train the model</a></li>
 </ul>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../get_data/index.html">Get the training data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../normalization/index.html">Normalize the data for model fitting</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">ML model specification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and re-gridding</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and regridding</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../how_to.html">How to reproduce or extend this work</a></li>

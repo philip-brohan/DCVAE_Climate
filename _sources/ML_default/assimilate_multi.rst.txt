@@ -8,9 +8,9 @@ Default model - make time-series by assimilating all test months into trained mo
 
    Global mean series (black original, red DCVAE output) and scatterplots for each output variable. T2m and MSLP were assimilated, Precipitation wasn't - it's model output.
 
-Script (`assimilate_multi.py`) to make the validation figure
+Script `assimilate_multi.py` make the time-series validation figure - global means of each variable and scatterplots - when assimilating fields from the test dataset.
 
-By default, it will use the test set, but the `--training` argument will take months from the training set instead of the test set. By default, it won't assimilate anything, specify variables to assimilate as arguments (so the figure above has arguments ``--T2m`` and ``--MSLP``).
+By default, it will use the test set, but the `--training` argument will take months from the training set instead of the test set. By default, it won't assimilate anything, specify variables to assimilate as arguments (so the figure above has arguments ``--T2m`` and ``--MSLP``). The `--epoch` argument specifies the model epoch to use.
 
 .. literalinclude:: ../../ML_models/default/assimilate_multi.py
 

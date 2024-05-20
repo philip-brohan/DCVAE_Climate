@@ -40,21 +40,27 @@
             
   <section id="default-model">
 <h1>Default model<a class="headerlink" href="#default-model" title="Link to this heading">¶</a></h1>
-<p>The model is a Deep Convolutional <a class="reference external" href="https://en.wikipedia.org/wiki/Variational_autoencoder">Variational Autoencoder</a>. It takes <a class="reference internal" href="make_dataset.html"><span class="doc">input data</span></a> on a 721x1440 grid (same as ERA5), and uses a pair of convolutional neural nets to encode and decode the data - learning to both produce a target output on the same grid and make the encoded version (the embedding) distributed as a unit normal. The <a class="reference internal" href="VAE.html"><span class="doc">structure of the model</span></a> (12 convolutional layers in the encoder, 11 in the decoder) is fixed, but input and output data, and the hyperparameters (learning rate, batch size, beta, etc) can be changed. They are set in a <a class="reference internal" href="specify.html"><span class="doc">specification file</span></a>.</p>
+<p>The purpose of the model, is to learn a generator function that makes climate states (monthly fields of temperature, pressure and precipitation) with a low-dimensional state vector (embedding) as input. This generator is the climate model that e will use for experiments. To learn that model (and embedding) a standard tool in ML - a factory for learning such functions from example climate states.</p>
+<p>The factory is a Deep Convolutional <a class="reference external" href="https://en.wikipedia.org/wiki/Variational_autoencoder">Variational Autoencoder</a>. It takes <a class="reference internal" href="make_dataset.html"><span class="doc">input data</span></a> on a 721x1440 grid (same as ERA5), and uses a pair of convolutional neural nets to encode and decode the data - learning to both produce a target output on the same grid and make the encoded version (the embedding) distributed as a unit normal. The <a class="reference internal" href="VAE.html"><span class="doc">structure of the model</span></a> (12 convolutional layers in the encoder, 11 in the decoder) is fixed, but input and output data, and the hyperparameters (learning rate, batch size, beta, etc) can be changed. They are set in a <a class="reference internal" href="specify.html"><span class="doc">specification file</span></a> (<cite>specify.py</cite>).</p>
 <figure class="align-center" id="id2" style="width: 95%">
 <a class="reference internal image-reference" href="../_images/Slide3.PNG"><img alt="../_images/Slide3.PNG" src="../_images/Slide3.PNG" style="width: 95%;" /></a>
 <figcaption>
 <p><span class="caption-text">The structure of the VAE used to train the generator</span><a class="headerlink" href="#id2" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
-<p>The model structure and data flows are defined in files that should not need modification:</p>
+<p>We will code the DCVAE using the <cite>TensorFlow &lt;https://www.tensorflow.org/&gt;</cite> platform. The big advantage of TensorFlow is that a lot of the work has been done for us: The model structure is a subclass of <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model">tf.keras.Model</a>, and there is an <a class="reference external" href="https://www.tensorflow.org/tutorials/generative/cvae">example of a VAE</a> in the TensorFlow documentation which we can build upon. Building on that, we can specify a DCVAE class for our climate data:</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="VAE.html">Model structure</a></li>
+</ul>
+</div>
+<p>The model is trained on monthly fields of temperature, pressure and precipitation. We have <a class="reference internal" href="../get_data/index.html"><span class="doc">taken these fields from ERA5</span></a>, and <a class="reference internal" href="../normalization/index.html"><span class="doc">converted and normalised them</span></a> already. What remains is to package them for input to the DCVAE. Training the DCVAE will mean we need to access the fields repeatedly and fast, and TensorFlow has software tools optimized for exactly this use: We will use the <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/data/Dataset">tf.data.Dataset</a> class to present the training data to the DCVAE.</p>
+<div class="toctree-wrapper compound">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="make_dataset.html">Input Datasets</a></li>
 </ul>
 </div>
-<p>To run the model, we need to specify the model inputs, outputs and hyperparameters. This is done in a specification file. Copy the specification file and the model training script to a new directory, and edit the specification file to suit your needs. Then run the training script.</p>
+<p>To run the model, we need to specify the model inputs, outputs and hyperparameters. This is done in a specification file. Copy the specification file (<cite>specify.py</cite>) and the model training script to a new directory, and edit the specification file to suit your needs. Then run the training script (<cite>autoencoder.py</cite>).</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="specify.html">Specification file</a></li>
@@ -69,7 +75,7 @@
 <li class="toctree-l1"><a class="reference internal" href="validate_multi.html">Validate on time-series</a></li>
 </ul>
 </div>
-<p>We are using a <a class="reference external" href="https://en.wikipedia.org/wiki/Variational_autoencoder">Variational Autoencoder</a>, because we want to be able to <a class="reference external" href="https://brohan.org/Proxy_20CR">assimilate data into it</a>.</p>
+<p>Those scripts train and test the AutoEncoder. We are using a <a class="reference external" href="https://en.wikipedia.org/wiki/Variational_autoencoder">Variational Autoencoder</a>, because we want to be able to use its generator as a climate model, and particularly to <a class="reference external" href="https://brohan.org/Proxy_20CR">assimilate data into it</a>.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="assimilation.html">Assimilate a single month</a></li>

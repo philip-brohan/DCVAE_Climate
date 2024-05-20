@@ -13,7 +13,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Check gamma distributions for ERA5 data" href="validate_for_points.html" />
+    <link rel="next" title="Estimate normalization parameters for ERA5 data" href="estimate_parameters.html" />
     <link rel="prev" title="Normalizing training data" href="index.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -23,7 +23,7 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="validate_for_points.html" title="Check gamma distributions for ERA5 data"
+          <a href="estimate_parameters.html" title="Estimate normalization parameters for ERA5 data"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Normalizing training data"
@@ -42,7 +42,21 @@
   <section id="assemble-era5-raw-data-into-a-set-of-tf-tensors">
 <h1>Assemble ERA5 raw data into a set of tf.tensors<a class="headerlink" href="#assemble-era5-raw-data-into-a-set-of-tf-tensors" title="Link to this heading">¶</a></h1>
 <p>The data <a class="reference internal" href="../get_data/ERA5.html"><span class="doc">download scripts</span></a> assemble selected ERA5 data in netCDF files. To use that data efficiently in analysis and modelling it is necessary to reformat it as a set of <cite>tf.tensors</cite>. These have consistent format and resolution and can be reassembled into a <cite>tf.data.Dataset`</cite> for ML model training.</p>
-<p>Script to make the set of tensors. Takes argument <cite>–variable</cite>:</p>
+<p>So for each month in the training period, for each variable (2m_temperature, mean_sea_level_pressure, total_precipitation), we read in the data from netCDF, regrid it to a <a class="reference internal" href="../utils/grids.html"><span class="doc">common grid</span></a>, and save it as a <cite>tf.tensor</cite>.</p>
+<p>The script <cite>make_all_raw_tensors.sh</cite> creates a set of commands to make all the tensors. The script outputs a list of other scripts (one per year, month, variable). Running all the output scripts will create the set of tensors. (Use <cite>GNU parallel</cite> to run the scripts efficiently - or submit them as jobs to a cluster).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/bash</span>
+
+<span class="c1"># Make all the raw tensors</span>
+<span class="c1"># Requires downloaded data</span>
+
+<span class="p">(</span><span class="n">cd</span> <span class="n">ERA5</span> <span class="o">&amp;&amp;</span> <span class="o">./</span><span class="n">make_all_tensors</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">variable</span><span class="o">=</span><span class="mi">2</span><span class="n">m_temperature</span><span class="p">)</span>
+<span class="p">(</span><span class="n">cd</span> <span class="n">ERA5</span> <span class="o">&amp;&amp;</span> <span class="o">./</span><span class="n">make_all_tensors</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">variable</span><span class="o">=</span><span class="n">sea_surface_temperature</span><span class="p">)</span>
+<span class="p">(</span><span class="n">cd</span> <span class="n">ERA5</span> <span class="o">&amp;&amp;</span> <span class="o">./</span><span class="n">make_all_tensors</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">variable</span><span class="o">=</span><span class="n">mean_sea_level_pressure</span><span class="p">)</span>
+<span class="p">(</span><span class="n">cd</span> <span class="n">ERA5</span> <span class="o">&amp;&amp;</span> <span class="o">./</span><span class="n">make_all_tensors</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">variable</span><span class="o">=</span><span class="n">total_precipitation</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Other scripts used by that main script:</p>
+<p>Script to make the set of tensors for one variable. Takes argument <cite>–variable</cite>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
 
 <span class="c1"># Make raw data tensors for normalization</span>
@@ -97,6 +111,11 @@
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c1"># Supress TensorFlow moaning about cuda - we don&#39;t need a GPU for this</span>
+<span class="c1"># Also the warning message confuses people.</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TF_CPP_MIN_LOG_LEVEL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;3&quot;</span>
+
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">dask</span>
 
@@ -185,11 +204,22 @@
               <img class="logo" src="../_static/DCVAE_Climate.webp" alt="Logo"/>
             </a></p>
 <h3><a href="../index.html">Table of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ML_default/index.html">Detailed specification of the ML model</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../get_data/index.html">How to download the training data</a></li>
+</ul>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../get_data/index.html">Get the training data</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Normalize the data for model fitting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../ML_default/index.html">ML model specification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and re-gridding</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">How to convert and normalize the data</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ML_default/specify.html">Specify the details of the model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ML_default/make_dataset.html">Assemble the normalized data into training and test datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ML_default/training.html">Train the model</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and regridding</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../how_to.html">How to reproduce or extend this work</a></li>
@@ -215,7 +245,7 @@ Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="validate_for_points.html" title="Check gamma distributions for ERA5 data"
+          <a href="estimate_parameters.html" title="Estimate normalization parameters for ERA5 data"
              >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Normalizing training data"

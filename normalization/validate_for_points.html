@@ -13,8 +13,8 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Estimate normalization parameters for ERA5 data" href="estimate_parameters.html" />
-    <link rel="prev" title="Assemble ERA5 raw data into a set of tf.tensors" href="make_raw_tensors.html" /> 
+    <link rel="next" title="Check gamma parameters for ERA5 data" href="validate_for_fields.html" />
+    <link rel="prev" title="Estimate normalization parameters for ERA5 data" href="estimate_parameters.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -23,10 +23,10 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="estimate_parameters.html" title="Estimate normalization parameters for ERA5 data"
+          <a href="validate_for_fields.html" title="Check gamma parameters for ERA5 data"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="make_raw_tensors.html" title="Assemble ERA5 raw data into a set of tf.tensors"
+          <a href="estimate_parameters.html" title="Estimate normalization parameters for ERA5 data"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">DCVAE-Climate</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Normalizing training data</a> &#187;</li>
@@ -47,6 +47,7 @@
 <p><span class="caption-text">Data histograms and fitted gamma distributions for 25 random grid points of ERA5 March temperature.</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
+<p>It’s worth checking that the gamma distributions fitted to the training data are sensible. (They don’t have to be very good, we don’t have much data to fit to, but they do have to be reasonable, and there’s nothing like a quick graphical check to see if they are.) The script <cite>plot_sample_fits.py</cite> does this for 25 random grid points. It takes <cite>–variable</cite> and <cite>–month</cite> as arguments.</p>
 <p>Script to make the plot:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
 
@@ -59,9 +60,15 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># Supress TensorFlow moaning about cuda - we don&#39;t need a GPU for this</span>
+<span class="c1"># Also the warning message confuses people.</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TF_CPP_MIN_LOG_LEVEL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;3&quot;</span>
+
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">from</span> <span class="nn">makeDataset</span> <span class="kn">import</span> <span class="n">getDataset</span>
+
 
 <span class="kn">from</span> <span class="nn">normalize</span> <span class="kn">import</span> <span class="n">load_fitted</span>
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">gamma</span>
@@ -207,11 +214,22 @@
               <img class="logo" src="../_static/DCVAE_Climate.webp" alt="Logo"/>
             </a></p>
 <h3><a href="../index.html">Table of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ML_default/index.html">Detailed specification of the ML model</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../get_data/index.html">How to download the training data</a></li>
+</ul>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../get_data/index.html">Get the training data</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Normalize the data for model fitting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../ML_default/index.html">ML model specification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and re-gridding</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">How to convert and normalize the data</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ML_default/specify.html">Specify the details of the model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ML_default/make_dataset.html">Assemble the normalized data into training and test datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ML_default/training.html">Train the model</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and regridding</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../how_to.html">How to reproduce or extend this work</a></li>
@@ -237,10 +255,10 @@ Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="estimate_parameters.html" title="Estimate normalization parameters for ERA5 data"
+          <a href="validate_for_fields.html" title="Check gamma parameters for ERA5 data"
              >next</a> |</li>
         <li class="right" >
-          <a href="make_raw_tensors.html" title="Assemble ERA5 raw data into a set of tf.tensors"
+          <a href="estimate_parameters.html" title="Estimate normalization parameters for ERA5 data"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">DCVAE-Climate</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Normalizing training data</a> &#187;</li>

@@ -14,7 +14,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Default model training script" href="training.html" />
-    <link rel="prev" title="Make the tf.data.Dataset inputs and outputs for the cross-region DCVAE" href="make_dataset.html" /> 
+    <link rel="prev" title="Make the tf.data.Dataset inputs and outputs for the DCVAE" href="make_dataset.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -26,7 +26,7 @@
           <a href="training.html" title="Default model training script"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="make_dataset.html" title="Make the tf.data.Dataset inputs and outputs for the cross-region DCVAE"
+          <a href="make_dataset.html" title="Make the tf.data.Dataset inputs and outputs for the DCVAE"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">DCVAE-Climate</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Default model</a> &#187;</li>
@@ -110,8 +110,12 @@
 <span class="c1"># Optimization</span>
 <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distribute</span><span class="o">.</span><span class="n">MirroredStrategy</span><span class="p">()</span>
 <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;optimizer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="mf">5e-4</span><span class="p">)</span>
-<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;trainCache&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;testCache&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;trainCache&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="kc">False</span>  <span class="c1"># True will be faster, but needs a *lot* of RAM (try 100Gb)</span>
+<span class="p">)</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;testCache&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="kc">False</span>  <span class="c1"># True will be faster, but needs a *lot* of RAM (try 100Gb)</span>
+<span class="p">)</span>
 
 
 <span class="c1"># Mask to specify a subset of data to train on</span>
@@ -131,11 +135,22 @@
               <img class="logo" src="../_static/DCVAE_Climate.webp" alt="Logo"/>
             </a></p>
 <h3><a href="../index.html">Table of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Detailed specification of the ML model</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../get_data/index.html">How to download the training data</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../normalization/index.html">How to convert and normalize the data</a></li>
+</ul>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../get_data/index.html">Get the training data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../normalization/index.html">Normalize the data for model fitting</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">ML model specification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and re-gridding</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Specify the details of the model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_dataset.html">Assemble the normalized data into training and test datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="training.html">Train the model</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">Utility functions for plotting and regridding</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../how_to.html">How to reproduce or extend this work</a></li>
@@ -164,7 +179,7 @@ Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise
           <a href="training.html" title="Default model training script"
              >next</a> |</li>
         <li class="right" >
-          <a href="make_dataset.html" title="Make the tf.data.Dataset inputs and outputs for the cross-region DCVAE"
+          <a href="make_dataset.html" title="Make the tf.data.Dataset inputs and outputs for the DCVAE"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">DCVAE-Climate</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Default model</a> &#187;</li>
