@@ -7,6 +7,11 @@ import sys
 import iris
 from utilities import grids
 import numpy as np
+
+# Supress TensorFlow moaning about cuda - we don't need a GPU for this
+# Also the warning message confuses people.
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
 import tensorflow as tf
 
 from makeDataset import getDataset

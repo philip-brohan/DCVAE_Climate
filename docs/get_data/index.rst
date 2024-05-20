@@ -13,7 +13,9 @@ We also want a land-sea mask (for plotting only). Use a land-surface only variab
 
 We can download all this from the awesome `Copernicus Climate Data Store <https://cds.climate.copernicus.eu/cdsapp#!/home>`_
 
-Script to do the whole download (about 8Gb, will take a few hours). Only downloads data where it is not already on disc.
+You will need to `register with the CDS <https://cds.climate.copernicus.eu/api-how-to>`_ before downloading. (You will also need to install the CDS API - but you've already done that, it's in the :doc:`conda environment <../environment>`).
+
+The script to do the whole download (about 8Gb, will take a few hours) is `download_all_data.sh` in the `get_data` directory. It only downloads data where it is not already on disc (so you can just run it again if it fails part way through).
 
 .. literalinclude:: ../../get_data/download_all_data.sh
 

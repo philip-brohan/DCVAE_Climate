@@ -128,7 +128,7 @@ To do this we use the :doc:`assimilation scripts <ML_default/assimilation>` but 
    :align: center
    :width: 95%
 
-   Left-hand column - a sample field from the test dataset. Centre column - a field generated from a random embedding. (Note that these columns should not be the same, but the centre column should look like the same sort of thing as the left-hand column). (:doc:`More details <ML_default/assimilate>`)
+   Left-hand column - a sample field from the test dataset. Centre column - a field generated from a random embedding. (Note that these columns should not be the same, but the centre column should look like the same sort of thing as the left-hand column). (:doc:`More details <ML_default/assimilation>`)
 
 It's hard to say exactly how well this works - the model generated fields are not the same as the test dataset fields, but they are similar. 
 

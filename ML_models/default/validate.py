@@ -7,12 +7,15 @@
 #  2) Autoencoder output
 #  3) scatter plot
 
-import tensorflow as tf
+# Supress TensorFlow moaning about cuda - we don't need a GPU for this
+# Also the warning message confuses people.
+import os
 
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+import tensorflow as tf
 
 from ML_models.default.makeDataset import getDataset
 from ML_models.default.autoencoderModel import getModel
-
 from ML_models.default.gmUtils import plotValidationField
 
 from specify import specification

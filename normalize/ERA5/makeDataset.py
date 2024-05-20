@@ -17,7 +17,9 @@ def load_tensor(file_name):
 # Get a list of filenames containing tensors
 def getFileNames(variable, startyear=1850, endyear=2050):
     inFiles = sorted(
-        os.listdir("%s/DCVAE-Climate/raw_datasets/ERA5/%s" % (os.getenv("SCRATCH"), variable))
+        os.listdir(
+            "%s/DCVAE-Climate/raw_datasets/ERA5/%s" % (os.getenv("SCRATCH"), variable)
+        )
     )
     inFiles = [
         fn for fn in inFiles if (int(fn[:4]) >= startyear and int(fn[:4]) <= endyear)
