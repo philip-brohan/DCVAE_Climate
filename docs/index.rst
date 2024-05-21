@@ -1,5 +1,5 @@
-A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder
-======================================================================================
+A DIY Machine Learning Climate Model
+====================================
 
 This is an example of how to build a climate model using Machine Learning (ML). It's designed to be used as a training tool for those new to ML, but to be powerful enough to be adapted into something of value for science work.
 
