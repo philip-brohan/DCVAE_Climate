@@ -148,7 +148,7 @@ And if we make the time-series diagnostic the same way, we can see the point of 
 
    Global-mean values for each month in the test dataset - ERA5 data in black, model output in red. Here T2m and MSLP have been assimilated, Precip is calculated by the model. (:doc:`More details <ML_default/assimilate_multi>`)
 
-We can not compare `observed` (ERA5) and modelled precipitation, where the modelled precipitation is calculated from observed T2m and MSLP. We can see a notable divergence between the ERA5 and modelled precipitation before about 1980 - this demonstrates the biases in the ERA5 precipitation product.
+We can now compare `observed` (ERA5) and modelled precipitation, where the modelled precipitation is calculated from observed T2m and MSLP. We can see a notable divergence between the ERA5 and modelled precipitation before about 1980 - this demonstrates the biases in the ERA5 precipitation product.
 
 And we can go on to do an attribution study: Does the trend in precip have a common origin with the trend in T2m? We can test this by only assimilating MSLP - don't force the T2m trend - and seeing what the calculated Precip does.
 
