@@ -158,7 +158,7 @@
 <p><span class="caption-text">Global-mean values for each month in the test dataset - ERA5 data in black, model output in red. Here T2m and MSLP have been assimilated, Precip is calculated by the model. (<a class="reference internal" href="ML_default/assimilate_multi.html"><span class="doc">More details</span></a>)</span><a class="headerlink" href="#id10" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
-<p>We can not compare <cite>observed</cite> (ERA5) and modelled precipitation, where the modelled precipitation is calculated from observed T2m and MSLP. We can see a notable divergence between the ERA5 and modelled precipitation before about 1980 - this demonstrates the biases in the ERA5 precipitation product.</p>
+<p>We can now compare <cite>observed</cite> (ERA5) and modelled precipitation, where the modelled precipitation is calculated from observed T2m and MSLP. We can see a notable divergence between the ERA5 and modelled precipitation before about 1980 - this demonstrates the biases in the ERA5 precipitation product.</p>
 <p>And we can go on to do an attribution study: Does the trend in precip have a common origin with the trend in T2m? We can test this by only assimilating MSLP - don’t force the T2m trend - and seeing what the calculated Precip does.</p>
 <figure class="align-center" id="id11">
 <a class="reference internal image-reference" href="_images/assimilate_multi_P_only.webp"><img alt="_images/assimilate_multi_P_only.webp" src="_images/assimilate_multi_P_only.webp" style="width: 95%;" /></a>
