@@ -27,7 +27,9 @@ def load_tensor(file_names):
 # Find out how many tensors available for each year from a source
 def getDataAvailability(source):
     # dir = "%s/DCVAE-Climate/normalized_datasets/%s" % (os.getenv("SCRATCH"), source)
-    dir = "/scratch/hadsx/cpm/5km/daily/1day/%s/norm_tensors" % (source) # args.variable
+    # dir = "/scratch/hadsx/cpm/5km/daily/1day/%s/norm_tensors" % (source) # args.variable
+    dir = "%s/%s/norm_tensors" % (os.getenv("MLSCRATCH"), source) # args.variable
+
     aFiles = os.listdir(dir)
     firstYr = 3000
     lastYr = 0
@@ -204,7 +206,8 @@ def getDataset(specification, purpose):
         #     specification["maxEnsembleCombinations"],
     # )
     vars=['tas','psl','uas','vas']
-    inFiles = getFileNames("/scratch/hadsx/cpm/5km/daily/1day", vars)
+    # inFiles = getFileNames("/scratch/hadsx/cpm/5km/daily/1day", vars)
+    inFiles = getFileNames(os.getenv("MLSCRATCH"), vars)
 
     # Create TensorFlow Dataset object from the source file names
     tnIData = tf.data.Dataset.from_tensor_slices(tf.constant(inFiles))
@@ -226,7 +229,8 @@ def getDataset(specification, purpose):
         #     specification["correlatedEnsembles"],
         #     specification["maxEnsembleCombinations"],
         # )
-        outFiles = getFileNames("/scratch/hadsx/cpm/5km/daily/1day", vars)
+        # outFiles = getFileNames("/scratch/hadsx/cpm/5km/daily/1day", vars)
+        outFiles = getFileNames(os.getenv("MLSCRATCH"), vars)
 
         tnOData = tf.data.Dataset.from_tensor_slices(tf.constant(outFiles))
         tsOData = tnOData.map(

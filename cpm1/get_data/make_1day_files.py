@@ -13,7 +13,7 @@ from iris.time import PartialDateTime
 
 member=1
 stvar='psl'
-year=1980
+year=1990
 
 # stin='/spice/project/ukcp/land-cpm/uk/5km/rcp85/01/tas/day/v20210615/tas_rcp85_land-cpm_uk_5km_01_day_19801201-19901130.nc'
 stin = "/spice/project/ukcp/land-cpm/uk/5km/rcp85/%02d/%s/day/v20210615/%s_rcp85_land-cpm_uk_5km_%02d_day_%04d1201-%04d1130.nc" % (

@@ -40,8 +40,7 @@ def listify(input):
 # Load the history of a model from the Tensorboard logs
 def loadHistory(LSC, offset=-1, max_epoch=None):
     history = {}
-    # summary_dir = "%s/DCVAE-Climate/%s/logs/Training" % (os.getenv("SCRATCH"), LSC)
-    summary_dir = "%s/ML-models/%s/logs/Training" % (os.getenv("MLSCRATCH"), LSC)
+    summary_dir = "%s/ML-models/%s/logs/Training" % (os.getenv("SCRATCH"), LSC)
     Rfiles = os.listdir(summary_dir)
     Rfiles.sort(key=lambda x: os.path.getmtime(os.path.join(summary_dir, x)))
     filename = Rfiles[offset]
@@ -95,16 +94,10 @@ def get_cmap(name):
     else:
         return cmocean.cm.balance
 
-# exec(open("gmUtils.py").read(), globals())
 
 # Plot a single-field validation figure for the autoencoder.
-def plotValidationField(specification, input, output, year, day, fileName, title0):
+def plotValidationField(specification, input, output, year, month, fileName):
     nFields = specification["nOutputChannels"]
-
-    # print("Hello daddy ########################################")
-    # print(input)
-    # print(output)
-    # print("Hello daddy2 ########################################")
 
     # Make the plot
     figScale = 3.0
@@ -140,24 +133,21 @@ def plotValidationField(specification, input, output, year, day, fileName, title
             nrows=1, ncols=len(wRatios), width_ratios=wRatios
         )
         # Left - map of target
-        varx = grids.OS5sCube.copy()
+        varx = grids.E5sCube.copy()
         varx.data = np.squeeze(input[-1][:, :, :, varI].numpy())
         varx.data = np.ma.masked_where(varx.data == 0.0, varx.data, copy=False)
-        ax_var[0].set_title(title0)
         if varI == 0:
-            # ax_var[0].set_title("%04d-%02d" % (year, day))
-            # ax_var[0].set_title(title0)
-            ax_var[0].set_axis_off()
+            ax_var[0].set_title("%04d-%02d" % (year, month))
+        ax_var[0].set_axis_off()
         x_img = plots.plotFieldAxes(
             ax_var[0],
             varx,
             vMax=1.25,
             vMin=-0.25,
             cMap=get_cmap(specification["outputNames"][varI]),
-            # plotCube=grids.OS5sCube,
         )
         # Centre - map of model output
-        vary = grids.OS5sCube.copy()
+        vary = grids.E5sCube.copy()
         vary.data = np.squeeze(output[:, :, :, varI].numpy())
         vary.data = np.ma.masked_where(varx.data == 0.0, vary.data, copy=False)
         ax_var[1].set_axis_off()
@@ -168,7 +158,6 @@ def plotValidationField(specification, input, output, year, day, fileName, title
             vMax=1.25,
             vMin=-0.25,
             cMap=get_cmap(specification["outputNames"][varI]),
-            # plotCube=grids.OS5sCube,
         )
         # Third - scatter plot of input::output - where used for training
         ax_var[2].set_xticks([0, 0.25, 0.5, 0.75, 1])
@@ -376,21 +365,18 @@ def plotTrainingMetrics(
 
 # Get target and encoded scalar statistics for one test case
 def computeScalarStats(
-    specification, x, generated, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180):
+    specification, x, generated, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180
+):
     nFields = specification["nOutputChannels"]
 
     # get the date from the filename tensor
     dateStr = tf.strings.split(x[0][0][0], sep="/")[-1].numpy()
-    # year = int(dateStr[:4])
-    # day = int(dateStr[5:7])
-    year = int(dateStr[10:14]) # int(fN[:4])
-    # month = int(fN[5:7])
-    idot    = str(dateStr).find('.')
-    day     = int(dateStr[15:(idot-2)]) # int(fN[5:7])
-    dtp = datetime.date(year, day, 15)
+    year = int(dateStr[:4])
+    month = int(dateStr[5:7])
+    dtp = datetime.date(year, month, 15)
 
     def tensor_to_cube(t):
-        result = grids.OS5sCube.copy()
+        result = grids.E5sCube.copy()
         result.data = np.squeeze(t.numpy())
         result.data = np.ma.masked_where(result.data == 0.0, result.data, copy=False)
         return result

@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 
+### to use
+# module load scitools
+# conda activate philip1
+# PYTHONPATH=/home/h03/hadsx/extremes/ML/pb1/DCVAE_Climate_sjb1/cpm1
+# plot_distribution_monthly.py --year 1980 --day 1 --variable tas
+
 # Plot raw and normalized variable for a selected month
 # Map and distribution.
 
@@ -23,16 +29,16 @@ from scipy.stats import gamma
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--year", help="Year to plot", type=int, required=False, default=1969
+    "--year", help="Year to plot", type=int, required=False, default=1980
 )
 parser.add_argument(
-    "--month", help="Month to plot", type=int, required=False, default=3
+    "--day", help="day to plot", type=int, required=False, default=1
 )
 parser.add_argument(
     "--variable",
-    help="Name of variable to use (mean_sea_level_pressure, 2m_temperature, ...)",
+    help="Name of variable to use (tas, psl, ...)",
     type=str,
-    default="total_precipitation",
+    default="tas",
 )
 args = parser.parse_args()
 
@@ -40,21 +46,21 @@ args = parser.parse_args()
 def load_tensor(file_name):
     sict = tf.io.read_file(file_name)
     imt = tf.io.parse_tensor(sict, np.float32)
-    imt = tf.reshape(imt, [721, 1440])
+    imt = tf.reshape(imt, [244, 180])
     return imt
 
 
 # Load the fitted values
 raw = tensor_to_cube(
     load_tensor(
-        "%s/DCVAE-Climate/raw_datasets/CPM5/%s/%04d-%02d.tfd"
-        % (os.getenv("SCRATCH"), args.variable, args.year, args.month)
+        "/scratch/hadsx/cpm/5km/daily/1day/%s/raw_tensors/member_01_%04d_%d.tfd"
+        % (args.variable, args.year, args.day)
     )
 )
 normalized = tensor_to_cube(
     load_tensor(
-        "%s/DCVAE-Climate/normalized_datasets/CPM5/%s/%04d-%02d.tfd"
-        % (os.getenv("SCRATCH"), args.variable, args.year, args.month)
+        "/scratch/hadsx/cpm/5km/daily/1day/%s/norm_tensors/member_01_%04d_%d.tfd"
+        % (args.variable, args.year, args.day)
     )
 )
 
@@ -91,13 +97,13 @@ axb.add_patch(
     )
 )
 
-# choose actual and normalized data colour maps based on variable
-cmaps = (cmocean.cm.balance, cmocean.cm.balance)
-if args.variable == "total_precipitation":
-    cmaps = (cmocean.cm.rain, cmocean.cm.tarn)
-if args.variable == "mean_sea_level_pressure":
-    cmaps = (cmocean.cm.diff, cmocean.cm.diff)
-
+# # choose actual and normalized data colour maps based on variable
+# cmaps = (cmocean.cm.balance, cmocean.cm.balance)
+# if args.variable == "total_precipitation":
+#     cmaps = (cmocean.cm.rain, cmocean.cm.tarn)
+# if args.variable == "mean_sea_level_pressure":
+#     cmaps = (cmocean.cm.diff, cmocean.cm.diff)
+cmaps = (cmocean.cm.diff, cmocean.cm.diff)
 
 ax_raw = fig.add_axes([0.02, 0.515, 0.607, 0.455])
 if args.variable == "total_precipitation":
@@ -127,5 +133,5 @@ plots.plotFieldAxes(
 ax_hist_normalized = fig.add_axes([0.683, 0.05, 0.303, 0.435])
 plots.plotHistAxes(ax_hist_normalized, normalized, vMin=-0.25, vMax=1.25, bins=25)
 
-
-fig.savefig("monthly.png")
+outfile="pdy2_member_01_%s_%04d-%d.png" % (args.variable, args.year, args.day)
+fig.savefig(outfile)

@@ -29,8 +29,8 @@ for variable in (
     # for day in range(0, 900):
     # for day in range(0, 10):
     for month in range(6, 7):
-        if is_done(member, month, variable):
-            continue
+        # if is_done(member, month, variable):
+        #     continue
         cmd = "%s/fit_for_day.py --member=%d --month=%d --variable=%s" % (
             sDir,
             member,

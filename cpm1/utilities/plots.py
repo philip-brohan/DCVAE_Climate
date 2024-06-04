@@ -74,7 +74,7 @@ def plot_cube(
 # High res land mask for plots
 def get_land_mask(grid_cube=None):
     lm = iris.load_cube(
-        "%s/CPM5/monthly/reanalysis/land_mask.nc" % os.getenv("SCRATCH")
+        "/data/users/hadsx/model_data/cpm/5km/land_mask_5km.nc"
     )
     lm = iris.util.squeeze(lm)
     lm.coord("latitude").coord_system = iris.coord_systems.RotatedGeogCS(90, 180, 0)
@@ -95,7 +95,7 @@ def plotFieldAxes(
     cMap=cmocean.cm.balance,
     plotCube=None,
     f_alpha=1.0,
-    show_land=True,
+    show_land=False, #True,
 ):
     if plotCube is not None:
         field = field.regrid(plotCube, iris.analysis.Linear())
@@ -103,16 +103,16 @@ def plotFieldAxes(
         vMax = np.max(field.data.compressed())
     if vMin is None:
         vMin = np.min(field.data.compressed())
-    if lMask is None:
-        cs = extract_pole(field)
-        lMask = get_land_mask(
-            plot_cube(
-                resolution=0.1,
-                pole_latitude=cs[0],
-                pole_longitude=cs[1],
-                npg_longitude=cs[2],
-            )
-        )
+    # if lMask is None:
+    #     cs = extract_pole(field)
+    #     lMask = get_land_mask(
+    #         plot_cube(
+    #             resolution=0.1,
+    #             pole_latitude=cs[0],
+    #             pole_longitude=cs[1],
+    #             npg_longitude=cs[2],
+    #         )
+    #     )
     try:
         lons = field.coord("grid_longitude").points
         lats = field.coord("grid_latitude").points
@@ -123,16 +123,16 @@ def plotFieldAxes(
     ax_map.set_xlim(min(lons), max(lons))
     ax_map.set_axis_off()
     ax_map.set_aspect("equal", adjustable="box", anchor="C")
-    ax_map.add_patch(
-        Rectangle(
-            (min(lons), min(lats)),
-            max(lons) - min(lons),
-            max(lats) - min(lats),
-            facecolor=(0.9, 0.9, 0.9, 1),
-            fill=True,
-            zorder=1,
-        )
-    )
+    # ax_map.add_patch(
+    #     Rectangle(
+    #         (min(lons), min(lats)),
+    #         max(lons) - min(lons),
+    #         max(lats) - min(lats),
+    #         facecolor=(0.9, 0.9, 0.9, 1),
+    #         fill=True,
+    #         zorder=1,
+    #     )
+    # )
     # Plot the field
     T_img = ax_map.pcolorfast(
         lons,
@@ -146,19 +146,19 @@ def plotFieldAxes(
     )
 
     # Overlay the land mask
-    if show_land:
-        mask_img = ax_map.pcolorfast(
-            lMask.coord("longitude").points,
-            lMask.coord("latitude").points,
-            lMask.data,
-            cmap=matplotlib.colors.ListedColormap(
-                ((0.4, 0.4, 0.4, 0), (0.4, 0.4, 0.4, 0.3))
-            ),
-            vmin=0,
-            vmax=1,
-            alpha=1,
-            zorder=100,
-        )
+    # if show_land:
+    #     mask_img = ax_map.pcolorfast(
+    #         lMask.coord("longitude").points,
+    #         lMask.coord("latitude").points,
+    #         lMask.data,
+    #         cmap=matplotlib.colors.ListedColormap(
+    #             ((0.4, 0.4, 0.4, 0), (0.4, 0.4, 0.4, 0.3))
+    #         ),
+    #         vmin=0,
+    #         vmax=1,
+    #         alpha=1,
+    #         zorder=100,
+    #     )
     return T_img
 
 

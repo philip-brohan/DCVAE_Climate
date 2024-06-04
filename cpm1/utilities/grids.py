@@ -13,26 +13,33 @@ import iris.coord_systems
 # Define a standard-cube to work with
 # Identical to that used in CPM5, except that the longitude cut is moved
 #  to mid pacific (-180) instead of over the UK (0)
-resolution = 1
-xmin = -90
-xmax = 90
-ymin = -121
-ymax = 122
-pole_latitude = 90
-pole_longitude = 180
-npg_longitude = 0
-cs = iris.coord_systems.RotatedGeogCS(pole_latitude, pole_longitude, npg_longitude)
-lat_values = np.arange(ymin, ymax + resolution, resolution)
-latitude = iris.coords.DimCoord(
-    lat_values, standard_name="grid_latitude", units="degrees_north", coord_system=cs
-)
-lon_values = np.arange(xmin, xmax, resolution)
-longitude = iris.coords.DimCoord(
-    lon_values, standard_name="grid_longitude", units="degrees_east", coord_system=cs
-)
-dummy_data = np.ma.MaskedArray(np.zeros((len(lat_values), len(lon_values))), False)
+# resolution = 1
+# xmin = -90
+# xmax = 90
+# ymin = -121
+# ymax = 122
+# pole_latitude = 90
+# pole_longitude = 180
+# npg_longitude = 0
+# cs = iris.coord_systems.RotatedGeogCS(pole_latitude, pole_longitude, npg_longitude)
+# lat_values = np.arange(ymin, ymax + resolution, resolution)
+# latitude = iris.coords.DimCoord(
+#     lat_values, standard_name="grid_latitude", units="degrees_north", coord_system=cs
+# )
+# lon_values = np.arange(xmin, xmax, resolution)
+# longitude = iris.coords.DimCoord(
+#     lon_values, standard_name="grid_longitude", units="degrees_east", coord_system=cs
+# )
+# dummy_data = np.ma.MaskedArray(np.zeros((len(lat_values), len(lon_values))), False)
 
-OS5sCube = iris.cube.Cube(
-    dummy_data, dim_coords_and_dims=[(latitude, 0), (longitude, 1)]
-)
-OS5scs = cs
+# OS5sCube = iris.cube.Cube(
+#     dummy_data, dim_coords_and_dims=[(latitude, 0), (longitude, 1)]
+# )
+# OS5scs = cs
+
+
+ref_5km = '/data/users/hadsx/model_data/cpm/5km/grid_5km.nc'
+ref_cube = iris.load_cube(ref_5km)
+OS5sCube = ref_cube[0]
+OS5sCube.coord("projection_x_coordinate").rename("grid_longitude")
+OS5sCube.coord("projection_y_coordinate").rename("grid_latitude")

@@ -3,6 +3,8 @@
 # Plot time-series of training progress
 
 from specify import specification
+import sys
+sys.path.append('/home/mo-sbrown/philip1/DCVAE_Climate_sjb1/cpm1')
 from ML_models.mk1.gmUtils import loadHistory, plotTrainingMetrics
 
 import argparse

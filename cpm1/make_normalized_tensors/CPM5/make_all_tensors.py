@@ -82,5 +82,6 @@ for batch in trainingData:
         year,
         day,
     )
+    print(opfile)
     sict = tf.io.serialize_tensor(ict)
     tf.io.write_file(opfile, sict)

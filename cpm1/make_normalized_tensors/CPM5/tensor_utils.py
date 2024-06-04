@@ -3,7 +3,7 @@
 import tensorflow as tf
 import numpy as np
 
-from get_data.CPM5 import CPM5_monthly
+from get_data.CPM5 import CPM5_daily
 from utilities import grids
 from normalize.CPM5.normalize import (
     normalize_cube,
@@ -12,17 +12,17 @@ from normalize.CPM5.normalize import (
 )
 
 
-# Load the data for 1 month
-def load_raw(year, month, variable="total_precipitation"):
-    raw = CPM5_monthly.load(
+# Load the data for 1 day (on the standard cube).
+def load_raw(member=1, variable="tas", year=1980, day=1):
+    raw = CPM5_daily.load(
+        member=member,
         variable=variable,
         year=year,
-        month=month,
-        grid=grids.E5sCube,
+        day=day,
+        # grid=grids.OS5sCube,
     )
-    raw.data.data[raw.data.mask == True] = 0.0
+    raw.data.data[raw.data.mask == True] = np.nan
     return raw
-
 
 # Convert raw cube to normalized tensor
 def raw_to_tensor(raw, variable, month):
@@ -32,10 +32,9 @@ def raw_to_tensor(raw, variable, month):
     ict = tf.convert_to_tensor(norm.data, tf.float32)
     return ict
 
-
 # Convert normalized tensor to cube
 def tensor_to_cube(tensor):
-    cube = grids.E5sCube.copy()
+    cube = grids.OS5sCube.copy()
     cube.data = tensor.numpy()
     cube.data = np.ma.MaskedArray(cube.data, cube.data == 0.0)
     return cube

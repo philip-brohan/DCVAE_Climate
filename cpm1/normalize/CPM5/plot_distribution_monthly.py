@@ -45,7 +45,7 @@ raw = CPM5_dayly.load(
     variable=args.variable,
     year=args.year,
     day=args.day,
-    grid=grids.E5sCube,
+    grid=grids.OS5sCube,
 )
 
 # Make the normalized version

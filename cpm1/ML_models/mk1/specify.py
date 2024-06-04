@@ -9,15 +9,15 @@ import tensorflow as tf
 
 specification = {}
 
-specification["modelName"] = "Default"
+specification["modelName"] = "mk6" # "rlevAspice" # "mk3"
 
 specification["inputTensors"] = (
     # "ERA5/2m_temperature",
     # "ERA5/mean_sea_level_pressure",
-    "CPM5/tas",
-    "CPM5/psl",
-    "CPM5/uas",
-    "CPM5/vas",
+    "CPM5/tasasdas",
+    "CPM5/pslsdasd",
+    "CPM5/uaswqeee",
+    "CPM5/vasrrrrr",
 
 )
 # specification["outputTensors"] = (
@@ -59,7 +59,7 @@ specification["nMonthsInEpoch"] = (
 specification["nEpochs"] = 500  # How many epochs to train for
 specification["shuffleBufferSize"] = 1000  # Buffer size for shuffling
 specification["batchSize"] = 32  # Arbitrary
-specification["beta"] = 0.05  # Weighting factor for KL divergence of latent space
+specification["beta"]  = 0.05  # Weighting factor for KL divergence of latent space
 specification["gamma"] = 0.000  # Weighting factor for KL divergence of output
 specification["maxGradient"] = 5  # Numerical instability protection
 
@@ -70,7 +70,7 @@ specification["printInterval"] = (
 
 # Optimization
 specification["strategy"] = tf.distribute.MirroredStrategy()
-specification["optimizer"] = tf.keras.optimizers.Adam(5e-4)
+specification["optimizer"] = tf.keras.optimizers.Adam(5e-5) # tf.keras.optimizers.Adam(5e-4)
 specification["trainCache"] = True
 specification["testCache"] = True
 

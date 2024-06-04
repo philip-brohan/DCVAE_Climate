@@ -14,7 +14,7 @@ def load_raw(member=1, variable="tas", year=1980, day=1):
         variable=variable,
         year=year,
         day=day,
-        grid=grids.OS5sCube,
+        # grid=grids.OS5sCube,
     )
     raw.data.data[raw.data.mask == True] = np.nan
     return raw

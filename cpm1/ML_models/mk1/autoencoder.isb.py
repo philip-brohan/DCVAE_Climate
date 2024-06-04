@@ -23,8 +23,7 @@ args = parser.parse_args()
 
 # Load the data path, data source, and model specification
 from specify import specification
-
-sys.path.append('/home/h03/hadsx/extremes/ML/pb1/DCVAE_Climate_sjb1/cpm1')
+sys.path.append('/home/mo-sbrown/philip1/DCVAE_Climate_sjb1/cpm1')
 from ML_models.mk1.makeDataset import getDataset
 from ML_models.mk1.autoencoderModel import DCVAE, getModel
 
@@ -56,7 +55,7 @@ def getDatasets():
     return (trainingData, validationData, testData)
 
 vars=['tas','psl','uas','vas']
-# inFiles = getFileNames("/scratch/hadsx/cpm/5km/daily/1day", vars)
+# inFiles = getFileNames("/lustre/home/br-train30/SCRATCH/cpm1", vars)
 # 1/0.0   # stop here
 
 # Instantiate and run the model under the control of the distribution strategy
@@ -66,9 +65,7 @@ with specification["strategy"].scope():
     autoencoder = getModel(specification, epoch=args.epoch)
 
     # logfile to output the metrics
-    log_FN = ("%s/ML-models/%s/logs/Training/%s") % (
-        os.getenv("MLSCRATCH"),
-        specification["modelName"],
+    log_FN = ("/home/mo-sbrown/SCRATCH/cpm1/ML-models/%s/logs/Training") % (
         specification["modelName"],
     )
     if not os.path.isdir(os.path.dirname(log_FN)):
@@ -104,12 +101,11 @@ with specification["strategy"].scope():
         autoencoder.update_metrics(validationData, testData)
 
         # Save model state
-        # save_dir = "%s/DCVAE-Climate/%s/weights/Epoch_%04d" % (
-        #     os.getenv("MLSCRATCH"),
-        #     specification["modelName"],
-        #     epoch,
-        # )
-        save_dir = "%s/ML-models/%s/weights/Epoch_%04d" % ( os.getenv("MLSCRATCH"), specification["modelName"], epoch, )
+        save_dir = "/home/mo-sbrown/SCRATCH/cpm1/ML-models/%s/weights/Epoch_%04d" % (
+#            os.getenv("SCRATCH"),
+            specification["modelName"],
+            epoch,
+        )
         if not os.path.isdir(save_dir):
             os.makedirs(save_dir)
         autoencoder.save_weights("%s/ckpt" % save_dir)
@@ -128,5 +124,3 @@ with specification["strategy"].scope():
                 int(end_monitoring_time - end_training_time),
             )
         )
-
-print("All saved in",save_dir)
