@@ -8,9 +8,12 @@ import iris
 from utilities import grids
 import numpy as np
 
+# Supress iris moaning about attributes
+iris.FUTURE.save_split_attrs = True
+
 # Supress TensorFlow moaning about cuda - we don't need a GPU for this
 # Also the warning message confuses people.
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+# os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 import tensorflow as tf
 
@@ -45,10 +48,11 @@ trainingData = getDataset(
     startyear=args.startyear,
     endyear=args.endyear,
     cache=False,
-    blur=1.0e-9,
+    blur=None,
 ).batch(1)
 mean = tf.zeros([1, 721, 1440, 1], dtype=tf.float32)
 count = tf.zeros([1, 721, 1440, 1], dtype=tf.float32)
+cnt = 0
 for batch in trainingData:
     month = int(batch[1].numpy()[0][5:7])
     if month == args.month:

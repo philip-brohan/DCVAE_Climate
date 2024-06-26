@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 # Make normalization constants for all the datasets
 # Requires pre-made raw tensors

@@ -4,44 +4,66 @@ import os
 import sys
 import tensorflow as tf
 import numpy as np
+import zarr
+import tensorstore as ts
 
-
-# Load a pre-prepared tensor from a file
-def load_tensor(file_name):
-    sict = tf.io.read_file(file_name)
-    imt = tf.io.parse_tensor(sict, np.float32)
-    imt = tf.reshape(imt, [721, 1440, 1])
-    return imt
-
-
-# Get a list of filenames containing tensors
-def getFileNames(variable, startyear=1850, endyear=2050):
-    inFiles = sorted(
-        os.listdir(
-            "%s/DCVAE-Climate/raw_datasets/ERA5/%s" % (os.getenv("SCRATCH"), variable)
-        )
-    )
-    inFiles = [
-        fn for fn in inFiles if (int(fn[:4]) >= startyear and int(fn[:4]) <= endyear)
-    ]
-    return inFiles
+from make_raw_tensors.ERA5 import tensor_utils
 
 
 # Get a dataset - all the tensors for a given and variable
-def getDataset(variable, startyear=1850, endyear=2050, blur=None, cache=False):
-    # Get a list of years to include
-    inFiles = getFileNames(variable, startyear=startyear, endyear=endyear)
+def getDataset(
+    variable,
+    startyear=tensor_utils.FirstYear,
+    endyear=tensor_utils.LastYear,
+    blur=None,
+    cache=False,
+):
 
-    # Create TensorFlow Dataset object from the source file names
-    tn_data = tf.data.Dataset.from_tensor_slices(tf.constant(inFiles))
+    # Get the index of the last month in the raw tensors
+    fn = "%s/DCVAE-Climate/raw_datasets/ERA5/%s_zarr" % (
+        os.getenv("SCRATCH"),
+        variable,
+    )
+    zarr_array = zarr.open(fn, mode="r")
+    max_index = zarr_array.shape[2]
+
+    # Get lists of dates and indices
+    dates = []
+    indices = []
+    for i in range(max_index):
+        year, month = tensor_utils.index_to_date(i)
+        if year >= startyear and year <= endyear:
+            dates.append("%04d-%02d" % (year, month))
+            indices.append(i)
+
+    # Create TensorFlow Dataset object from the source file dates
+    tn_data = tf.data.Dataset.from_tensor_slices(tf.constant(dates))
 
     # Convert from list of file names to Dataset of source file contents
-    fnFiles = [
-        "%s/DCVAE-Climate/raw_datasets/ERA5/%s/%s" % (os.getenv("SCRATCH"), variable, x)
-        for x in inFiles
-    ]
-    ts_data = tf.data.Dataset.from_tensor_slices(tf.constant(fnFiles))
-    ts_data = ts_data.map(load_tensor, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    tsa = ts.open(
+        {
+            "driver": "zarr",
+            "kvstore": "file://" + fn,
+        }
+    ).result()
+
+    # Need the indirect function as zarr can't take tensor indices and .map prohibits .numpy()
+    def load_tensor_from_index_py(idx):
+        return tf.convert_to_tensor(tsa[:, :, idx.numpy()].read().result(), tf.float32)
+
+    def load_tensor_from_index(idx):
+        result = tf.py_function(
+            load_tensor_from_index_py,
+            [idx],
+            tf.float32,
+        )
+        result = tf.reshape(result, [721, 1440, 1])
+        return result
+
+    ts_data = tf.data.Dataset.from_tensor_slices(tf.constant(indices, tf.int32))
+    ts_data = ts_data.map(
+        load_tensor_from_index, num_parallel_calls=tf.data.experimental.AUTOTUNE
+    )
     # Add noise to data - needed for some cases where the data is all zero
     if blur is not None:
         ts_data = ts_data.map(
