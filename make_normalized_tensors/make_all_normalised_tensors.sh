@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 # Make all the normalized tensors
 # Requires pre-made normalization parameters.

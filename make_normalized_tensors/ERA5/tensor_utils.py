@@ -11,6 +11,18 @@ from normalize.ERA5.normalize import (
     load_fitted,
 )
 
+# Convert date into an array index
+FirstYear = 1940
+LastYear = 2024
+
+
+def date_to_index(year, month):
+    return (year - FirstYear) * 12 + month - 1
+
+
+def index_to_date(idx):
+    return (idx // 12) + FirstYear, (idx % 12) + 1
+
 
 # Load the data for 1 month
 def load_raw(year, month, variable="total_precipitation"):

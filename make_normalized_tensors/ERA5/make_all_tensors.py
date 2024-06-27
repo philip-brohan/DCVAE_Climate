@@ -8,6 +8,10 @@ import argparse
 import tensorflow as tf
 from normalize.ERA5.makeDataset import getDataset
 from normalize.ERA5.normalize import match_normal, load_fitted
+import tensorstore as ts
+from shutil import rmtree
+
+from tensor_utils import date_to_index, LastYear
 
 sDir = os.path.dirname(os.path.realpath(__file__))
 
@@ -20,23 +24,28 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-opdir = "%s/DCVAE-Climate/normalized_datasets/ERA5/%s/" % (
+# Create the output zarr array if it doesn't exist
+fn = "%s/DCVAE-Climate/normalized_datasets/ERA5/%s_zarr" % (
     os.getenv("SCRATCH"),
     args.variable,
 )
-if not os.path.isdir(opdir):
-    os.makedirs(opdir)
+if os.path.exists(fn):
+    rmtree(fn)
 
-
-def is_done(year, month):
-    fn = "%s/%04d-%02d.tfd" % (
-        opdir,
-        year,
-        month,
-    )
-    if os.path.exists(fn):
-        return True
-    return False
+dataset = ts.open(
+    {
+        "driver": "zarr",
+        "kvstore": "file://" + fn,
+    },
+    dtype=ts.float32,
+    chunk_layout=ts.ChunkLayout(chunk_shape=[721, 1440, 1]),
+    create=True,
+    shape=[
+        721,
+        1440,
+        date_to_index(LastYear, 12) + 1,
+    ],
+).result()
 
 
 # Load the pre-calculated normalisation parameters
@@ -57,8 +66,6 @@ trainingData = getDataset(
 for batch in trainingData:
     year = int(batch[1].numpy()[0][0:4])
     month = int(batch[1].numpy()[0][5:7])
-    if is_done(year, month):
-        continue
 
     # normalize
     raw = batch[0].numpy().squeeze()
@@ -66,11 +73,5 @@ for batch in trainingData:
     ict = tf.convert_to_tensor(normalized, tf.float32)
     tf.debugging.check_numerics(ict, "Bad data %04d-%02d" % (year, month))
 
-    # Write to file
-    opfile = ("%s/%04d-%02d.tfd") % (
-        opdir,
-        year,
-        month,
-    )
-    sict = tf.io.serialize_tensor(ict)
-    tf.io.write_file(opfile, sict)
+    didx = date_to_index(year, month)
+    op = dataset[:, :, didx].write(ict)

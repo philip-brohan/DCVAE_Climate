@@ -7,9 +7,10 @@ import os
 import sys
 import numpy as np
 import tensorflow as tf
+import zarr
 
 from utilities import plots
-from tensor_utils import tensor_to_cube
+from tensor_utils import tensor_to_cube, date_to_index
 
 import matplotlib
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -18,8 +19,6 @@ from matplotlib.patches import Rectangle
 
 import cmocean
 import argparse
-
-from scipy.stats import gamma
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -36,27 +35,34 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-
-def load_tensor(file_name):
-    sict = tf.io.read_file(file_name)
-    imt = tf.io.parse_tensor(sict, np.float32)
-    imt = tf.reshape(imt, [721, 1440])
-    return imt
-
-
-# Load the fitted values
-raw = tensor_to_cube(
-    load_tensor(
-        "%s/DCVAE-Climate/raw_datasets/ERA5/%s/%04d-%02d.tfd"
-        % (os.getenv("SCRATCH"), args.variable, args.year, args.month)
-    )
+fn = "%s/DCVAE-Climate/normalized_datasets/ERA5/%s_zarr" % (
+    os.getenv("SCRATCH"),
+    args.variable,
 )
-normalized = tensor_to_cube(
-    load_tensor(
-        "%s/DCVAE-Climate/normalized_datasets/ERA5/%s/%04d-%02d.tfd"
-        % (os.getenv("SCRATCH"), args.variable, args.year, args.month)
-    )
+
+
+# Get the raw data
+zarr_array = zarr.open(
+    "%s/DCVAE-Climate/raw_datasets/ERA5/%s_zarr"
+    % (
+        os.getenv("SCRATCH"),
+        args.variable,
+    ),
+    mode="r",
 )
+idx = date_to_index(args.year, args.month)
+raw = tensor_to_cube(tf.convert_to_tensor(zarr_array[:, :, idx], tf.float32))
+
+# Get the normalized data
+zarr_array = zarr.open(
+    "%s/DCVAE-Climate/normalized_datasets/ERA5/%s_zarr"
+    % (
+        os.getenv("SCRATCH"),
+        args.variable,
+    ),
+    mode="r",
+)
+normalized = tensor_to_cube(tf.convert_to_tensor(zarr_array[:, :, idx], tf.float32))
 
 
 # Make the plot
@@ -128,4 +134,4 @@ ax_hist_normalized = fig.add_axes([0.683, 0.05, 0.303, 0.435])
 plots.plotHistAxes(ax_hist_normalized, normalized, vMin=-0.25, vMax=1.25, bins=25)
 
 
-fig.savefig("monthly.png")
+fig.savefig("monthly.webp")
