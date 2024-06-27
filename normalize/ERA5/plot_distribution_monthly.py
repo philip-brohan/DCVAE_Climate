@@ -120,4 +120,4 @@ ax_hist_normalized = fig.add_axes([0.683, 0.05, 0.303, 0.435])
 plots.plotHistAxes(ax_hist_normalized, normalized, vMin=-0.25, vMax=1.25, bins=25)
 
 
-fig.savefig("monthly.png")
+fig.savefig("monthly.webp")

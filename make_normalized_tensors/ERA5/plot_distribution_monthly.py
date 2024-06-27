@@ -42,7 +42,7 @@ fn = "%s/DCVAE-Climate/normalized_datasets/ERA5/%s_zarr" % (
 
 
 # Get the raw data
-zarr_array = zarr.open(
+raw_zarr = zarr.open(
     "%s/DCVAE-Climate/raw_datasets/ERA5/%s_zarr"
     % (
         os.getenv("SCRATCH"),
@@ -50,11 +50,17 @@ zarr_array = zarr.open(
     ),
     mode="r",
 )
+
+
+def date_to_index(year, month):
+    return (year - raw_zarr.attrs["FirstYear"]) * 12 + month - 1
+
+
 idx = date_to_index(args.year, args.month)
-raw = tensor_to_cube(tf.convert_to_tensor(zarr_array[:, :, idx], tf.float32))
+raw = tensor_to_cube(tf.convert_to_tensor(raw_zarr[:, :, idx], tf.float32))
 
 # Get the normalized data
-zarr_array = zarr.open(
+normalized_zarr = zarr.open(
     "%s/DCVAE-Climate/normalized_datasets/ERA5/%s_zarr"
     % (
         os.getenv("SCRATCH"),
@@ -62,7 +68,9 @@ zarr_array = zarr.open(
     ),
     mode="r",
 )
-normalized = tensor_to_cube(tf.convert_to_tensor(zarr_array[:, :, idx], tf.float32))
+normalized = tensor_to_cube(
+    tf.convert_to_tensor(normalized_zarr[:, :, idx], tf.float32)
+)
 
 
 # Make the plot

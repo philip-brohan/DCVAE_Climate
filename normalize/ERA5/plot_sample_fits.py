@@ -147,4 +147,4 @@ for i in range(25):
     ax.add_line(Line2D(m_values[i], m_fit[i], color="red", linewidth=2))
 
 
-fig.savefig("samples_%s_m%02d.png" % (args.variable, args.month))
+fig.savefig("samples_%s_m%02d.webp" % (args.variable, args.month))

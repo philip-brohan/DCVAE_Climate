@@ -119,4 +119,4 @@ cb = fig.colorbar(
     shape_img, ax=ax_shape_cb, location="right", orientation="vertical", fraction=1.0
 )
 
-fig.savefig("gamma.png")
+fig.savefig("gamma.webp")

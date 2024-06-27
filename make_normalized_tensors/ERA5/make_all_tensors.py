@@ -10,8 +10,7 @@ from normalize.ERA5.makeDataset import getDataset
 from normalize.ERA5.normalize import match_normal, load_fitted
 import tensorstore as ts
 from shutil import rmtree
-
-from tensor_utils import date_to_index, LastYear
+import zarr
 
 sDir = os.path.dirname(os.path.realpath(__file__))
 
@@ -24,15 +23,28 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-# Create the output zarr array if it doesn't exist
+# Get the date range from the input zarr array
+fn = "%s/DCVAE-Climate/raw_datasets/ERA5/%s_zarr" % (
+    os.getenv("SCRATCH"),
+    args.variable,
+)
+input_zarr = zarr.open(fn, mode="r")
+
+
+def date_to_index(year, month):
+    return (year - input_zarr.attrs["FirstYear"]) * 12 + month - 1
+
+
+# Create the output zarr array
 fn = "%s/DCVAE-Climate/normalized_datasets/ERA5/%s_zarr" % (
     os.getenv("SCRATCH"),
     args.variable,
 )
+# Delete any previous version
 if os.path.exists(fn):
     rmtree(fn)
 
-dataset = ts.open(
+normalized_zarr = ts.open(
     {
         "driver": "zarr",
         "kvstore": "file://" + fn,
@@ -43,10 +55,11 @@ dataset = ts.open(
     shape=[
         721,
         1440,
-        date_to_index(LastYear, 12) + 1,
+        date_to_index(input_zarr.attrs["LastYear"], 12) + 1,
     ],
 ).result()
-
+normalized_zarr.attrs["FirstYear"] = input_zarr.attrs["FirstYear"]
+normalized_zarr.attrs["LastYear"] = input_zarr.attrs["LastYear"]
 
 # Load the pre-calculated normalisation parameters
 fitted = []
@@ -74,4 +87,4 @@ for batch in trainingData:
     tf.debugging.check_numerics(ict, "Bad data %04d-%02d" % (year, month))
 
     didx = date_to_index(year, month)
-    op = dataset[:, :, didx].write(ict)
+    op = normalized_zarr[:, :, didx].write(ict)

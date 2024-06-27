@@ -3,6 +3,7 @@
 # Make raw data tensors for normalization
 
 import os
+from shutil import rmtree
 import argparse
 import tensorstore as ts
 
@@ -24,22 +25,27 @@ fn = "%s/DCVAE-Climate/raw_datasets/ERA5/%s_zarr" % (
     os.getenv("SCRATCH"),
     args.variable,
 )
-if not os.path.exists(fn):
-    dataset = ts.open(
-        {
-            "driver": "zarr",
-            "kvstore": "file://" + fn,
-        },
-        dtype=ts.float32,
-        chunk_layout=ts.ChunkLayout(chunk_shape=[721, 1440, 1]),
-        create=True,
-        shape=[
-            721,
-            1440,
-            date_to_index(LastYear, 12) + 1,
-        ],
-    ).result()
+# Clear out last version
+if os.path.exists(fn):
+    rmtree(fn)
 
+dataset = ts.open(
+    {
+        "driver": "zarr",
+        "kvstore": "file://" + fn,
+    },
+    dtype=ts.float32,
+    chunk_layout=ts.ChunkLayout(chunk_shape=[721, 1440, 1]),
+    create=True,
+    shape=[
+        721,
+        1440,
+        date_to_index(LastYear, 12) + 1,
+    ],
+).result()
+# Add date range to array as metadata
+dataset.attrs["FirstYear"] = FirstYear
+dataset.attrs["LastYear"] = LastYear
 
 count = 0
 for year in range(FirstYear, LastYear + 1):

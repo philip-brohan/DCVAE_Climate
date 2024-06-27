@@ -7,14 +7,12 @@ import numpy as np
 import zarr
 import tensorstore as ts
 
-from make_raw_tensors.ERA5 import tensor_utils
-
 
 # Get a dataset - all the tensors for a given and variable
 def getDataset(
     variable,
-    startyear=tensor_utils.FirstYear,
-    endyear=tensor_utils.LastYear,
+    startyear=None,
+    endyear=None,
     blur=None,
     cache=False,
 ):
@@ -26,12 +24,19 @@ def getDataset(
     )
     zarr_array = zarr.open(fn, mode="r")
     max_index = zarr_array.shape[2]
+    if startyear is not None:
+        startyear = max(startyear, zarr_array.attrs["FirstYear"])
+    else:
+        startyear = zarr_array.attrs["FirstYear"]
+
+    def index_to_date(i):
+        return i // 12 + zarr_array.attrs["FirstYear"], i % 12 + 1
 
     # Get lists of dates and indices
     dates = []
     indices = []
     for i in range(max_index):
-        year, month = tensor_utils.index_to_date(i)
+        year, month = index_to_date(i)
         if year >= startyear and year <= endyear:
             dates.append("%04d-%02d" % (year, month))
             indices.append(i)
