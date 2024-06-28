@@ -5,12 +5,23 @@
 import os
 import sys
 import argparse
-import tensorflow as tf
-from normalize.ERA5.makeDataset import getDataset
-from normalize.ERA5.normalize import match_normal, load_fitted
-import tensorstore as ts
+import iris
 from shutil import rmtree
 import zarr
+
+# Supress iris moaning
+iris.FUTURE.save_split_attrs = True
+iris.FUTURE.datum_support = True
+
+# Supress TensorFlow moaning about cuda - we don't need a GPU for this
+# Also the warning message confuses people.
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
+import tensorflow as tf
+import tensorstore as ts
+from normalize.ERA5.makeDataset import getDataset
+from normalize.ERA5.normalize import match_normal, load_fitted
+
 
 sDir = os.path.dirname(os.path.realpath(__file__))
 
@@ -58,8 +69,11 @@ normalized_zarr = ts.open(
         date_to_index(input_zarr.attrs["LastYear"], 12) + 1,
     ],
 ).result()
-normalized_zarr.attrs["FirstYear"] = input_zarr.attrs["FirstYear"]
-normalized_zarr.attrs["LastYear"] = input_zarr.attrs["LastYear"]
+# Add date range to array as metadata
+# TensorStore doesn't support metadata, so use the underlying zarr array
+zarr_ds = zarr.open(fn, mode="r+")
+zarr_ds.attrs["FirstYear"] = input_zarr.attrs["FirstYear"]
+zarr_ds.attrs["LastYear"] = input_zarr.attrs["LastYear"]
 
 # Load the pre-calculated normalisation parameters
 fitted = []

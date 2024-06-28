@@ -5,6 +5,7 @@
 import os
 from shutil import rmtree
 import argparse
+import zarr
 import tensorstore as ts
 
 from tensor_utils import date_to_index, FirstYear, LastYear
@@ -43,9 +44,12 @@ dataset = ts.open(
         date_to_index(LastYear, 12) + 1,
     ],
 ).result()
+
 # Add date range to array as metadata
-dataset.attrs["FirstYear"] = FirstYear
-dataset.attrs["LastYear"] = LastYear
+# TensorStore doesn't support metadata, so use the underlying zarr array
+zarr_ds = zarr.open(fn, mode="r+")
+zarr_ds.attrs["FirstYear"] = FirstYear
+zarr_ds.attrs["LastYear"] = LastYear
 
 count = 0
 for year in range(FirstYear, LastYear + 1):

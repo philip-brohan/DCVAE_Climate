@@ -28,6 +28,10 @@ def getDataset(
         startyear = max(startyear, zarr_array.attrs["FirstYear"])
     else:
         startyear = zarr_array.attrs["FirstYear"]
+    if endyear is not None:
+        endyear = min(endyear, zarr_array.attrs["LastYear"])
+    else:
+        endyear = zarr_array.attrs["LastYear"]
 
     def index_to_date(i):
         return i // 12 + zarr_array.attrs["FirstYear"], i % 12 + 1
