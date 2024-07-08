@@ -6,6 +6,7 @@
 
 import os
 import sys
+import numpy as np
 
 # Supress TensorFlow moaning about cuda - we don't need a GPU for this
 # Also the warning message confuses people.
@@ -43,8 +44,11 @@ dataset = ts.open(
 ).result()
 
 # Load and standardise data
-qd = load_raw(args.year, args.month, variable=args.variable)
-ict = raw_to_tensor(qd)
+try:
+    qd = load_raw(args.year, args.month, variable=args.variable)
+    ict = raw_to_tensor(qd)
+except Exception:
+    ict = tf.fill([721, 1440], tf.constant(np.nan, dtype=tf.float32))
 
 # Write to file
 didx = date_to_index(args.year, args.month)

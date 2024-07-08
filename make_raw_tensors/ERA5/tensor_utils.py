@@ -8,7 +8,7 @@ from utilities import grids
 
 # Convert date into an array index
 FirstYear = 1940
-LastYear = 2024
+LastYear = 2035
 
 
 def date_to_index(year, month):
