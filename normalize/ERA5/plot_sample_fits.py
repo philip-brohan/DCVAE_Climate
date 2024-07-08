@@ -49,9 +49,6 @@ parser.add_argument(
 parser.add_argument(
     "--endyear", help="End Year", type=int, required=False, default=2022
 )
-parser.add_argument(
-    "--epoch", help="Epoch to plot", type=int, required=False, default=1
-)
 args = parser.parse_args()
 
 # Select 25 grid-cells to show

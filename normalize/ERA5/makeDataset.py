@@ -23,32 +23,15 @@ def getDataset(
         variable,
     )
     zarr_array = zarr.open(fn, mode="r")
-    max_index = zarr_array.shape[2]
-    if startyear is not None:
-        startyear = max(startyear, zarr_array.attrs["FirstYear"])
-    else:
-        startyear = zarr_array.attrs["FirstYear"]
-    if endyear is not None:
-        endyear = min(endyear, zarr_array.attrs["LastYear"])
-    else:
-        endyear = zarr_array.attrs["LastYear"]
-
-    def index_to_date(i):
-        return i // 12 + zarr_array.attrs["FirstYear"], i % 12 + 1
-
-    # Get lists of dates and indices
-    dates = []
-    indices = []
-    for i in range(max_index):
-        year, month = index_to_date(i)
-        if year >= startyear and year <= endyear:
-            dates.append("%04d-%02d" % (year, month))
-            indices.append(i)
+    AvailableMonths = zarr_array.attrs["AvailableMonths"]
+    dates = sorted(AvailableMonths.keys())
+    indices = [AvailableMonths[date] for date in dates]
 
     # Create TensorFlow Dataset object from the source file dates
-    tn_data = tf.data.Dataset.from_tensor_slices(tf.constant(dates))
+    tn_data = tf.data.Dataset.from_tensor_slices(tf.constant(dates, tf.string))
+    ts_data = tf.data.Dataset.from_tensor_slices(tf.constant(indices, tf.int32))
 
-    # Convert from list of file names to Dataset of source file contents
+    # Convert from list ofavailable months to Dataset of source file contents
     tsa = ts.open(
         {
             "driver": "zarr",
@@ -69,7 +52,6 @@ def getDataset(
         result = tf.reshape(result, [721, 1440, 1])
         return result
 
-    ts_data = tf.data.Dataset.from_tensor_slices(tf.constant(indices, tf.int32))
     ts_data = ts_data.map(
         load_tensor_from_index, num_parallel_calls=tf.data.experimental.AUTOTUNE
     )

@@ -6,6 +6,7 @@ import os
 import sys
 import argparse
 import iris
+import numpy as np
 from shutil import rmtree
 import zarr
 
@@ -40,10 +41,7 @@ fn = "%s/DCVAE-Climate/raw_datasets/ERA5/%s_zarr" % (
     args.variable,
 )
 input_zarr = zarr.open(fn, mode="r")
-
-
-def date_to_index(year, month):
-    return (year - input_zarr.attrs["FirstYear"]) * 12 + month - 1
+AvailableMonths = input_zarr.attrs["AvailableMonths"]
 
 
 # Create the output zarr array
@@ -63,17 +61,13 @@ normalized_zarr = ts.open(
     dtype=ts.float32,
     chunk_layout=ts.ChunkLayout(chunk_shape=[721, 1440, 1]),
     create=True,
-    shape=[
-        721,
-        1440,
-        date_to_index(input_zarr.attrs["LastYear"], 12) + 1,
-    ],
+    fill_value=np.nan,
+    shape=input_zarr.shape,
 ).result()
 # Add date range to array as metadata
 # TensorStore doesn't support metadata, so use the underlying zarr array
 zarr_ds = zarr.open(fn, mode="r+")
-zarr_ds.attrs["FirstYear"] = input_zarr.attrs["FirstYear"]
-zarr_ds.attrs["LastYear"] = input_zarr.attrs["LastYear"]
+zarr_ds.attrs["AvailableMonths"] = AvailableMonths
 
 # Load the pre-calculated normalisation parameters
 fitted = []
@@ -100,5 +94,5 @@ for batch in trainingData:
     ict = tf.convert_to_tensor(normalized, tf.float32)
     tf.debugging.check_numerics(ict, "Bad data %04d-%02d" % (year, month))
 
-    didx = date_to_index(year, month)
+    didx = AvailableMonths["%04d-%02d" % (year, month)]
     op = normalized_zarr[:, :, didx].write(ict)

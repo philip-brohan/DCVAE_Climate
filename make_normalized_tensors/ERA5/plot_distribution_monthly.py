@@ -6,11 +6,17 @@
 import os
 import sys
 import numpy as np
+
+
+# Supress TensorFlow moaning about cuda - we don't need a GPU for this
+# Also the warning message confuses people.
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
 import tensorflow as tf
 import zarr
 
 from utilities import plots
-from tensor_utils import tensor_to_cube, date_to_index
+from tensor_utils import tensor_to_cube
 
 import matplotlib
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -50,13 +56,10 @@ raw_zarr = zarr.open(
     ),
     mode="r",
 )
+AvailableMonths = raw_zarr.attrs["AvailableMonths"]
 
 
-def date_to_index(year, month):
-    return (year - raw_zarr.attrs["FirstYear"]) * 12 + month - 1
-
-
-idx = date_to_index(args.year, args.month)
+idx = AvailableMonths["%04d-%02d" % (args.year, args.month)]
 raw = tensor_to_cube(tf.convert_to_tensor(raw_zarr[:, :, idx], tf.float32))
 
 # Get the normalized data
