@@ -34,11 +34,9 @@ def getMonths(
     maxTestMonths,
 ):
     avail = {}
-    maxCount = 1
     months_in_all = None
     for source in sources:
         avail[source] = getDataAvailability(source)
-        print(source, len(avail[source]))
         if months_in_all is None:
             months_in_all = set(avail[source].keys())
         else:
@@ -51,6 +49,8 @@ def getMonths(
         if (firstYr is None or year >= firstYr) and (lastYr is None or year <= lastYr):
             filtered.append(month)
     months_in_all = filtered
+
+    months_in_all.sort()  # Months in time order (validation plots)
 
     # Test/Train split
     if purpose is not None:
@@ -65,8 +65,6 @@ def getMonths(
             ]
         else:
             raise Exception("Unsupported purpose " + purpose)
-
-    months_in_all.sort()  # Months in time order (validation plots)
 
     # Limit maximum data size
     if purpose == "Train" and maxTrainingMonths is not None:
@@ -149,30 +147,29 @@ def getDataset(specification, purpose):
         ).result()
 
     # Map functions to get tensors from dates and indices
-    def load_tensor_from_index_py(tsa, source, month):
+    def load_input_tensors_from_month_py(month):
         mnth = month.numpy().decode("utf-8")
-        idx = inIndices[source][inMonths.index(mnth)]
-        return tf.convert_to_tensor(tsa[:, :, idx.numpy()].read().result(), tf.float32)
-
-    def load_tensor_from_index(tsa, source, month):
-        result = tf.py_function(
-            load_tensor_from_index_py,
-            [tsa, source, month],
-            tf.float32,
-        )
-        result = tf.reshape(result, [721, 1440, 1])
-        return result
-
-    def load_input_tensor(month):
         source = specification["inputTensors"][0]
         tsa = tsa_in[source]
-        ima = load_tensor_from_index(tsa, source, month)
+        idx = inIndices[source][inMonths.index(mnth)]
+        ima = tf.convert_to_tensor(tsa[:, :, idx].read().result(), tf.float32)
+        ima = tf.reshape(ima, [721, 1440, 1])
         for fni in range(1, len(specification["inputTensors"])):
-            source = specification["inputTensors"][0]
+            source = specification["inputTensors"][fni]
             tsa = tsa_in[source]
-            imt = load_tensor_from_index(tsa, source, month)
+            idx = inIndices[source][inMonths.index(mnth)]
+            imt = tf.convert_to_tensor(tsa[:, :, idx].read().result(), tf.float32)
+            imt = tf.reshape(imt, [721, 1440, 1])
             ima = tf.concat([ima, imt], 2)
         return ima
+
+    def load_input_tensor(month):
+        result = tf.py_function(
+            load_input_tensors_from_month_py,
+            [month],
+            tf.float32,
+        )
+        return result
 
     # Create Dataset from the source file contents
     tsIData = tnIData.map(
@@ -193,16 +190,29 @@ def getDataset(specification, purpose):
                 }
             ).result()
 
-        def load_output_tensor(month):
+        def load_output_tensors_from_month_py(month):
+            mnth = month.numpy().decode("utf-8")
             source = specification["outputTensors"][0]
-            tsa = tsa_in[source]
-            ima = load_tensor_from_index(tsa, source, month)
+            tsa = tsa_out[source]
+            idx = outIndices[source][outMonths.index(mnth)]
+            ima = tf.convert_to_tensor(tsa[:, :, idx].read().result(), tf.float32)
+            ima = tf.reshape(ima, [721, 1440, 1])
             for fni in range(1, len(specification["outputTensors"])):
-                source = specification["outputTensors"][0]
-                tsa = tsa_in[source]
-                imt = load_tensor_from_index(tsa, source, month)
+                source = specification["outputTensors"][fni]
+                tsa = tsa_out[source]
+                idx = outIndices[source][outMonths.index(mnth)]
+                imt = tf.convert_to_tensor(tsa[:, :, idx].read().result(), tf.float32)
+                imt = tf.reshape(imt, [721, 1440, 1])
                 ima = tf.concat([ima, imt], 2)
             return ima
+
+        def load_output_tensor(month):
+            result = tf.py_function(
+                load_output_tensors_from_month_py,
+                [month],
+                tf.float32,
+            )
+            return result
 
         tsOData = tnIData.map(
             load_output_tensor, num_parallel_calls=tf.data.experimental.AUTOTUNE

@@ -64,12 +64,12 @@ specification["printInterval"] = (
 
 # Optimization
 specification["strategy"] = tf.distribute.MirroredStrategy()
-specification["optimizer"] = tf.keras.optimizers.Adam(5e-4)
+specification["optimizer"] = tf.keras.optimizers.legacy.Adam(5e-4)
 specification["trainCache"] = (
-    False  # True will be faster, but needs a *lot* of RAM (try 100Gb)
+    True  # True will be faster, but needs a *lot* of RAM (try 100Gb)
 )
 specification["testCache"] = (
-    False  # True will be faster, but needs a *lot* of RAM (try 100Gb)
+    True  # True will be faster, but needs a *lot* of RAM (try 100Gb)
 )
 
 
