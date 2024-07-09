@@ -5,51 +5,26 @@
 
 import os
 import sys
-import random
 import tensorflow as tf
 import numpy as np
 import random
+import zarr
+import tensorstore as ts
 
 
-# Load a pre-standardised tensor from a list of files
-def load_tensor(file_names):
-    sict = tf.io.read_file(file_names[0])
-    imt = tf.io.parse_tensor(sict, np.float32)
-    ima = tf.reshape(imt, [721, 1440, 1])
-    for fni in range(1, len(file_names)):
-        sict = tf.io.read_file(file_names[fni])
-        imt = tf.io.parse_tensor(sict, np.float32)
-        imt = tf.reshape(imt, [721, 1440, 1])
-        ima = tf.concat([ima, imt], 2)
-    return ima
-
-
-# Find out how many tensors available for each month from a source
+# Find out how what months are available from a source
 def getDataAvailability(source):
-    dir = "%s/DCVAE-Climate/normalized_datasets/%s" % (os.getenv("SCRATCH"), source)
-    aFiles = os.listdir(dir)
-    firstYr = 3000
-    lastYr = 0
-    maxCount = 0
-    filesYM = {}
-    for fN in aFiles:
-        year = int(fN[:4])
-        month = int(fN[5:7])
-        if year < firstYr:
-            firstYr = year
-        if year > lastYr:
-            lastYr = year
-        key = "%04d%02d" % (year, month)
-        if key not in filesYM:
-            filesYM[key] = []
-        filesYM[key].append("%s/%s" % (dir, fN))
-        if len(filesYM[key]) > maxCount:
-            maxCount = len(filesYM[key])
-    return (firstYr, lastYr, maxCount, filesYM)
+    zfile = "%s/DCVAE-Climate/normalized_datasets/%s_zarr" % (
+        os.getenv("SCRATCH"),
+        source,
+    )
+    zarr_array = zarr.open(zfile, mode="r")
+    AvailableMonths = zarr_array.attrs["AvailableMonths"]
+    return AvailableMonths
 
 
-# Make a set of input filenames
-def getFileNames(
+# Make a set of months available in all of a set of sources
+def getMonths(
     sources,
     purpose,
     firstYr,
@@ -57,86 +32,74 @@ def getFileNames(
     testSplit,
     maxTrainingMonths,
     maxTestMonths,
-    correlatedEnsembles,
-    maxEnsembleCombinations,
 ):
     avail = {}
     maxCount = 1
+    months_in_all = None
     for source in sources:
         avail[source] = getDataAvailability(source)
-        if firstYr is None or avail[source][0] > firstYr:
-            firstYr = avail[source][0]
-        if lastYr is None or avail[source][1] < lastYr:
-            lastYr = avail[source][1]
-        if correlatedEnsembles:
-            maxCount = avail[source][2]  # always the same
+        print(source, len(avail[source]))
+        if months_in_all is None:
+            months_in_all = set(avail[source].keys())
         else:
-            maxCount *= avail[source][2]
+            months_in_all = months_in_all.intersection(set(avail[source].keys()))
 
-    # Make file name lists for available months - repeating if there are multiple ensemble members
-    aMonths = []
-    fNames = {}
-    for rep in range(min(maxCount, maxEnsembleCombinations)):
-        for year in range(firstYr, lastYr + 1):
-            for month in range(1, 13):
-                mnth = "%04d%02d" % (year, month)
-                smnth = []
-                bad = False
-                for source in sources:
-                    if mnth in avail[source][3]:
-                        if correlatedEnsembles:
-                            smnth.append(avail[source][3][mnth][rep])
-                        else:
-                            smnth.append(random.sample(avail[source][3][mnth], 1)[0])
-                    else:
-                        bad = True
-                        break
-                if bad:
-                    continue
-                mnth += "%05d" % rep
-                aMonths.append(mnth)
-                fNames[mnth] = smnth
+    # Filter by range of years
+    filtered = []
+    for month in months_in_all:
+        year = int(month[:4])
+        if (firstYr is None or year >= firstYr) and (lastYr is None or year <= lastYr):
+            filtered.append(month)
+    months_in_all = filtered
 
     # Test/Train split
     if purpose is not None:
-        test_ns = list(range(0, len(aMonths), testSplit))
+        test_ns = list(range(0, len(months_in_all), testSplit))
         if purpose == "Train":
-            aMonths = [aMonths[x] for x in range(len(aMonths)) if x not in test_ns]
+            months_in_all = [
+                months_in_all[x] for x in range(len(months_in_all)) if x not in test_ns
+            ]
         elif purpose == "Test":
-            aMonths = [aMonths[x] for x in range(len(aMonths)) if x in test_ns]
+            months_in_all = [
+                months_in_all[x] for x in range(len(months_in_all)) if x in test_ns
+            ]
         else:
             raise Exception("Unsupported purpose " + purpose)
 
-    aMonths.sort()  # Months in time order (validation plots)
+    months_in_all.sort()  # Months in time order (validation plots)
 
     # Limit maximum data size
     if purpose == "Train" and maxTrainingMonths is not None:
-        if len(aMonths) >= maxTrainingMonths:
-            aMonths = aMonths[0:maxTrainingMonths]
+        if len(months_in_all) >= maxTrainingMonths:
+            months_in_all = months_in_all[0:maxTrainingMonths]
         else:
             raise ValueError(
                 "Only %d months available, can't provide %d"
-                % (len(aMonths), maxTrainingMonths)
+                % (len(months_in_all), maxTrainingMonths)
             )
     if purpose == "Test" and maxTestMonths is not None:
-        if len(aMonths) >= maxTestMonths:
-            aMonths = aMonths[0:maxTestMonths]
+        if len(months_in_all) >= maxTestMonths:
+            months_in_all = months_in_all[0:maxTestMonths]
         else:
             raise ValueError(
                 "Only %d months available, can't provide %d"
-                % (len(aMonths), maxTestMonths)
+                % (len(months_in_all), maxTestMonths)
             )
-    # Return a list of lists of filenames
-    result = []
-    for key in aMonths:
-        result.append(fNames[key])
-    return result
+
+    # Return a list of months
+    #  and a list of lists of indices - onje list per source
+    indices = {}
+    for source in sources:
+        indices[source] = []
+        for key in months_in_all:
+            indices[source].append(avail[source][key])
+    return months_in_all, indices
 
 
 # Get a dataset
 def getDataset(specification, purpose):
-    # Get a list of filename sets
-    inFiles = getFileNames(
+    # Get a list of months to use - inputs
+    inMonths, inIndices = getMonths(
         specification["inputTensors"],
         purpose,
         specification["startYear"],
@@ -144,20 +107,13 @@ def getDataset(specification, purpose):
         specification["testSplit"],
         specification["maxTrainingMonths"],
         specification["maxTestMonths"],
-        specification["correlatedEnsembles"],
-        specification["maxEnsembleCombinations"],
     )
 
-    # Create TensorFlow Dataset object from the source file names
-    tnIData = tf.data.Dataset.from_tensor_slices(tf.constant(inFiles))
-
-    # Create Dataset from the source file contents
-    tsIData = tnIData.map(load_tensor, num_parallel_calls=tf.data.experimental.AUTOTUNE)
-
+    # If the outputs are not the same as the inputs, get them too and use only months in both
     if (
         specification["outputTensors"] is not None
     ):  # I.e. input and output are not the same
-        outFiles = getFileNames(
+        outMonths, outIndices = getMonths(
             specification["outputTensors"],
             purpose,
             specification["startYear"],
@@ -165,12 +121,91 @@ def getDataset(specification, purpose):
             specification["testSplit"],
             specification["maxTrainingMonths"],
             specification["maxTestMonths"],
-            specification["correlatedEnsembles"],
-            specification["maxEnsembleCombinations"],
         )
-        tnOData = tf.data.Dataset.from_tensor_slices(tf.constant(outFiles))
-        tsOData = tnOData.map(
-            load_tensor, num_parallel_calls=tf.data.experimental.AUTOTUNE
+
+        outMonths = sorted(
+            list(set(inMonths).intersection(set(outMonths)))
+        )  # Shared Months
+        if len(outMonths) != len(inMonths):
+            raise ValueError(
+                "Input and output tensors have different months available"
+            )  # Deal with this when it becomes a problem
+
+    # Create TensorFlow Dataset object from the date strings
+    tnIData = tf.data.Dataset.from_tensor_slices(tf.constant(inMonths))
+
+    # Open all the source tensorstores
+    tsa_in = {}
+    for source in specification["inputTensors"]:
+        zfile = "%s/DCVAE-Climate/normalized_datasets/%s_zarr" % (
+            os.getenv("SCRATCH"),
+            source,
+        )
+        tsa_in[source] = ts.open(
+            {
+                "driver": "zarr",
+                "kvstore": "file://" + zfile,
+            }
+        ).result()
+
+    # Map functions to get tensors from dates and indices
+    def load_tensor_from_index_py(tsa, source, month):
+        mnth = month.numpy().decode("utf-8")
+        idx = inIndices[source][inMonths.index(mnth)]
+        return tf.convert_to_tensor(tsa[:, :, idx.numpy()].read().result(), tf.float32)
+
+    def load_tensor_from_index(tsa, source, month):
+        result = tf.py_function(
+            load_tensor_from_index_py,
+            [tsa, source, month],
+            tf.float32,
+        )
+        result = tf.reshape(result, [721, 1440, 1])
+        return result
+
+    def load_input_tensor(month):
+        source = specification["inputTensors"][0]
+        tsa = tsa_in[source]
+        ima = load_tensor_from_index(tsa, source, month)
+        for fni in range(1, len(specification["inputTensors"])):
+            source = specification["inputTensors"][0]
+            tsa = tsa_in[source]
+            imt = load_tensor_from_index(tsa, source, month)
+            ima = tf.concat([ima, imt], 2)
+        return ima
+
+    # Create Dataset from the source file contents
+    tsIData = tnIData.map(
+        load_input_tensor, num_parallel_calls=tf.data.experimental.AUTOTUNE
+    )
+
+    if specification["outputTensors"] is not None:
+        tsa_out = {}
+        for source in specification["outputTensors"]:
+            zfile = "%s/DCVAE-Climate/normalized_datasets/%s_zarr" % (
+                os.getenv("SCRATCH"),
+                source,
+            )
+            tsa_out[source] = ts.open(
+                {
+                    "driver": "zarr",
+                    "kvstore": "file://" + zfile,
+                }
+            ).result()
+
+        def load_output_tensor(month):
+            source = specification["outputTensors"][0]
+            tsa = tsa_in[source]
+            ima = load_tensor_from_index(tsa, source, month)
+            for fni in range(1, len(specification["outputTensors"])):
+                source = specification["outputTensors"][0]
+                tsa = tsa_in[source]
+                imt = load_tensor_from_index(tsa, source, month)
+                ima = tf.concat([ima, imt], 2)
+            return ima
+
+        tsOData = tnIData.map(
+            load_output_tensor, num_parallel_calls=tf.data.experimental.AUTOTUNE
         )
 
     # Zip the data together with the filenames (so we can find the date and source of each
