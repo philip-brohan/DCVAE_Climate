@@ -7,6 +7,7 @@
 import os
 import sys
 import numpy as np
+import warnings
 
 # Supress TensorFlow moaning about cuda - we don't need a GPU for this
 # Also the warning message confuses people.
@@ -48,6 +49,9 @@ try:
     qd = load_raw(args.year, args.month, variable=args.variable)
     ict = raw_to_tensor(qd)
 except Exception:
+    warnings.warn(
+        "Failed to load data for %s %04d-%02d" % (args.variable, args.year, args.month)
+    )
     ict = tf.fill([721, 1440], tf.constant(np.nan, dtype=tf.float32))
 
 # Write to file
