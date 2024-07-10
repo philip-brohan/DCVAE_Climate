@@ -7,10 +7,10 @@
 #  2) Autoencoder output
 #  3) scatter plot
 
-# Supress TensorFlow moaning about cuda - we don't need a GPU for this
-# Also the warning message confuses people.
 import os
 
+# Supress TensorFlow moaning about cuda - we don't need a GPU for this
+# Also the warning message confuses people.
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import tensorflow as tf
 
@@ -58,7 +58,7 @@ input = None
 year = None
 month = None
 for batch in dataset:
-    dateStr = tf.strings.split(batch[0][0][0], sep="/")[-1].numpy()
+    dateStr = batch[0][0].numpy().decode("utf-8")
     year = int(dateStr[:4])
     month = int(dateStr[5:7])
     if (args.month is None or month == args.month) and (

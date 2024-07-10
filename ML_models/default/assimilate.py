@@ -82,7 +82,7 @@ input = None
 year = None
 month = None
 for batch in dataset:
-    dateStr = tf.strings.split(batch[0][0][0], sep="/")[-1].numpy()
+    dateStr = batch[0][0].numpy().decode("utf-8")
     year = int(dateStr[:4])
     month = int(dateStr[5:7])
     if (args.month is None or month == args.month) and (
@@ -136,7 +136,7 @@ if any(fitted.values()):
         decodeFit,
         trainable_variables=[latent],
         num_steps=args.iter,
-        optimizer=tf.optimizers.Adam(learning_rate=0.1),
+        optimizer=tf.optimizers.legacy.Adam(learning_rate=0.1),
     )
 
 # Output is the generated value from the fitted latent space point

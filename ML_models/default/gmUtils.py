@@ -370,7 +370,7 @@ def computeScalarStats(
     nFields = specification["nOutputChannels"]
 
     # get the date from the filename tensor
-    dateStr = tf.strings.split(x[0][0][0], sep="/")[-1].numpy()
+    dateStr = x[0][0].numpy().decode("utf-8")
     year = int(dateStr[:4])
     month = int(dateStr[5:7])
     dtp = datetime.date(year, month, 15)

@@ -140,7 +140,7 @@ for case in testData:
             decodeFit,
             trainable_variables=[latent],
             num_steps=args.iter,
-            optimizer=tf.optimizers.Adam(learning_rate=0.1),
+            optimizer=tf.optimizers.legacy.Adam(learning_rate=0.1),
         )
     generated = autoencoder.generate(latent, training=False)
     stats = computeScalarStats(

@@ -9,10 +9,10 @@ import logging
 
 logging.getLogger("matplotlib.font_manager").disabled = True
 
-# Supress TensorFlow moaning about cuda - we don't need a GPU for this
-# Also the warning message confuses people.
 import os
 
+# Supress TensorFlow moaning about cuda - we don't need a GPU for this
+# Also the warning message confuses people.
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
