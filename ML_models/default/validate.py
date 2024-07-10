@@ -24,10 +24,6 @@ specification["strategy"] = (
     tf.distribute.get_strategy()
 )  # No distribution for simple validation
 
-# I don't need all the messages about a missing font (on Isambard)
-import logging
-
-logging.getLogger("matplotlib.font_manager").disabled = True
 
 import argparse
 

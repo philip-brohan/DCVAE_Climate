@@ -65,7 +65,7 @@ fig = Figure(
 canvas = FigureCanvas(fig)
 font = {
     "family": "sans-serif",
-    "sans-serif": "Arial",
+    "sans-serif": "DejaVu Sans",
     "weight": "normal",
     "size": 20,
 }

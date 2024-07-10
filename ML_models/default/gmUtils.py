@@ -117,7 +117,7 @@ def plotValidationField(specification, input, output, year, month, fileName):
     canvas = FigureCanvas(fig)
     font = {
         "family": "DejaVu Sans",
-        "sans-serif": "Arial",
+        "sans-serif": "DejaVu Sans",
         "weight": "normal",
         "size": 12,
     }
@@ -205,7 +205,7 @@ def plotTrainingMetrics(
     canvas = FigureCanvas(fig)
     font = {
         "family": "DejaVu Sans",
-        "sans-serif": "Arial",
+        "sans-serif": "DejaVu Sans",
         "weight": "normal",
         "size": 12,
     }
@@ -447,7 +447,7 @@ def plotScalarStats(all_stats, specification, fileName="multi.webp"):
     canvas = FigureCanvas(fig)
     font = {
         "family": "DejaVu Sans",
-        "sans-serif": "Arial",
+        "sans-serif": "DejaVu Sans",
         "weight": "normal",
         "size": 14,
     }
