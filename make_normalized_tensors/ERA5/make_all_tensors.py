@@ -83,7 +83,7 @@ trainingData = getDataset(
     blur=1.0e-9,
 ).batch(1)
 
-
+op = []
 for batch in trainingData:
     year = int(batch[1].numpy()[0][0:4])
     month = int(batch[1].numpy()[0][5:7])
@@ -95,4 +95,8 @@ for batch in trainingData:
     tf.debugging.check_numerics(ict, "Bad data %04d-%02d" % (year, month))
 
     didx = AvailableMonths["%04d-%02d" % (year, month)]
-    op = normalized_zarr[:, :, didx].write(ict)
+    op.append(normalized_zarr[:, :, didx].write(ict))
+
+# Ensure writes complete before exiting
+for o in op:
+    o.result()
