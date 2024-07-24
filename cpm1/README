@@ -1,0 +1,12 @@
+CPM1 is the first attempt to get Philips VAE model running with daily cpm data
+
+- will use 5km data to reduce data volume
+- will use
+  - tas
+  - psl
+
+  - could use
+    - rss surface_net_downward_shortwave_flux
+		clt:standard_name = "cloud_area_fraction" ;
+		hurs:standard_name = "relative_humidity" ;
+		rls:standard_name = "surface_net_downward_longwave_flux" ;

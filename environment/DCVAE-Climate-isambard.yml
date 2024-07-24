@@ -9,7 +9,6 @@ dependencies:
   - pandas=2.2
   - cmocean=4.0
   - parallel
-  - zarr=2.13
   # Get data from ERA5
   # You'll need to register, see https://cds.climate.copernicus.eu/api-how-to
   - cdsapi=0.6
@@ -30,8 +29,6 @@ dependencies:
       - tensorflow-addons==0.18
       # For input space search
       - tensorflow-probability==0.17
-      # For efficient data IO
-      - tensorstore
 
 # Tell python to look for modules in the root directory of the project
 # (A hack, needs to be edited for every installation, but makes code
@@ -39,4 +36,4 @@ dependencies:
 # Replace with the path to your project directory root.
 
 variables:
-  PYTHONPATH: /home/h03/hadsx/extremes/ML/pb1/DCVAE_Climate_sjb1:/home/h03/hadsx/extremes/ML/pb1/DCVAE_Climate_sjb1/cpm1
+  PYTHONPATH: /lustre/home/br-train30/philip1/DCVAE_Climate_sjb1
