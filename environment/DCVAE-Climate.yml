@@ -32,6 +32,9 @@ dependencies:
       - tensorflow-probability==0.17
       # For efficient data IO
       - tensorstore
+      # Azure sdks
+      - azure-ai-ml
+      - azure-identity
 
 # Tell python to look for modules in the root directory of the project
 # (A hack, needs to be edited for every installation, but makes code
