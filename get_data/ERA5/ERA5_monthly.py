@@ -6,6 +6,11 @@ import iris.util
 import iris.coord_systems
 import numpy as np
 
+# Skip warnings about missing 'expver'
+import warnings
+
+warnings.filterwarnings("ignore", message=".*expver.*")
+
 # Don't really understand this, but it gets rid of the error messages.
 iris.FUTURE.datum_support = True
 
@@ -49,5 +54,3 @@ def load(
     if constraint is not None:
         varC = varC.extract(constraint)
     return varC
-
-

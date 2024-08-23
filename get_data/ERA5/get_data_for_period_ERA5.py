@@ -7,9 +7,10 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--startyear", type=int, required=False, default=1940)
-parser.add_argument("--endyear", type=int, required=False, default=2023)
+parser.add_argument("--endyear", type=int, required=False, default=2024)
 args = parser.parse_args()
 
+bindir = os.path.dirname(os.path.realpath(__file__))
 for year in range(args.startyear, args.endyear + 1):
     for var in [
         "2m_temperature",
@@ -24,8 +25,9 @@ for year in range(args.startyear, args.endyear + 1):
         )
         if not os.path.isfile(opfile):
             print(
-                ("./get_year_of_monthlies_from_ERA5.py --year=%d --variable=%s")
+                ("%s/get_year_of_monthlies_from_ERA5.py --year=%d --variable=%s")
                 % (
+                    bindir,
                     year,
                     var,
                 )
