@@ -2,13 +2,14 @@
 
 import numpy as np
 import tensorflow as tf
+from datetime import datetime
 
 from get_data.ERA5 import ERA5_monthly
 from utilities import grids
 
 # Convert date into an array index
 FirstYear = 1940
-LastYear = 2035
+LastYear = datetime.now().year
 
 
 def date_to_index(year, month):

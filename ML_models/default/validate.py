@@ -72,4 +72,6 @@ autoencoder = getModel(specification, args.epoch)
 output = autoencoder.call(input, training=False)
 
 # Make the plot
-plotValidationField(specification, input, output, year, month, "comparison.webp")
+plotValidationField(
+    specification, input, output, year, month, "outputs/comparison.webp"
+)
