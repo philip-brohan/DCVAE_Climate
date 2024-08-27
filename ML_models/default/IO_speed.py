@@ -57,12 +57,14 @@ with specification["strategy"].scope():
     for epoch in range(0, 5):
         start_time = time.time()
 
+        # Null function to test the IO speed - just touches the loaded data
+        def do_nothing(*args):
+            dateStr = args[0][0].numpy().decode("utf-8")
+
         # Load all batches in the training data
         for batch in trainingData:
 
-            per_replica_op = specification["strategy"].run(
-                dateStr=batch[0][0].numpy().decode("utf-8")
-            )
+            per_replica_op = specification["strategy"].run(do_nothing, args=batch)
 
         end_training_time = time.time()
 
