@@ -56,7 +56,8 @@ command_job = command(
     },
     environment_variables={"SCRATCH": "${{outputs.SCRATCH}}"},
     command="export PYTHONPATH=$(pwd):$PYTHONPATH ; "
-    + "python ML_models/default/autoencoder.py --epoch=%d " % args.epoch,
+    + "python ML_models/default/autoencoder.py --epoch=%d > logs/main_output.txt"
+    % args.epoch,
 )
 
 # Submit the job
