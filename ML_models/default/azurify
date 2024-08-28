@@ -43,6 +43,14 @@ parser = argparse.ArgumentParser()
 parser.add_argument(
     "--compute", help="Compute to use", type=str, required=False, default="cpu-cluster"
 )
+parser.add_argument("--name", help="Job name", type=str, required=False, default=None)
+parser.add_argument(
+    "--experiment",
+    help="Experiment name",
+    type=str,
+    required=False,
+    default="Unspecified",
+)
 args = parser.parse_args()
 
 # Connect using Default Credential - dependent on already being logged in via Azure CLI in the current environment
@@ -62,8 +70,11 @@ ml_client = MLClient(
 )
 
 # define the job
+if args.name is None:
+    args.name = "%s_%s" % (name, datetime.now().strftime("%Y%m%d%H%M%S"))
 command_job = command(
-    name="%s_%s" % (name, datetime.now().strftime("%Y%m%d%H%M%S")),
+    name=args.name,
+    experiment_name=args.experiment,
     compute=args.compute,
     environment="DCVAE-Azure@latest",
     code="/net/home/h03/hadpb/Projects/DCVAE_Climate",
