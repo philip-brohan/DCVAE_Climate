@@ -16,8 +16,9 @@ dependencies:
   #- nco=5.1 # ncks for cleaning up the CDS netCDF files
   # ML model building and diagnostics
   # If you don't have a GPU, tensorflow-eigen might be faster
-  - tensorflow=2.9.1=gpu_py39hd4ae112_0
-  # Optional, code formatter
+  - cuda
+  - cudnn
+   # Optional, code formatter
   - black
   # Optional - documentation generator
   - sphinx=7.*
@@ -25,7 +26,6 @@ dependencies:
   - tmux
 
   # Azure
-  - azure-cli-core = 2.0
   - azure-ai-ml = 1.19
   - azure-identity = 1.17
   - azure-storage-file-datalake = 12.16
@@ -33,20 +33,21 @@ dependencies:
   # Some packages are only available via pip
   - pip
   - pip:
+      - tensorflow
       # For bilinear interpolation
-      - tensorflow-addons==0.18
+      - tensorflow-addons
       # For input space search
-      - tensorflow-probability==0.17
+      - tensorflow-probability
       # For efficient data IO
       - tensorstore
 
 # Tell python to look for modules in the root directory of the project
 # (A hack, needs to be edited for every installation, but makes code
 #  management much easier.)
-# Replace with the path to your project directory root.
+# Replace with the path to your project directory root. 
 
 variables:
-  PYTHONPATH: /home/h03/hadpb/Projects/DCVAE_Climate:/home/mo-hadpb/Projects/DCVAE_Climate
+  PYTHONPATH: /home/users/philip.brohan/Projects/DCVAE_Climate
 
 # Also the Azure ML subscription, workspace and resource group
   AZML_SUBSCRIPTION_ID: ef7c87c5-ea27-4e06-9fad-ac06dc6b3fd1

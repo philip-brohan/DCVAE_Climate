@@ -49,7 +49,7 @@ command_job = command(
     name="make_normalized_tensors_%s" % datetime.now().strftime("%Y%m%d%H%M%S"),
     compute="cpu-cluster",
     environment="DCVAE-Azure@latest",
-    code="/net/home/h03/hadpb/Projects/DCVAE_Climate",
+    code="/home/users/philip.brohan/Projects/DCVAE_Climate",
     outputs={
         "SCRATCH": Output(
             type=AssetTypes.URI_FOLDER,
