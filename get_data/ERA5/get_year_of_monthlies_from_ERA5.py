@@ -36,3 +36,10 @@ c.retrieve(
     ctrlB,
     "%s/%s.nc" % (args.opdir, args.variable),
 )
+
+# Use system call to run ncks on output file
+# To remove 'expver' variable (otherwise iris won't load it)
+os.system(
+    "ncks -O -C -x -v expver %s/%s.nc %s/%s.nc"
+    % (args.opdir, args.variable, args.opdir, args.variable)
+)

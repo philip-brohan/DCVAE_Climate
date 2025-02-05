@@ -94,7 +94,7 @@ for batch in dataset:
 if input is None:
     raise Exception("Month %04d-%02d not in %s dataset" % (year, month, purpose))
 
-autoencoder = getModel(specification, args.epoch)
+autoencoder = getModel(specification, optimizer=None, epoch=args.epoch)
 
 # We are using the model in inference mode - (does this have any effect?)
 autoencoder.trainable = False

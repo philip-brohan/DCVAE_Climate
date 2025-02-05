@@ -2,6 +2,12 @@
 
 # Plot time-series of training progress
 
+import os
+
+# Cut down on the TensorFlow warning messages
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
+
 from specify import specification
 from ML_models.default.gmUtils import loadHistory, plotTrainingMetrics
 

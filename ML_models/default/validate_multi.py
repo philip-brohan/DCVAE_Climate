@@ -80,7 +80,7 @@ dataset = getDataset(specification, purpose=purpose)
 dataset = dataset.batch(1)
 
 # Load the trained model
-autoencoder = getModel(specification, args.epoch)
+autoencoder = getModel(specification, optimizer=None, epoch=args.epoch)
 
 # Go through the data and get the scalar stat for each test month
 all_stats = {}

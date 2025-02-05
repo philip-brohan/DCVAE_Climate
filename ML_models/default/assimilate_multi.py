@@ -97,7 +97,7 @@ testData = testData.batch(1)
 
 
 # Load the trained model
-autoencoder = getModel(specification, args.epoch)
+autoencoder = getModel(specification, optimizer=None, epoch=args.epoch)
 
 
 def decodeFit():

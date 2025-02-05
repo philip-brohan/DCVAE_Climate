@@ -25,10 +25,16 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
+# Set the computation strategy
+strategy = tf.distribute.get_strategy()
+# Set the optimizer
+# If restarting (--epoch > 1) the saved optimizer will be used instead
+optimizer = tf.keras.optimizers.Adam(5e-4)
+
 # Load the data path, data source, and model specification
 from specify import specification
 from ML_models.default.makeDataset import getDataset
-from ML_models.default.autoencoderModel import DCVAE, getModel
+from ML_models.default.autoencoderModel import getModel
 
 
 # Get Datasets
@@ -38,30 +44,26 @@ def getDatasets():
     trainingData = trainingData.shuffle(specification["shuffleBufferSize"]).batch(
         specification["batchSize"]
     )
-    trainingData = specification["strategy"].experimental_distribute_dataset(
-        trainingData
-    )
+    trainingData = strategy.experimental_distribute_dataset(trainingData)
     validationData = getDataset(specification, purpose="Train")
     validationData = validationData.batch(specification["batchSize"])
-    validationData = specification["strategy"].experimental_distribute_dataset(
-        validationData
-    )
+    validationData = strategy.experimental_distribute_dataset(validationData)
 
     # Set up the test data
     testData = getDataset(specification, purpose="Test")
     testData = testData.shuffle(specification["shuffleBufferSize"]).batch(
         specification["batchSize"]
     )
-    testData = specification["strategy"].experimental_distribute_dataset(testData)
+    testData = strategy.experimental_distribute_dataset(testData)
 
     return (trainingData, validationData, testData)
 
 
 # Instantiate and run the model under the control of the distribution strategy
-with specification["strategy"].scope():
+with strategy.scope():
     trainingData, validationData, testData = getDatasets()
 
-    autoencoder = getModel(specification, epoch=args.epoch)
+    autoencoder = getModel(specification, optimizer, epoch=args.epoch)
 
     # logfile to output the metrics
     log_FN = ("%s/DCVAE-Climate/%s/logs/Training") % (
@@ -87,8 +89,8 @@ with specification["strategy"].scope():
             if specification["trainingMask"] is not None:
                 mbatch = tf.where(specification["trainingMask"] != 0, batch[-1], 0.0)
                 batch = (batch[:-1], mbatch)
-            per_replica_op = specification["strategy"].run(
-                autoencoder.train_on_batch, args=(batch, specification["optimizer"])
+            per_replica_op = strategy.run(
+                autoencoder.train_on_batch, args=(batch, None)
             )
 
         end_training_time = time.time()
@@ -98,17 +100,7 @@ with specification["strategy"].scope():
             continue
 
         # Accumulate average losses over all batches in the validation data
-        autoencoder.update_metrics(validationData, testData)
-
-        # Save model state
-        save_dir = "%s/DCVAE-Climate/%s/weights/Epoch_%04d" % (
-            os.getenv("SCRATCH"),
-            specification["modelName"],
-            epoch,
-        )
-        if not os.path.isdir(save_dir):
-            os.makedirs(save_dir)
-        autoencoder.save_weights("%s/ckpt" % save_dir)
+        autoencoder.update_metrics(strategy, validationData, testData)
 
         # Update the log file with current metrics
         autoencoder.updateLogfile(logfile_writer, epoch)
@@ -124,3 +116,13 @@ with specification["strategy"].scope():
                 int(end_monitoring_time - end_training_time),
             )
         )
+
+        # Save model state
+        save_dir = "%s/DCVAE-Climate/%s/weights/Epoch_%04d" % (
+            os.getenv("SCRATCH"),
+            specification["modelName"],
+            epoch,
+        )
+        if not os.path.isdir(save_dir):
+            os.makedirs(save_dir)
+        autoencoder.save("%s/ckpt.keras" % save_dir, include_optimizer=True)

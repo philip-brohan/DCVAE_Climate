@@ -17,7 +17,7 @@ class DCVAE(tf.keras.Model):
         self.encoder = tf.keras.Sequential(
             [
                 tf.keras.layers.InputLayer(
-                    input_shape=(721, 1440, self.specification["nInputChannels"])
+                    shape=(721, 1440, self.specification["nInputChannels"])
                 ),
                 tf.keras.layers.Conv2D(
                     filters=5,
@@ -110,7 +110,7 @@ class DCVAE(tf.keras.Model):
         self.generator = tf.keras.Sequential(
             [
                 tf.keras.layers.InputLayer(
-                    input_shape=(
+                    shape=(
                         12,
                         23,
                         20,
@@ -128,7 +128,6 @@ class DCVAE(tf.keras.Model):
                     kernel_size=3,
                     strides=2,
                     padding="same",
-                    output_padding=(0, 0),
                     activation="elu",
                 ),
                 tf.keras.layers.Conv2D(
@@ -143,7 +142,6 @@ class DCVAE(tf.keras.Model):
                     kernel_size=3,
                     strides=2,
                     padding="same",
-                    output_padding=(1, 1),
                     activation="elu",
                 ),
                 tf.keras.layers.Conv2D(
@@ -158,7 +156,6 @@ class DCVAE(tf.keras.Model):
                     kernel_size=3,
                     strides=2,
                     padding="same",
-                    output_padding=(0, 1),
                     activation="elu",
                 ),
                 tf.keras.layers.Conv2D(
@@ -173,7 +170,6 @@ class DCVAE(tf.keras.Model):
                     kernel_size=3,
                     strides=2,
                     padding="same",
-                    output_padding=(0, 1),
                     activation="elu",
                 ),
                 tf.keras.layers.Conv2D(
@@ -188,7 +184,6 @@ class DCVAE(tf.keras.Model):
                     kernel_size=3,
                     strides=2,
                     padding="same",
-                    output_padding=(0, 1),
                     activation="elu",
                 ),
                 tf.keras.layers.Conv2DTranspose(
@@ -196,8 +191,8 @@ class DCVAE(tf.keras.Model):
                     kernel_size=3,
                     strides=2,
                     padding="same",
-                    output_padding=(0, 1),
                 ),
+                tf.keras.layers.Lambda(lambda x: tf.image.resize(x, [721, 1440])),
             ]
         )
 
@@ -226,6 +221,14 @@ class DCVAE(tf.keras.Model):
         self.test_loss = tf.Variable(0.0, trainable=False)
         # And regularization loss
         self.regularization_loss = tf.Variable(0.0, trainable=False)
+
+    # Methods needed to load and save the model
+    def get_config(self):
+        return {"specification": self.specification}
+
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
 
     # Call the encoder model with a batch of input examples and return a batch of
     #  means and a batch of variances of the encoded latent space PDFs.
@@ -334,7 +337,7 @@ class DCVAE(tf.keras.Model):
     # Run the autoencoder for one batch, calculate the errors, calculate the
     #  gradients and update the layer weights.
     @tf.function
-    def train_on_batch(self, x, optimizer):
+    def train_on_batch(self, x, ignore):
         with tf.GradientTape() as tape:
             loss_values = self.compute_loss(x, training=True)
             overall_loss = (
@@ -351,10 +354,10 @@ class DCVAE(tf.keras.Model):
             gradients = [
                 tf.clip_by_norm(g, self.specification["maxGradient"]) for g in gradients
             ]
-        optimizer.apply_gradients(zip(gradients, self.trainable_variables))
+        self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
 
     # Update the metrics
-    def update_metrics(self, trainDS, testDS):
+    def update_metrics(self, strategy, trainDS, testDS):
         self.train_rmse.assign(tf.zeros([self.specification["nOutputChannels"]]))
         self.train_rmse_m.assign(tf.zeros([self.specification["nOutputChannels"]]))
         self.train_logpz_g.assign(0.0)
@@ -371,10 +374,10 @@ class DCVAE(tf.keras.Model):
                 mbatch = tf.where(
                     self.specification["trainingMask"] == 0, batch[-1], 0.0
                 )
-                per_replica_losses = self.specification["strategy"].run(
+                per_replica_losses = strategy.run(
                     self.compute_loss, args=((batch[:-1], mbatch), False)
                 )
-                batch_losses = self.specification["strategy"].reduce(
+                batch_losses = strategy.reduce(
                     tf.distribute.ReduceOp.MEAN, per_replica_losses, axis=None
                 )
                 self.train_rmse_m.assign_add(batch_losses[0])
@@ -384,10 +387,8 @@ class DCVAE(tf.keras.Model):
                     self.specification["trainingMask"] != 0, batch[-1], 0.0
                 )
                 batch = (batch[:-1], mbatch)
-            per_replica_losses = self.specification["strategy"].run(
-                self.compute_loss, args=(batch, False)
-            )
-            batch_losses = self.specification["strategy"].reduce(
+            per_replica_losses = strategy.run(self.compute_loss, args=(batch, False))
+            batch_losses = strategy.reduce(
                 tf.distribute.ReduceOp.MEAN, per_replica_losses, axis=None
             )
             self.train_rmse.assign_add(batch_losses[0])
@@ -429,10 +430,10 @@ class DCVAE(tf.keras.Model):
                 mbatch = tf.where(
                     self.specification["trainingMask"] == 0, batch[-1], 0.0
                 )
-                per_replica_losses = self.specification["strategy"].run(
+                per_replica_losses = strategy.run(
                     self.compute_loss, args=((batch[:-1], mbatch), False)
                 )
-                batch_losses = self.specification["strategy"].reduce(
+                batch_losses = strategy.reduce(
                     tf.distribute.ReduceOp.MEAN, per_replica_losses, axis=None
                 )
                 self.test_rmse_m.assign_add(batch_losses[0])
@@ -442,10 +443,8 @@ class DCVAE(tf.keras.Model):
                     self.specification["trainingMask"] != 0, batch[-1], 0.0
                 )
                 batch = (batch[:-1], mbatch)
-            per_replica_losses = self.specification["strategy"].run(
-                self.compute_loss, args=(batch, False)
-            )
-            batch_losses = self.specification["strategy"].reduce(
+            per_replica_losses = strategy.run(self.compute_loss, args=(batch, False))
+            batch_losses = strategy.reduce(
                 tf.distribute.ReduceOp.MEAN, per_replica_losses, axis=None
             )
             self.test_rmse.assign_add(batch_losses[0])
@@ -567,7 +566,7 @@ class DCVAE(tf.keras.Model):
 
 
 # Load model and initial weights
-def getModel(specification, epoch=1):
+def getModel(specification, optimizer, epoch=1):
     # Instantiate the model
     autoencoder = DCVAE(specification)
 
@@ -578,7 +577,13 @@ def getModel(specification, epoch=1):
             specification["modelName"],
             epoch,
         )
-        load_status = autoencoder.load_weights("%s/ckpt" % weights_dir).expect_partial()
-        load_status.assert_existing_objects_matched()
+        autoencoder = tf.keras.models.load_model(
+            "%s/ckpt.keras" % weights_dir, compile=False
+        )
+        # Seperate compile to eliminate strange error message about 2 optimizers
+        autoencoder.compile()
+    else:
+        autoencoder = DCVAE(specification)
+        autoencoder.compile(optimizer=optimizer)
 
     return autoencoder

@@ -7,7 +7,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--startyear", type=int, required=False, default=1940)
-parser.add_argument("--endyear", type=int, required=False, default=2023)
+parser.add_argument("--endyear", type=int, required=False, default=2024)
 args = parser.parse_args()
 
 for year in range(args.startyear, args.endyear + 1):

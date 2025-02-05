@@ -20,10 +20,7 @@ from ML_models.default.gmUtils import plotValidationField
 
 from specify import specification
 
-specification["strategy"] = (
-    tf.distribute.get_strategy()
-)  # No distribution for simple validation
-
+strategy = tf.distribute.get_strategy()  # No distribution for simple validation
 
 import argparse
 
@@ -66,7 +63,7 @@ for batch in dataset:
 if input is None:
     raise Exception("Month %04d-%02d not in %s dataset" % (year, month, purpose))
 
-autoencoder = getModel(specification, args.epoch)
+autoencoder = getModel(specification, optimizer=None, epoch=args.epoch)
 
 # Get autoencoded tensors
 output = autoencoder.call(input, training=False)

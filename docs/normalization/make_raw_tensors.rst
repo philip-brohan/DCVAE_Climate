@@ -9,6 +9,10 @@ The script `make_all_raw_tensors.sh` creates a set of commands to make all the t
 
 .. literalinclude:: ../../make_raw_tensors/make_all_raw_tensors.sh
 
+When the main script has completed and all the raw tensors are made, we need to add some metadata to them (used by subsequent scripts to find out how much data is available). The script ```update_tensor_metadata.sh``` does this. Run this script to set the metadata and check that the tensors have been created successfully.
+
+.. literalinclude:: ../../make_raw_tensors/update_tensor_metadata.sh
+
 Other scripts used by that main script:
 
 Script to make the set of tensors for one variable. Takes argument `--variable`:
@@ -22,4 +26,8 @@ Calls another script to make a single tensor:
 Library functions to convert between `tf.tensor` and `iris.cube.cube`:
 
 .. literalinclude:: ../../make_raw_tensors/ERA5/tensor_utils.py
+
+Metadata update script for an ERA5 variable:
+
+.. literalinclude:: ../../make_raw_tensors/ERA5/update_tensor_metadata.py
    
