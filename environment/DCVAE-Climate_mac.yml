@@ -3,34 +3,39 @@ channels:
   - conda-forge
 dependencies:
   # Basics
-  - python=3.9 # Later versions don't work with Tensorflow 2.9.1
+  - python=3.11 
   - libwebp>=1.3.2 # Earlier versions have a security vulnerability
-  - iris=3.8
-  - pandas=2.2
-  - cmocean=4.0
+  - iris=3
+  - pandas=2
+  - cmocean=4
   - parallel
-  - zarr=2.13
+  - zarr=2
+  # Older matplotlib - 3.10 screws up pcolorfast and background colour (why?)
+  - matplotlib=3.9.2
   # Get data from ERA5
   # You'll need to register, see https://cds.climate.copernicus.eu/api-how-to
-  - cdsapi=0.6
+  - cdsapi>=0.7.2
+  - nco=5 # Need ncks to fix broken CDS files
   # ML model building and diagnostics
   # Optional, code formatter
   - black
   # Optional - documentation generator
-  - sphinx=7.*
-  # Optional - needed only for monitoring jobs
-  - tmux
+  - sphinx
+  # To make the pip section work
+  - cmake
 
   # Some packages are only available via pip
   - pip
   - pip:
   # TF for mac
-    - tensorflow-macos==2.12
+    - tensorflow-macos==2.16.2  # latest available for Mac?
     - tensorflow-metal
   # For bilinear interpolation
-    - tensorflow-addons==0.21
+    - tensorflow-addons
   # For input space search
-    - tensorflow-probability==0.20
+    - tensorflow-probability
+  # Unused, but required by tfp?
+    - tf-keras
   # For efficient data IO
     - tensorstore
 
@@ -40,4 +45,9 @@ dependencies:
 # Replace with the path to your project directory root.
 
 variables:
-  PYTHONPATH: /home/h03/hadpb/Projects/DCVAE_Climate:/home/mo-hadpb/Projects/DCVAE_Climate:/Users/philip/Projects/DCVAE_Climate
+  PYTHONPATH: /Users/philip/Projects/DCVAE_Climate
+
+# Fix really weird error in scipy optimize (loaded by iris)
+# This should be $CONDA_ENVS_PATH/DCVAE-Climate/lib
+#   but you can't do variable expansion here - so set it for each system.
+  LD_LIBRARY_PATH: /Users/philip/miniconda3/envs/DCVAE-Climate/lib

@@ -50,6 +50,6 @@ variables:
   PYTHONPATH: /home/users/philip.brohan/Projects/DCVAE_Climate
 
 # Fix really weird error in scipy optimize (loaded by iris)
-# This should be CONDA_ENVS_PATH/DCVAE-Climate/lib
-#   but you canb'yt do variable expansion here - so set it for each system.
+# This should be $CONDA_ENVS_PATH/DCVAE-Climate/lib
+#   but you can't do variable expansion here - so set it for each system.
   LD_LIBRARY_PATH: /data/users/philip.brohan/conda/environments/DCVAE-Climate/lib
