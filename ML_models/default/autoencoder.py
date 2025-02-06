@@ -81,7 +81,7 @@ with strategy.scope():
         )
 
     # For each Epoch: train, save state, and report progress
-    for epoch in range(args.epoch, specification["nEpochs"] + 1):
+    for epoch in range(args.epoch, specification["nEpochs"] + args.epoch + 1):
         start_time = time.time()
 
         # Train on all batches in the training data

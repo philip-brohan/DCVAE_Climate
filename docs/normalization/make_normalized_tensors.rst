@@ -7,10 +7,6 @@ Script to make the set of tensors. Takes argument `--variable`, and uses :doc:`p
 
 .. literalinclude:: ../../make_normalized_tensors/ERA5/make_all_tensors.py
 
-Calls another script to make a single tensor:
-
-.. literalinclude:: ../../make_normalized_tensors/ERA5/make_training_tensor.py
-
 Library functions to do the normalization:
 
 .. literalinclude:: ../../normalize/ERA5/normalize.py

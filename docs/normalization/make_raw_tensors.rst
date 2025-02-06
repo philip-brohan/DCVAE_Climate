@@ -1,7 +1,7 @@
 Assemble ERA5 raw data into a set of tf.tensors
 ===============================================
 
-The data :doc:`download scripts <../get_data/ERA5>` assemble selected ERA5 data in netCDF files. To use that data efficiently in analysis and modelling it is necessary to reformat it as a set of `tf.tensors`. These have consistent format and resolution and can be reassembled into a `tf.data.Dataset`` for ML model training.
+The data :doc:`download scripts <../get_data/ERA5>` assemble selected ERA5 data in netCDF files. To use that data efficiently in analysis and modelling it is necessary to reformat it as a set of `tf.tensors`. These have consistent format and resolution and can be reassembled into a `tf.data.Dataset` for ML model training.
 
 So for each month in the training period, for each variable (2m_temperature, mean_sea_level_pressure, total_precipitation), we read in the data from netCDF, regrid it to a :doc:`common grid <../utils/grids>`, and save it as a `tf.tensor`. 
 

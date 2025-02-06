@@ -1,4 +1,8 @@
 name: DCVAE-Climate
+
+# Updated 2025-02-06 to use only the conda-forge channel and to update cdsapi to use the new climate data store.
+# Also updates various software packages to more recent versions.
+
 channels:
   - conda-forge
 dependencies:

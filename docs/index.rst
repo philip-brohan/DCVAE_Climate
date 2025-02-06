@@ -1,6 +1,10 @@
 A DIY Machine Learning Climate Model
 ====================================
 
+.. note::
+
+   Updated 2025-02-06 - to a newer conda environment with updated versions of various software packages, and to support the new Copernicus climate Data Store. Updating to Tensorflow 18 has compelled modest changes to the model code, but the model is essentially the same.
+
 This is an example of how to build a climate model using Machine Learning (ML). It's designed to be used as a training tool for those new to ML, but to be powerful enough to be adapted into something of value for science work.
 
 The fundamental objective is to build a model that is useful for climate science - in particular, in this case, to predict and attribute changes in precipitation - but using ML, rather than a traditional physical model. A great virtue of this approach is the ML model is *dramatically* cheaper than a physical model, both to create and to use.
