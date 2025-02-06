@@ -6,16 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>A DIY Machine Learning Climate Model &#8212; DIY ML Climate Model</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=87629129" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=34905f61" />
     <script src="_static/documentation_options.js?v=8d563738"></script>
-    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Default model" href="ML_default/index.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -36,6 +36,10 @@
             
   <section id="a-diy-machine-learning-climate-model">
 <h1>A DIY Machine Learning Climate Model<a class="headerlink" href="#a-diy-machine-learning-climate-model" title="Link to this heading">¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Updated 2025-02-06 - to a newer conda environment with updated versions of various software packages, and to support the new Copernicus climate Data Store. Updating to Tensorflow 18 has compelled modest changes to the model code, but the model is essentially the same.</p>
+</div>
 <p>This is an example of how to build a climate model using Machine Learning (ML). It’s designed to be used as a training tool for those new to ML, but to be powerful enough to be adapted into something of value for science work.</p>
 <p>The fundamental objective is to build a model that is useful for climate science - in particular, in this case, to predict and attribute changes in precipitation - but using ML, rather than a traditional physical model. A great virtue of this approach is the ML model is <em>dramatically</em> cheaper than a physical model, both to create and to use.</p>
 <section id="background">
@@ -53,14 +57,16 @@
 <h2>Design Decisions<a class="headerlink" href="#design-decisions" title="Link to this heading">¶</a></h2>
 <p>Our aim, with a climate model, is typically to generate an estimate of some future climate state, so the obvious tool is a <a class="reference external" href="https://en.wikipedia.org/wiki/Generative_artificial_intelligence">generative model</a>. That is, a model that will make new, plausible climate states.</p>
 <figure class="align-center" id="id2">
-<a class="reference internal image-reference" href="_images/Slide1.PNG"><img alt="_images/Slide1.PNG" src="_images/Slide1.PNG" style="width: 95%;" /></a>
+<a class="reference internal image-reference" href="_images/Slide1.PNG"><img alt="_images/Slide1.PNG" src="_images/Slide1.PNG" style="width: 95%;" />
+</a>
 <figcaption>
 <p><span class="caption-text">Illustration of a generative model outputting a climate state.</span><a class="headerlink" href="#id2" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>So how do we make such a model? A principal virtue of ML, is that there are already several well established ML methods for making generative models, here we will use a <a class="reference external" href="https://en.wikipedia.org/wiki/Autoencoder#Variational_autoencoder_(VAE)">Variational AutoEncoder</a> (VAE). The VAE is a generative model factory - it learns such models from example inputs. The main virtue of the VAE is that it provides a specifically-constrained model state vector, which offers additional ways to control the model output, effectively allowing us to do <a class="reference external" href="http://brohan.org/Proxy_20CR/">data assimilation</a>.</p>
 <figure class="align-center" id="id3">
-<a class="reference internal image-reference" href="_images/Slide2.PNG"><img alt="_images/Slide2.PNG" src="_images/Slide2.PNG" style="width: 95%;" /></a>
+<a class="reference internal image-reference" href="_images/Slide2.PNG"><img alt="_images/Slide2.PNG" src="_images/Slide2.PNG" style="width: 95%;" />
+</a>
 <figcaption>
 <p><span class="caption-text">Illustration of a VAE - a factory for making generative models given examples of the desired output.</span><a class="headerlink" href="#id3" title="Link to this image">¶</a></p>
 </figcaption>
@@ -86,7 +92,8 @@
 <li><p>Normalize the data to be approximately normally distributed on the range 0-1 (I use quantile mapping).</p></li>
 </ol>
 <figure class="align-center" id="id4">
-<a class="reference internal image-reference" href="_images/monthly_precip_1969_03.png"><img alt="_images/monthly_precip_1969_03.png" src="_images/monthly_precip_1969_03.png" style="width: 95%;" /></a>
+<a class="reference internal image-reference" href="_images/monthly_precip_1969_03.png"><img alt="_images/monthly_precip_1969_03.png" src="_images/monthly_precip_1969_03.png" style="width: 95%;" />
+</a>
 <figcaption>
 <p><span class="caption-text">Precipitation (map and PDF) for March 1969. Raw data above, normalized data below.</span><a class="headerlink" href="#id4" title="Link to this image">¶</a></p>
 </figcaption>
@@ -108,7 +115,8 @@
 </ul>
 </div>
 <figure class="align-center" id="id5">
-<a class="reference internal image-reference" href="_images/training.webp"><img alt="_images/training.webp" src="_images/training.webp" style="width: 95%;" /></a>
+<a class="reference internal image-reference" href="_images/training.webp"><img alt="_images/training.webp" src="_images/training.webp" style="width: 95%;" />
+</a>
 <figcaption>
 <p><span class="caption-text">Model training progress plot. (<a class="reference internal" href="ML_default/plot_history.html"><span class="doc">More details</span></a>)</span><a class="headerlink" href="#id5" title="Link to this image">¶</a></p>
 </figcaption>
@@ -119,14 +127,16 @@
 <h2>Validating the trained model<a class="headerlink" href="#validating-the-trained-model" title="Link to this heading">¶</a></h2>
 <p>Once we have trained the model, we need to validate it. This is a crucial step - the model is only useful if it can predict data it has not seen before. We already know if the model has skill - we can see that from the training loss, but it’s worth looking in more detail:</p>
 <figure class="align-center" id="id6">
-<a class="reference internal image-reference" href="_images/comparison.webp"><img alt="_images/comparison.webp" src="_images/comparison.webp" style="width: 95%;" /></a>
+<a class="reference internal image-reference" href="_images/comparison.webp"><img alt="_images/comparison.webp" src="_images/comparison.webp" style="width: 95%;" />
+</a>
 <figcaption>
 <p><span class="caption-text">Model validation for a single month: Target on the left, model output in the middle, scatter comparison on the right. (<a class="reference internal" href="ML_default/validation.html"><span class="doc">More details</span></a>)</span><a class="headerlink" href="#id6" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>And as well as looking at individual months, we can look at the model’s performance over the whole dataset:</p>
 <figure class="align-center" id="id7">
-<a class="reference internal image-reference" href="_images/multi.webp"><img alt="_images/multi.webp" src="_images/multi.webp" style="width: 95%;" /></a>
+<a class="reference internal image-reference" href="_images/multi.webp"><img alt="_images/multi.webp" src="_images/multi.webp" style="width: 95%;" />
+</a>
 <figcaption>
 <p><span class="caption-text">Model validation time-series: Global-mean values for each month in the test dataset - target in black, model output in red. (<a class="reference internal" href="ML_default/validate_multi.html"><span class="doc">More details</span></a>)</span><a class="headerlink" href="#id7" title="Link to this image">¶</a></p>
 </figcaption>
@@ -138,7 +148,8 @@
 <p>So the DCVAE works well - it can convert fields of T2m and MSLP into an embedding, and then convert that embedding back into fields of T2m, MSLP, and Precip. But we want a generative model - to make new fields of T2m, MSLP, and Precip. To test this we just take the decoder half of the model, and generate the output fields from a random embedding.</p>
 <p>To do this we use the <a class="reference internal" href="ML_default/assimilation.html"><span class="doc">assimilation scripts</span></a> but don’t assimilate anything - just generate the fields from a random embedding.</p>
 <figure class="align-center" id="id8">
-<a class="reference internal image-reference" href="_images/assimilated_free.webp"><img alt="_images/assimilated_free.webp" src="_images/assimilated_free.webp" style="width: 95%;" /></a>
+<a class="reference internal image-reference" href="_images/assimilated_free.webp"><img alt="_images/assimilated_free.webp" src="_images/assimilated_free.webp" style="width: 95%;" />
+</a>
 <figcaption>
 <p><span class="caption-text">Left-hand column - a sample field from the test dataset. Centre column - a field generated from a random embedding. (Note that these columns should not be the same, but the centre column should look like the same sort of thing as the left-hand column). (<a class="reference internal" href="ML_default/assimilation.html"><span class="doc">More details</span></a>)</span><a class="headerlink" href="#id8" title="Link to this image">¶</a></p>
 </figcaption>
@@ -146,14 +157,16 @@
 <p>It’s hard to say exactly how well this works - the model generated fields are not the same as the test dataset fields, but they are similar.</p>
 <p>But the value of the method is not in unconstrained generation, but in constrained generation. We can do the same, but assimilating T2m and MSLP:</p>
 <figure class="align-center" id="id9">
-<a class="reference internal image-reference" href="_images/assimilated_T+P.webp"><img alt="_images/assimilated_T%2BP.webp" src="_images/assimilated_T%2BP.webp" style="width: 95%;" /></a>
+<a class="reference internal image-reference" href="_images/assimilated_T+P.webp"><img alt="_images/assimilated_T%2BP.webp" src="_images/assimilated_T%2BP.webp" style="width: 95%;" />
+</a>
 <figcaption>
 <p><span class="caption-text">Left-hand column - a sample field from the test dataset. Centre column - a field generated from an embedding chosen to match the T2m and MSLP. (Precip is calculated by the model). (<a class="reference internal" href="ML_default/assimilation.html"><span class="doc">More details</span></a>)</span><a class="headerlink" href="#id9" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>And if we make the time-series diagnostic the same way, we can see the point of the model:</p>
 <figure class="align-center" id="id10">
-<a class="reference internal image-reference" href="_images/assimilate_multi_T+P.webp"><img alt="_images/assimilate_multi_T%2BP.webp" src="_images/assimilate_multi_T%2BP.webp" style="width: 95%;" /></a>
+<a class="reference internal image-reference" href="_images/assimilate_multi_T+P.webp"><img alt="_images/assimilate_multi_T%2BP.webp" src="_images/assimilate_multi_T%2BP.webp" style="width: 95%;" />
+</a>
 <figcaption>
 <p><span class="caption-text">Global-mean values for each month in the test dataset - ERA5 data in black, model output in red. Here T2m and MSLP have been assimilated, Precip is calculated by the model. (<a class="reference internal" href="ML_default/assimilate_multi.html"><span class="doc">More details</span></a>)</span><a class="headerlink" href="#id10" title="Link to this image">¶</a></p>
 </figcaption>
@@ -161,7 +174,8 @@
 <p>We can now compare <cite>observed</cite> (ERA5) and modelled precipitation, where the modelled precipitation is calculated from observed T2m and MSLP. We can see a notable divergence between the ERA5 and modelled precipitation before about 1980 - this demonstrates the biases in the ERA5 precipitation product.</p>
 <p>And we can go on to do an attribution study: Does the trend in precip have a common origin with the trend in T2m? We can test this by only assimilating MSLP - don’t force the T2m trend - and seeing what the calculated Precip does.</p>
 <figure class="align-center" id="id11">
-<a class="reference internal image-reference" href="_images/assimilate_multi_P_only.webp"><img alt="_images/assimilate_multi_P_only.webp" src="_images/assimilate_multi_P_only.webp" style="width: 95%;" /></a>
+<a class="reference internal image-reference" href="_images/assimilate_multi_P_only.webp"><img alt="_images/assimilate_multi_P_only.webp" src="_images/assimilate_multi_P_only.webp" style="width: 95%;" />
+</a>
 <figcaption>
 <p><span class="caption-text">Global-mean values for each month in the test dataset - ERA5 data in black, model output in red. MSLP has been assimilated, T2m and Precip are calculated by the model. (<a class="reference internal" href="ML_default/assimilate_multi.html"><span class="doc">More details</span></a>)</span><a class="headerlink" href="#id11" title="Link to this image">¶</a></p>
 </figcaption>
@@ -203,10 +217,10 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="#">
-              <img class="logo" src="_static/DIY_Climate.png" alt="Logo"/>
+              <img class="logo" src="_static/DIY_Climate.png" alt="Logo of A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder"/>
             </a></p>
 <h3><a href="#">Table of Contents</a></h3>
 <ul>
@@ -243,7 +257,7 @@ Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">

@@ -6,17 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Get the data to be used &#8212; DIY ML Climate Model</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=87629129" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=34905f61" />
     <script src="../_static/documentation_options.js?v=8d563738"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="ERA5 data download and access" href="ERA5.html" />
     <link rel="prev" title="Default model - make time-series by assimilating all test months into trained model" href="../ML_default/assimilate_multi.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -54,7 +54,7 @@
 <p>We can download all this from the awesome <a class="reference external" href="https://cds.climate.copernicus.eu/cdsapp#!/home">Copernicus Climate Data Store</a></p>
 <p>You will need to <a class="reference external" href="https://cds.climate.copernicus.eu/api-how-to">register with the CDS</a> before downloading. (You will also need to install the CDS API - but you’ve already done that, it’s in the <a class="reference internal" href="../environment.html"><span class="doc">conda environment</span></a>).</p>
 <p>The script to do the whole download (about 8Gb, will take a few hours) is <cite>download_all_data.sh</cite> in the <cite>get_data</cite> directory. It only downloads data where it is not already on disc (so you can just run it again if it fails part way through).</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/bash</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
 
 <span class="c1"># Run all the data downloads</span>
 
@@ -80,10 +80,10 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
-              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo"/>
+              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo of A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder"/>
             </a></p>
 <h3><a href="../index.html">Table of Contents</a></h3>
 <ul>
@@ -120,7 +120,7 @@ Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">

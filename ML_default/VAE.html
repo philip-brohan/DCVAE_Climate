@@ -6,17 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Default model fixed structure &#8212; DIY ML Climate Model</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=87629129" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=34905f61" />
     <script src="../_static/documentation_options.js?v=8d563738"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Make the tf.data.Dataset inputs and outputs for the DCVAE" href="make_dataset.html" />
     <link rel="prev" title="Default model" href="index.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -47,13 +47,13 @@
 <span class="c1"># This is a generic model that can be used for any set of input and output fields</span>
 <span class="c1"># Follow the instructions in autoencoder.py to use it for a specific model.</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
 
 
-<span class="k">class</span> <span class="nc">DCVAE</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DCVAE</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
     <span class="c1"># Initialiser - set up instance and define the models</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specification</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specification</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">DCVAE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">specification</span> <span class="o">=</span> <span class="n">specification</span>
 
@@ -61,7 +61,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">InputLayer</span><span class="p">(</span>
-                    <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">721</span><span class="p">,</span> <span class="mi">1440</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nInputChannels&quot;</span><span class="p">])</span>
+                    <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">721</span><span class="p">,</span> <span class="mi">1440</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nInputChannels&quot;</span><span class="p">])</span>
                 <span class="p">),</span>
                 <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
                     <span class="n">filters</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
@@ -154,7 +154,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">generator</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">InputLayer</span><span class="p">(</span>
-                    <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">shape</span><span class="o">=</span><span class="p">(</span>
                         <span class="mi">12</span><span class="p">,</span>
                         <span class="mi">23</span><span class="p">,</span>
                         <span class="mi">20</span><span class="p">,</span>
@@ -172,7 +172,6 @@
                     <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
                     <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                     <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
-                    <span class="n">output_padding</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
                     <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;elu&quot;</span><span class="p">,</span>
                 <span class="p">),</span>
                 <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
@@ -187,7 +186,6 @@
                     <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
                     <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                     <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
-                    <span class="n">output_padding</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
                     <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;elu&quot;</span><span class="p">,</span>
                 <span class="p">),</span>
                 <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
@@ -202,7 +200,6 @@
                     <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
                     <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                     <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
-                    <span class="n">output_padding</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
                     <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;elu&quot;</span><span class="p">,</span>
                 <span class="p">),</span>
                 <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
@@ -217,7 +214,6 @@
                     <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
                     <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                     <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
-                    <span class="n">output_padding</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
                     <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;elu&quot;</span><span class="p">,</span>
                 <span class="p">),</span>
                 <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span>
@@ -232,7 +228,6 @@
                     <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
                     <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                     <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
-                    <span class="n">output_padding</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
                     <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;elu&quot;</span><span class="p">,</span>
                 <span class="p">),</span>
                 <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2DTranspose</span><span class="p">(</span>
@@ -240,8 +235,8 @@
                     <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
                     <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                     <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span>
-                    <span class="n">output_padding</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
                 <span class="p">),</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="mi">721</span><span class="p">,</span> <span class="mi">1440</span><span class="p">])),</span>
             <span class="p">]</span>
         <span class="p">)</span>
 
@@ -271,40 +266,48 @@
         <span class="c1"># And regularization loss</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">regularization_loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
+    <span class="c1"># Methods needed to load and save the model</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;specification&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">specification</span><span class="p">}</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
+
     <span class="c1"># Call the encoder model with a batch of input examples and return a batch of</span>
     <span class="c1">#  means and a batch of variances of the encoded latent space PDFs.</span>
-    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">mean</span><span class="p">,</span> <span class="n">logvar</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">),</span> <span class="n">num_or_size_splits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">logvar</span>
 
     <span class="c1"># Sample a batch of points in latent space from the encoded means and variances</span>
-    <span class="k">def</span> <span class="nf">reparameterize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">logvar</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reparameterize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">logvar</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">eps</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">mean</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">eps</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logvar</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="n">mean</span>
 
     <span class="c1"># Call the generator model with a batch of points in latent space and return a</span>
     <span class="c1">#  batch of outputs</span>
-    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">generated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">generated</span>
 
     <span class="c1"># Run the full VAE - convert a batch of inputs to one of outputs</span>
-    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="n">mean</span><span class="p">,</span> <span class="n">logvar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
         <span class="n">latent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reparameterize</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">logvar</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
         <span class="n">generated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">latent</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">generated</span>
 
     <span class="c1"># Make a random latent space vector</span>
-    <span class="k">def</span> <span class="nf">makeLatent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batchSize</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">makeLatent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batchSize</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">latent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reparameterize</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">batchSize</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">latent</span>
 
     <span class="c1"># Utility function to calculte fit of sample to N(mean,logvar)</span>
     <span class="c1"># Used in loss calculation</span>
-    <span class="k">def</span> <span class="nf">log_normal_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">logvar</span><span class="p">,</span> <span class="n">raxis</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_normal_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">logvar</span><span class="p">,</span> <span class="n">raxis</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">log2pi</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="mf">3.141592653589793</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span>
             <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">((</span><span class="n">sample</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">**</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">logvar</span><span class="p">)</span> <span class="o">+</span> <span class="n">logvar</span> <span class="o">+</span> <span class="n">log2pi</span><span class="p">),</span>
@@ -312,7 +315,7 @@
         <span class="p">)</span>
 
     <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
-    <span class="k">def</span> <span class="nf">fit_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">generated</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">climatology</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">generated</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">climatology</span><span class="p">):</span>
         <span class="c1"># Metric is fractional variance reduction compared to climatology</span>
         <span class="n">weights</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">target</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>  <span class="c1"># Missing data zero weighted</span>
         <span class="c1"># Keep the last dimension (different variables)</span>
@@ -330,7 +333,7 @@
     <span class="c1">#  for monitoring and debugging, but the weight update only depends</span>
     <span class="c1">#  on a single value (their sum).</span>
     <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
-    <span class="k">def</span> <span class="nf">compute_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="p">):</span>
         <span class="n">mean</span><span class="p">,</span> <span class="n">logvar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
         <span class="n">latent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reparameterize</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">logvar</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
         <span class="n">generated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">latent</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
@@ -378,7 +381,7 @@
     <span class="c1"># Run the autoencoder for one batch, calculate the errors, calculate the</span>
     <span class="c1">#  gradients and update the layer weights.</span>
     <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
-    <span class="k">def</span> <span class="nf">train_on_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">train_on_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">ignore</span><span class="p">):</span>
         <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
             <span class="n">loss_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_loss</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">overall_loss</span> <span class="o">=</span> <span class="p">(</span>
@@ -395,10 +398,10 @@
             <span class="n">gradients</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">tf</span><span class="o">.</span><span class="n">clip_by_norm</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;maxGradient&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">gradients</span>
             <span class="p">]</span>
-        <span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">))</span>
 
     <span class="c1"># Update the metrics</span>
-    <span class="k">def</span> <span class="nf">update_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trainDS</span><span class="p">,</span> <span class="n">testDS</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strategy</span><span class="p">,</span> <span class="n">trainDS</span><span class="p">,</span> <span class="n">testDS</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">train_rmse</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nOutputChannels&quot;</span><span class="p">]]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">train_rmse_m</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nOutputChannels&quot;</span><span class="p">]]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">train_logpz_g</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
@@ -415,10 +418,10 @@
                 <span class="n">mbatch</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;trainingMask&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">batch</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span>
                 <span class="p">)</span>
-                <span class="n">per_replica_losses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">per_replica_losses</span> <span class="o">=</span> <span class="n">strategy</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">compute_loss</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">((</span><span class="n">batch</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">mbatch</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
                 <span class="p">)</span>
-                <span class="n">batch_losses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span>
+                <span class="n">batch_losses</span> <span class="o">=</span> <span class="n">strategy</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span>
                     <span class="n">tf</span><span class="o">.</span><span class="n">distribute</span><span class="o">.</span><span class="n">ReduceOp</span><span class="o">.</span><span class="n">MEAN</span><span class="p">,</span> <span class="n">per_replica_losses</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">train_rmse_m</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="n">batch_losses</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -428,10 +431,8 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;trainingMask&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">batch</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span>
                 <span class="p">)</span>
                 <span class="n">batch</span> <span class="o">=</span> <span class="p">(</span><span class="n">batch</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">mbatch</span><span class="p">)</span>
-            <span class="n">per_replica_losses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">compute_loss</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">batch_losses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span>
+            <span class="n">per_replica_losses</span> <span class="o">=</span> <span class="n">strategy</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compute_loss</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+            <span class="n">batch_losses</span> <span class="o">=</span> <span class="n">strategy</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span>
                 <span class="n">tf</span><span class="o">.</span><span class="n">distribute</span><span class="o">.</span><span class="n">ReduceOp</span><span class="o">.</span><span class="n">MEAN</span><span class="p">,</span> <span class="n">per_replica_losses</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">train_rmse</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="n">batch_losses</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -473,10 +474,10 @@
                 <span class="n">mbatch</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;trainingMask&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">batch</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span>
                 <span class="p">)</span>
-                <span class="n">per_replica_losses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">per_replica_losses</span> <span class="o">=</span> <span class="n">strategy</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">compute_loss</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">((</span><span class="n">batch</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">mbatch</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
                 <span class="p">)</span>
-                <span class="n">batch_losses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span>
+                <span class="n">batch_losses</span> <span class="o">=</span> <span class="n">strategy</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span>
                     <span class="n">tf</span><span class="o">.</span><span class="n">distribute</span><span class="o">.</span><span class="n">ReduceOp</span><span class="o">.</span><span class="n">MEAN</span><span class="p">,</span> <span class="n">per_replica_losses</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">test_rmse_m</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="n">batch_losses</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -486,10 +487,8 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;trainingMask&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">batch</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span>
                 <span class="p">)</span>
                 <span class="n">batch</span> <span class="o">=</span> <span class="p">(</span><span class="n">batch</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">mbatch</span><span class="p">)</span>
-            <span class="n">per_replica_losses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">compute_loss</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">batch_losses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span>
+            <span class="n">per_replica_losses</span> <span class="o">=</span> <span class="n">strategy</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compute_loss</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+            <span class="n">batch_losses</span> <span class="o">=</span> <span class="n">strategy</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span>
                 <span class="n">tf</span><span class="o">.</span><span class="n">distribute</span><span class="o">.</span><span class="n">ReduceOp</span><span class="o">.</span><span class="n">MEAN</span><span class="p">,</span> <span class="n">per_replica_losses</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">test_rmse</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="n">batch_losses</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -516,7 +515,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">test_loss</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_loss</span> <span class="o">/</span> <span class="n">test_batch_count</span><span class="p">)</span>
 
     <span class="c1"># Save metrics to a log file</span>
-    <span class="k">def</span> <span class="nf">updateLogfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logfile_writer</span><span class="p">,</span> <span class="n">epoch</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">updateLogfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logfile_writer</span><span class="p">,</span> <span class="n">epoch</span><span class="p">):</span>
         <span class="k">with</span> <span class="n">logfile_writer</span><span class="o">.</span><span class="n">as_default</span><span class="p">():</span>
             <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
                 <span class="s2">&quot;Train_RMSE&quot;</span><span class="p">,</span>
@@ -553,7 +552,7 @@
             <span class="p">)</span>
 
     <span class="c1"># Print out the current metrics</span>
-    <span class="k">def</span> <span class="nf">printState</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">printState</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nOutputChannels&quot;</span><span class="p">]):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;trainingMask&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span>
@@ -611,7 +610,7 @@
 
 
 <span class="c1"># Load model and initial weights</span>
-<span class="k">def</span> <span class="nf">getModel</span><span class="p">(</span><span class="n">specification</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">getModel</span><span class="p">(</span><span class="n">specification</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="c1"># Instantiate the model</span>
     <span class="n">autoencoder</span> <span class="o">=</span> <span class="n">DCVAE</span><span class="p">(</span><span class="n">specification</span><span class="p">)</span>
 
@@ -622,8 +621,14 @@
             <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;modelName&quot;</span><span class="p">],</span>
             <span class="n">epoch</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">load_status</span> <span class="o">=</span> <span class="n">autoencoder</span><span class="o">.</span><span class="n">load_weights</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/ckpt&quot;</span> <span class="o">%</span> <span class="n">weights_dir</span><span class="p">)</span><span class="o">.</span><span class="n">expect_partial</span><span class="p">()</span>
-        <span class="n">load_status</span><span class="o">.</span><span class="n">assert_existing_objects_matched</span><span class="p">()</span>
+        <span class="n">autoencoder</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/ckpt.keras&quot;</span> <span class="o">%</span> <span class="n">weights_dir</span><span class="p">,</span> <span class="nb">compile</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="c1"># Seperate compile to eliminate strange error message about 2 optimizers</span>
+        <span class="n">autoencoder</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">autoencoder</span> <span class="o">=</span> <span class="n">DCVAE</span><span class="p">(</span><span class="n">specification</span><span class="p">)</span>
+        <span class="n">autoencoder</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">autoencoder</span>
 </pre></div>
@@ -635,10 +640,10 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
-              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo"/>
+              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo of A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder"/>
             </a></p>
 <h3><a href="../index.html">Table of Contents</a></h3>
 <ul class="current">
@@ -675,7 +680,7 @@ Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">

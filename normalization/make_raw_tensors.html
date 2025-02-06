@@ -6,17 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Assemble ERA5 raw data into a set of tf.tensors &#8212; DIY ML Climate Model</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=87629129" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=34905f61" />
     <script src="../_static/documentation_options.js?v=8d563738"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Estimate normalization parameters for ERA5 data" href="estimate_parameters.html" />
     <link rel="prev" title="Normalizing training data" href="index.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -41,10 +41,10 @@
             
   <section id="assemble-era5-raw-data-into-a-set-of-tf-tensors">
 <h1>Assemble ERA5 raw data into a set of tf.tensors<a class="headerlink" href="#assemble-era5-raw-data-into-a-set-of-tf-tensors" title="Link to this heading">¶</a></h1>
-<p>The data <a class="reference internal" href="../get_data/ERA5.html"><span class="doc">download scripts</span></a> assemble selected ERA5 data in netCDF files. To use that data efficiently in analysis and modelling it is necessary to reformat it as a set of <cite>tf.tensors</cite>. These have consistent format and resolution and can be reassembled into a <cite>tf.data.Dataset`</cite> for ML model training.</p>
+<p>The data <a class="reference internal" href="../get_data/ERA5.html"><span class="doc">download scripts</span></a> assemble selected ERA5 data in netCDF files. To use that data efficiently in analysis and modelling it is necessary to reformat it as a set of <cite>tf.tensors</cite>. These have consistent format and resolution and can be reassembled into a <cite>tf.data.Dataset</cite> for ML model training.</p>
 <p>So for each month in the training period, for each variable (2m_temperature, mean_sea_level_pressure, total_precipitation), we read in the data from netCDF, regrid it to a <a class="reference internal" href="../utils/grids.html"><span class="doc">common grid</span></a>, and save it as a <cite>tf.tensor</cite>.</p>
 <p>The script <cite>make_all_raw_tensors.sh</cite> creates a set of commands to make all the tensors. The script outputs a list of other scripts (one per year, month, variable). Running all the output scripts will create the set of tensors. (Use <cite>GNU parallel</cite> to run the scripts efficiently - or submit them as jobs to a cluster).</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/bash</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
 
 <span class="c1"># Make all the raw tensors</span>
 <span class="c1"># Requires downloaded data</span>
@@ -55,14 +55,32 @@
 <span class="p">(</span><span class="n">cd</span> <span class="n">ERA5</span> <span class="o">&amp;&amp;</span> <span class="o">./</span><span class="n">make_all_tensors</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">variable</span><span class="o">=</span><span class="n">total_precipitation</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>When the main script has completed and all the raw tensors are made, we need to add some metadata to them (used by subsequent scripts to find out how much data is available). The script <code class="docutils literal notranslate"><span class="pre">`update_tensor_metadata.sh`</span></code> does this. Run this script to set the metadata and check that the tensors have been created successfully.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1"># Update the metadata for the raw tensors (date::index lists for everything available)</span>
+<span class="c1"># Make all the tensors first</span>
+
+<span class="p">(</span><span class="n">cd</span> <span class="n">ERA5</span> <span class="o">&amp;&amp;</span> <span class="o">./</span><span class="n">update_tensor_metadata</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">variable</span><span class="o">=</span><span class="mi">2</span><span class="n">m_temperature</span><span class="p">)</span>
+<span class="p">(</span><span class="n">cd</span> <span class="n">ERA5</span> <span class="o">&amp;&amp;</span> <span class="o">./</span><span class="n">update_tensor_metadata</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">variable</span><span class="o">=</span><span class="n">sea_surface_temperature</span><span class="p">)</span>
+<span class="p">(</span><span class="n">cd</span> <span class="n">ERA5</span> <span class="o">&amp;&amp;</span> <span class="o">./</span><span class="n">update_tensor_metadata</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">variable</span><span class="o">=</span><span class="n">mean_sea_level_pressure</span><span class="p">)</span>
+<span class="p">(</span><span class="n">cd</span> <span class="n">ERA5</span> <span class="o">&amp;&amp;</span> <span class="o">./</span><span class="n">update_tensor_metadata</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">variable</span><span class="o">=</span><span class="n">total_precipitation</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>Other scripts used by that main script:</p>
 <p>Script to make the set of tensors for one variable. Takes argument <cite>–variable</cite>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
 
 <span class="c1"># Make raw data tensors for normalization</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shutil</span><span class="w"> </span><span class="kn">import</span> <span class="n">rmtree</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">zarr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorstore</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ts</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tensor_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">date_to_index</span><span class="p">,</span> <span class="n">FirstYear</span><span class="p">,</span> <span class="n">LastYear</span>
 
 <span class="n">sDir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
 
@@ -75,31 +93,54 @@
 <span class="p">)</span>
 <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
+<span class="c1"># Create the output zarr array if it doesn&#39;t exist</span>
+<span class="n">fn</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/raw_datasets/ERA5/</span><span class="si">%s</span><span class="s2">_zarr&quot;</span> <span class="o">%</span> <span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">,</span>
+<span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">is_done</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">variable</span><span class="p">):</span>
-    <span class="n">fn</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/raw_datasets/ERA5/</span><span class="si">%s</span><span class="s2">/</span><span class="si">%04d</span><span class="s2">-</span><span class="si">%02d</span><span class="s2">.tfd&quot;</span> <span class="o">%</span> <span class="p">(</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span>
-        <span class="n">variable</span><span class="p">,</span>
-        <span class="n">year</span><span class="p">,</span>
-        <span class="n">month</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
-        <span class="k">return</span> <span class="kc">True</span>
-    <span class="k">return</span> <span class="kc">False</span>
+<span class="c1"># Create TensorStore dataset if it doesn&#39;t exist</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;driver&quot;</span><span class="p">:</span> <span class="s2">&quot;zarr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kvstore&quot;</span><span class="p">:</span> <span class="s2">&quot;file://&quot;</span> <span class="o">+</span> <span class="n">fn</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">ts</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+        <span class="n">chunk_layout</span><span class="o">=</span><span class="n">ts</span><span class="o">.</span><span class="n">ChunkLayout</span><span class="p">(</span><span class="n">chunk_shape</span><span class="o">=</span><span class="p">[</span><span class="mi">721</span><span class="p">,</span> <span class="mi">1440</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span>
+        <span class="n">create</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">fill_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+        <span class="n">shape</span><span class="o">=</span><span class="p">[</span>
+            <span class="mi">721</span><span class="p">,</span>
+            <span class="mi">1440</span><span class="p">,</span>
+            <span class="n">date_to_index</span><span class="p">(</span><span class="n">LastYear</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+<span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>  <span class="c1"># Already exists</span>
+    <span class="k">pass</span>
 
+<span class="c1"># Add date range to array as metadata</span>
+<span class="c1"># TensorStore doesn&#39;t support metadata, so use the underlying zarr array</span>
+<span class="n">zarr_ds</span> <span class="o">=</span> <span class="n">zarr</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r+&quot;</span><span class="p">)</span>
+<span class="n">zarr_ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;FirstYear&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">FirstYear</span>
+<span class="n">zarr_ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;LastYear&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">LastYear</span>
 
 <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1940</span><span class="p">,</span> <span class="mi">2022</span><span class="p">):</span>
+<span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">FirstYear</span><span class="p">,</span> <span class="n">LastYear</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">is_done</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">):</span>
-            <span class="k">continue</span>
-        <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/make_training_tensor.py --year=</span><span class="si">%04d</span><span class="s2"> --month=</span><span class="si">%02d</span><span class="s2"> --variable=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-            <span class="n">sDir</span><span class="p">,</span>
-            <span class="n">year</span><span class="p">,</span>
-            <span class="n">month</span><span class="p">,</span>
-            <span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">date_to_index</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">)</span>
+        <span class="nb">slice</span> <span class="o">=</span> <span class="n">zarr_ds</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">idx</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="nb">slice</span><span class="p">)):</span>  <span class="c1"># Data missing, so make it</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/make_training_tensor.py --year=</span><span class="si">%04d</span><span class="s2"> --month=</span><span class="si">%02d</span><span class="s2"> --variable=</span><span class="si">%s</span><span class="s2">&quot;</span>
+                <span class="o">%</span> <span class="p">(</span>
+                    <span class="n">sDir</span><span class="p">,</span>
+                    <span class="n">year</span><span class="p">,</span>
+                    <span class="n">month</span><span class="p">,</span>
+                    <span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Calls another script to make a single tensor:</p>
@@ -109,64 +150,86 @@
 <span class="c1"># Convert into a TensorFlow tensor.</span>
 <span class="c1"># Serialise and store on $SCRATCH.</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
 <span class="c1"># Supress TensorFlow moaning about cuda - we don&#39;t need a GPU for this</span>
 <span class="c1"># Also the warning message confuses people.</span>
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TF_CPP_MIN_LOG_LEVEL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;3&quot;</span>
 
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-<span class="kn">import</span> <span class="nn">dask</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorstore</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ts</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">dask</span>
 
 <span class="c1"># Going to do external parallelism - run this on one core</span>
 <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">threading</span><span class="o">.</span><span class="n">set_inter_op_parallelism_threads</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">dask</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">scheduler</span><span class="o">=</span><span class="s2">&quot;single-threaded&quot;</span><span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">tensor_utils</span> <span class="kn">import</span> <span class="n">load_raw</span><span class="p">,</span> <span class="n">raw_to_tensor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tensor_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_raw</span><span class="p">,</span> <span class="n">raw_to_tensor</span><span class="p">,</span> <span class="n">date_to_index</span>
 
-<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 
 <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--year&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Year&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--month&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Integer month&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--variable&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Variable name&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-    <span class="s2">&quot;--opfile&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;tf data file name&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span>
-<span class="p">)</span>
 <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">opfile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">args</span><span class="o">.</span><span class="n">opfile</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/raw_datasets/ERA5/</span><span class="si">%s</span><span class="s2">/</span><span class="si">%04d</span><span class="s2">-</span><span class="si">%02d</span><span class="s2">.tfd&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">,</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">month</span><span class="p">,</span>
-    <span class="p">)</span>
 
-<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">opfile</span><span class="p">)):</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">opfile</span><span class="p">))</span>
+<span class="n">fn</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/raw_datasets/ERA5/</span><span class="si">%s</span><span class="s2">_zarr&quot;</span> <span class="o">%</span> <span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;driver&quot;</span><span class="p">:</span> <span class="s2">&quot;zarr&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;kvstore&quot;</span><span class="p">:</span> <span class="s2">&quot;file://&quot;</span> <span class="o">+</span> <span class="n">fn</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
 
 <span class="c1"># Load and standardise data</span>
-<span class="n">qd</span> <span class="o">=</span> <span class="n">load_raw</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">)</span>
-<span class="n">ict</span> <span class="o">=</span> <span class="n">raw_to_tensor</span><span class="p">(</span><span class="n">qd</span><span class="p">)</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">qd</span> <span class="o">=</span> <span class="n">load_raw</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">)</span>
+    <span class="n">ict</span> <span class="o">=</span> <span class="n">raw_to_tensor</span><span class="p">(</span><span class="n">qd</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="s2">&quot;Failed to load data for </span><span class="si">%s</span><span class="s2"> </span><span class="si">%04d</span><span class="s2">-</span><span class="si">%02d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">month</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">ict</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">fill</span><span class="p">([</span><span class="mi">721</span><span class="p">,</span> <span class="mi">1440</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
 
 <span class="c1"># Write to file</span>
-<span class="n">sict</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">serialize_tensor</span><span class="p">(</span><span class="n">ict</span><span class="p">)</span>
-<span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">opfile</span><span class="p">,</span> <span class="n">sict</span><span class="p">)</span>
+<span class="n">didx</span> <span class="o">=</span> <span class="n">date_to_index</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">month</span><span class="p">)</span>
+<span class="n">op</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">didx</span><span class="p">]</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ict</span><span class="p">)</span>
+<span class="n">op</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>  <span class="c1"># Ensure write completes before exiting</span>
 </pre></div>
 </div>
 <p>Library functions to convert between <cite>tf.tensor</cite> and <cite>iris.cube.cube</cite>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Utility functions for creating and manipulating raw tensors</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">get_data.ERA5</span> <span class="kn">import</span> <span class="n">ERA5_monthly</span>
-<span class="kn">from</span> <span class="nn">utilities</span> <span class="kn">import</span> <span class="n">grids</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">get_data.ERA5</span><span class="w"> </span><span class="kn">import</span> <span class="n">ERA5_monthly</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">grids</span>
+
+<span class="c1"># Convert date into an array index</span>
+<span class="n">FirstYear</span> <span class="o">=</span> <span class="mi">1940</span>
+<span class="n">LastYear</span> <span class="o">=</span> <span class="mi">2035</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">date_to_index</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">year</span> <span class="o">-</span> <span class="n">FirstYear</span><span class="p">)</span> <span class="o">*</span> <span class="mi">12</span> <span class="o">+</span> <span class="n">month</span> <span class="o">-</span> <span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">index_to_date</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">idx</span> <span class="o">//</span> <span class="mi">12</span><span class="p">)</span> <span class="o">+</span> <span class="n">FirstYear</span><span class="p">,</span> <span class="p">(</span><span class="n">idx</span> <span class="o">%</span> <span class="mi">12</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
 
 
 <span class="c1"># Load the data for 1 month (on the standard cube).</span>
-<span class="k">def</span> <span class="nf">load_raw</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">member</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="s2">&quot;total_precipitation&quot;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_raw</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">member</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="s2">&quot;total_precipitation&quot;</span><span class="p">):</span>
     <span class="n">raw</span> <span class="o">=</span> <span class="n">ERA5_monthly</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
         <span class="n">variable</span><span class="o">=</span><span class="n">variable</span><span class="p">,</span>
         <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span>
@@ -178,17 +241,83 @@
 
 
 <span class="c1"># Convert raw cube to tensor</span>
-<span class="k">def</span> <span class="nf">raw_to_tensor</span><span class="p">(</span><span class="n">raw</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">raw_to_tensor</span><span class="p">(</span><span class="n">raw</span><span class="p">):</span>
     <span class="n">ict</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ict</span>
 
 
 <span class="c1"># Convert tensor to cube</span>
-<span class="k">def</span> <span class="nf">tensor_to_cube</span><span class="p">(</span><span class="n">tensor</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">tensor_to_cube</span><span class="p">(</span><span class="n">tensor</span><span class="p">):</span>
     <span class="n">cube</span> <span class="o">=</span> <span class="n">grids</span><span class="o">.</span><span class="n">E5sCube</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">cube</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
     <span class="n">cube</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">MaskedArray</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">cube</span>
+</pre></div>
+</div>
+<p>Metadata update script for an ERA5 variable:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="c1"># Update the raw tensor zarr array with metadata giving dates and indices for each field present</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">zarr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tensor_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">date_to_index</span><span class="p">,</span> <span class="n">FirstYear</span><span class="p">,</span> <span class="n">LastYear</span>
+
+<span class="n">sDir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+
+<span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+    <span class="s2">&quot;--variable&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Variable name&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+    <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+<span class="c1"># Find the raw_tensor zarr array</span>
+<span class="n">fn</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/raw_datasets/ERA5/</span><span class="si">%s</span><span class="s2">_zarr&quot;</span> <span class="o">%</span> <span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Add date range to array as metadata</span>
+<span class="n">zarr_ds</span> <span class="o">=</span> <span class="n">zarr</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r+&quot;</span><span class="p">)</span>
+
+<span class="n">AvailableMonths</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">start</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%04d</span><span class="s2">-</span><span class="si">%02d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">LastYear</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+<span class="n">end</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%04d</span><span class="s2">-</span><span class="si">%02d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">FirstYear</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">FirstYear</span><span class="p">,</span> <span class="n">LastYear</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">):</span>
+        <span class="n">dte</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">-</span><span class="si">%02d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">date_to_index</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">)</span>
+        <span class="nb">slice</span> <span class="o">=</span> <span class="n">zarr_ds</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">idx</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="nb">slice</span><span class="p">)):</span>
+            <span class="n">AvailableMonths</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">-</span><span class="si">%02d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">)]</span> <span class="o">=</span> <span class="n">idx</span>
+            <span class="k">if</span> <span class="n">dte</span> <span class="o">&lt;</span> <span class="n">start</span><span class="p">:</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">dte</span>
+            <span class="k">if</span> <span class="n">dte</span> <span class="o">&gt;</span> <span class="n">end</span><span class="p">:</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="n">dte</span>
+
+<span class="n">zarr_ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;AvailableMonths&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">AvailableMonths</span>
+
+<span class="n">missing</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">FirstYear</span><span class="p">,</span> <span class="n">LastYear</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">):</span>
+        <span class="n">dte</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">-</span><span class="si">%02d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dte</span> <span class="o">&lt;</span> <span class="n">start</span> <span class="ow">or</span> <span class="n">dte</span> <span class="o">&gt;</span> <span class="n">end</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">dte</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">AvailableMonths</span><span class="p">:</span>
+            <span class="n">missing</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Start date:&quot;</span><span class="p">,</span> <span class="n">start</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;End date:&quot;</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Missing months:&quot;</span><span class="p">,</span> <span class="n">missing</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total months:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">AvailableMonths</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -198,10 +327,10 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
-              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo"/>
+              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo of A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder"/>
             </a></p>
 <h3><a href="../index.html">Table of Contents</a></h3>
 <ul>
@@ -238,7 +367,7 @@ Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">

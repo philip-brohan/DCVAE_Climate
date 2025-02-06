@@ -6,17 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Default model training script &#8212; DIY ML Climate Model</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=87629129" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=34905f61" />
     <script src="../_static/documentation_options.js?v=8d563738"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Default model - plot training history" href="plot_history.html" />
     <link rel="prev" title="Generic model specification file" href="specify.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -53,16 +53,16 @@
 <span class="c1"># Then edit specify.py to choose the input and output fields, and the training parameters.</span>
 <span class="c1"># Then run this file to train the model, and the validate scripts to test the result.</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
 <span class="c1"># Cut down on the TensorFlow warning messages</span>
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TF_CPP_MIN_LOG_LEVEL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;3&quot;</span>
 
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
 
-<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 
 <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -70,43 +70,45 @@
 <span class="p">)</span>
 <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
+<span class="c1"># Set the computation strategy</span>
+<span class="n">strategy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distribute</span><span class="o">.</span><span class="n">get_strategy</span><span class="p">()</span>
+<span class="c1"># Set the optimizer</span>
+<span class="c1"># If restarting (--epoch &gt; 1) the saved optimizer will be used instead</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="mf">5e-4</span><span class="p">)</span>
+
 <span class="c1"># Load the data path, data source, and model specification</span>
-<span class="kn">from</span> <span class="nn">specify</span> <span class="kn">import</span> <span class="n">specification</span>
-<span class="kn">from</span> <span class="nn">ML_models.default.makeDataset</span> <span class="kn">import</span> <span class="n">getDataset</span>
-<span class="kn">from</span> <span class="nn">ML_models.default.autoencoderModel</span> <span class="kn">import</span> <span class="n">DCVAE</span><span class="p">,</span> <span class="n">getModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">specify</span><span class="w"> </span><span class="kn">import</span> <span class="n">specification</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ML_models.default.makeDataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">getDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ML_models.default.autoencoderModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">getModel</span>
 
 
 <span class="c1"># Get Datasets</span>
-<span class="k">def</span> <span class="nf">getDatasets</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">getDatasets</span><span class="p">():</span>
     <span class="c1"># Set up the training data</span>
     <span class="n">trainingData</span> <span class="o">=</span> <span class="n">getDataset</span><span class="p">(</span><span class="n">specification</span><span class="p">,</span> <span class="n">purpose</span><span class="o">=</span><span class="s2">&quot;Train&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">trainingData</span> <span class="o">=</span> <span class="n">trainingData</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;shuffleBufferSize&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span>
         <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;batchSize&quot;</span><span class="p">]</span>
     <span class="p">)</span>
-    <span class="n">trainingData</span> <span class="o">=</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">experimental_distribute_dataset</span><span class="p">(</span>
-        <span class="n">trainingData</span>
-    <span class="p">)</span>
+    <span class="n">trainingData</span> <span class="o">=</span> <span class="n">strategy</span><span class="o">.</span><span class="n">experimental_distribute_dataset</span><span class="p">(</span><span class="n">trainingData</span><span class="p">)</span>
     <span class="n">validationData</span> <span class="o">=</span> <span class="n">getDataset</span><span class="p">(</span><span class="n">specification</span><span class="p">,</span> <span class="n">purpose</span><span class="o">=</span><span class="s2">&quot;Train&quot;</span><span class="p">)</span>
     <span class="n">validationData</span> <span class="o">=</span> <span class="n">validationData</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;batchSize&quot;</span><span class="p">])</span>
-    <span class="n">validationData</span> <span class="o">=</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">experimental_distribute_dataset</span><span class="p">(</span>
-        <span class="n">validationData</span>
-    <span class="p">)</span>
+    <span class="n">validationData</span> <span class="o">=</span> <span class="n">strategy</span><span class="o">.</span><span class="n">experimental_distribute_dataset</span><span class="p">(</span><span class="n">validationData</span><span class="p">)</span>
 
     <span class="c1"># Set up the test data</span>
     <span class="n">testData</span> <span class="o">=</span> <span class="n">getDataset</span><span class="p">(</span><span class="n">specification</span><span class="p">,</span> <span class="n">purpose</span><span class="o">=</span><span class="s2">&quot;Test&quot;</span><span class="p">)</span>
     <span class="n">testData</span> <span class="o">=</span> <span class="n">testData</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;shuffleBufferSize&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span>
         <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;batchSize&quot;</span><span class="p">]</span>
     <span class="p">)</span>
-    <span class="n">testData</span> <span class="o">=</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">experimental_distribute_dataset</span><span class="p">(</span><span class="n">testData</span><span class="p">)</span>
+    <span class="n">testData</span> <span class="o">=</span> <span class="n">strategy</span><span class="o">.</span><span class="n">experimental_distribute_dataset</span><span class="p">(</span><span class="n">testData</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="p">(</span><span class="n">trainingData</span><span class="p">,</span> <span class="n">validationData</span><span class="p">,</span> <span class="n">testData</span><span class="p">)</span>
 
 
 <span class="c1"># Instantiate and run the model under the control of the distribution strategy</span>
-<span class="k">with</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">scope</span><span class="p">():</span>
+<span class="k">with</span> <span class="n">strategy</span><span class="o">.</span><span class="n">scope</span><span class="p">():</span>
     <span class="n">trainingData</span><span class="p">,</span> <span class="n">validationData</span><span class="p">,</span> <span class="n">testData</span> <span class="o">=</span> <span class="n">getDatasets</span><span class="p">()</span>
 
-    <span class="n">autoencoder</span> <span class="o">=</span> <span class="n">getModel</span><span class="p">(</span><span class="n">specification</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">epoch</span><span class="p">)</span>
+    <span class="n">autoencoder</span> <span class="o">=</span> <span class="n">getModel</span><span class="p">(</span><span class="n">specification</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">epoch</span><span class="p">)</span>
 
     <span class="c1"># logfile to output the metrics</span>
     <span class="n">log_FN</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/</span><span class="si">%s</span><span class="s2">/logs/Training&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span>
@@ -124,7 +126,7 @@
         <span class="p">)</span>
 
     <span class="c1"># For each Epoch: train, save state, and report progress</span>
-    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">epoch</span><span class="p">,</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nEpochs&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">epoch</span><span class="p">,</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nEpochs&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">epoch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
         <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
         <span class="c1"># Train on all batches in the training data</span>
@@ -132,8 +134,8 @@
             <span class="k">if</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;trainingMask&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">mbatch</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;trainingMask&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">batch</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">)</span>
                 <span class="n">batch</span> <span class="o">=</span> <span class="p">(</span><span class="n">batch</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">mbatch</span><span class="p">)</span>
-            <span class="n">per_replica_op</span> <span class="o">=</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-                <span class="n">autoencoder</span><span class="o">.</span><span class="n">train_on_batch</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;optimizer&quot;</span><span class="p">])</span>
+            <span class="n">per_replica_op</span> <span class="o">=</span> <span class="n">strategy</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">autoencoder</span><span class="o">.</span><span class="n">train_on_batch</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="p">)</span>
 
         <span class="n">end_training_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -143,17 +145,7 @@
             <span class="k">continue</span>
 
         <span class="c1"># Accumulate average losses over all batches in the validation data</span>
-        <span class="n">autoencoder</span><span class="o">.</span><span class="n">update_metrics</span><span class="p">(</span><span class="n">validationData</span><span class="p">,</span> <span class="n">testData</span><span class="p">)</span>
-
-        <span class="c1"># Save model state</span>
-        <span class="n">save_dir</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/</span><span class="si">%s</span><span class="s2">/weights/Epoch_</span><span class="si">%04d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span>
-            <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;modelName&quot;</span><span class="p">],</span>
-            <span class="n">epoch</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">save_dir</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">)</span>
-        <span class="n">autoencoder</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/ckpt&quot;</span> <span class="o">%</span> <span class="n">save_dir</span><span class="p">)</span>
+        <span class="n">autoencoder</span><span class="o">.</span><span class="n">update_metrics</span><span class="p">(</span><span class="n">strategy</span><span class="p">,</span> <span class="n">validationData</span><span class="p">,</span> <span class="n">testData</span><span class="p">)</span>
 
         <span class="c1"># Update the log file with current metrics</span>
         <span class="n">autoencoder</span><span class="o">.</span><span class="n">updateLogfile</span><span class="p">(</span><span class="n">logfile_writer</span><span class="p">,</span> <span class="n">epoch</span><span class="p">)</span>
@@ -169,6 +161,16 @@
                 <span class="nb">int</span><span class="p">(</span><span class="n">end_monitoring_time</span> <span class="o">-</span> <span class="n">end_training_time</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="p">)</span>
+
+        <span class="c1"># Save model state</span>
+        <span class="n">save_dir</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/</span><span class="si">%s</span><span class="s2">/weights/Epoch_</span><span class="si">%04d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span>
+            <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;modelName&quot;</span><span class="p">],</span>
+            <span class="n">epoch</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">save_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">)</span>
+        <span class="n">autoencoder</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/ckpt.keras&quot;</span> <span class="o">%</span> <span class="n">save_dir</span><span class="p">,</span> <span class="n">include_optimizer</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -178,10 +180,10 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
-              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo"/>
+              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo of A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder"/>
             </a></p>
 <h3><a href="../index.html">Table of Contents</a></h3>
 <ul>
@@ -218,7 +220,7 @@ Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">

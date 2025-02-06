@@ -6,17 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Default model &#8212; DIY ML Climate Model</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=87629129" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=34905f61" />
     <script src="../_static/documentation_options.js?v=8d563738"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Default model fixed structure" href="VAE.html" />
     <link rel="prev" title="A DIY Machine Learning Climate Model" href="../index.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -43,7 +43,8 @@
 <p>The purpose of the model, is to learn a generator function that makes climate states (monthly fields of temperature, pressure and precipitation) with a low-dimensional state vector (embedding) as input. This generator is the climate model that e will use for experiments. To learn that model (and embedding) a standard tool in ML - a factory for learning such functions from example climate states.</p>
 <p>The factory is a Deep Convolutional <a class="reference external" href="https://en.wikipedia.org/wiki/Variational_autoencoder">Variational Autoencoder</a>. It takes <a class="reference internal" href="make_dataset.html"><span class="doc">input data</span></a> on a 721x1440 grid (same as ERA5), and uses a pair of convolutional neural nets to encode and decode the data - learning to both produce a target output on the same grid and make the encoded version (the embedding) distributed as a unit normal. The <a class="reference internal" href="VAE.html"><span class="doc">structure of the model</span></a> (12 convolutional layers in the encoder, 11 in the decoder) is fixed, but input and output data, and the hyperparameters (learning rate, batch size, beta, etc) can be changed. They are set in a <a class="reference internal" href="specify.html"><span class="doc">specification file</span></a> (<cite>specify.py</cite>).</p>
 <figure class="align-center" id="id2" style="width: 95%">
-<a class="reference internal image-reference" href="../_images/Slide3.PNG"><img alt="../_images/Slide3.PNG" src="../_images/Slide3.PNG" style="width: 95%;" /></a>
+<a class="reference internal image-reference" href="../_images/Slide3.PNG"><img alt="../_images/Slide3.PNG" src="../_images/Slide3.PNG" style="width: 95%;" />
+</a>
 <figcaption>
 <p><span class="caption-text">The structure of the VAE used to train the generator</span><a class="headerlink" href="#id2" title="Link to this image">¶</a></p>
 </figcaption>
@@ -89,10 +90,10 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
-              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo"/>
+              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo of A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder"/>
             </a></p>
 <h3><a href="../index.html">Table of Contents</a></h3>
 <ul class="current">
@@ -129,7 +130,7 @@ Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">

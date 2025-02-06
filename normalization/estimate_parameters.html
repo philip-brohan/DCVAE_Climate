@@ -6,17 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Estimate normalization parameters for ERA5 data &#8212; DIY ML Climate Model</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=87629129" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=34905f61" />
     <script src="../_static/documentation_options.js?v=8d563738"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Check gamma distributions for ERA5 data" href="validate_for_points.html" />
     <link rel="prev" title="Assemble ERA5 raw data into a set of tf.tensors" href="make_raw_tensors.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -42,14 +42,15 @@
   <section id="estimate-normalization-parameters-for-era5-data">
 <h1>Estimate normalization parameters for ERA5 data<a class="headerlink" href="#estimate-normalization-parameters-for-era5-data" title="Link to this heading">¶</a></h1>
 <figure class="align-center" id="id1" style="width: 95%">
-<a class="reference internal image-reference" href="../_images/gamma_2m_temperature_m03.png"><img alt="../_images/gamma_2m_temperature_m03.png" src="../_images/gamma_2m_temperature_m03.png" style="width: 65%;" /></a>
+<a class="reference internal image-reference" href="../_images/gamma_2m_temperature_m03.png"><img alt="../_images/gamma_2m_temperature_m03.png" src="../_images/gamma_2m_temperature_m03.png" style="width: 65%;" />
+</a>
 <figcaption>
 <p><span class="caption-text">Fitted gamma distribution parameters for temperature data. Top: location, centre: shape, bottom: scale (<a class="reference internal" href="validate_for_fields.html"><span class="doc">details</span></a>.</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>To normalize the data we are fitting <a class="reference external" href="https://statisticsbyjim.com/probability/gamma-distribution/">gamma distributions</a> to the training data. We fit a separate distribution at every grid-point, for each calendar month (so 1 distribution for each point, for all January data, and so on).</p>
 <p>The scripts to estimate the fits are in the <cite>normalize</cite> directory. The script <cite>normalize_all.sh</cite> creates a set of commands to estimate all the fits. The script outputs a list of other scripts (one per year, month, variable). Running all the output scripts will do the estimation. (Use <cite>GNU parallel</cite> to run the scripts efficiently - or submit them as jobs to a cluster).</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/bash</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
 
 <span class="c1"># Make normalization constants for all the datasets</span>
 <span class="c1"># Requires pre-made raw tensors</span>
@@ -63,21 +64,24 @@
 
 <span class="c1"># Find optimum gamma parameters by fitting to the data moments</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">iris</span>
-<span class="kn">from</span> <span class="nn">utilities</span> <span class="kn">import</span> <span class="n">grids</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">iris</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">grids</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="c1"># Supress iris moaning about attributes</span>
+<span class="n">iris</span><span class="o">.</span><span class="n">FUTURE</span><span class="o">.</span><span class="n">save_split_attrs</span> <span class="o">=</span> <span class="kc">True</span>
 
 <span class="c1"># Supress TensorFlow moaning about cuda - we don&#39;t need a GPU for this</span>
 <span class="c1"># Also the warning message confuses people.</span>
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TF_CPP_MIN_LOG_LEVEL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;3&quot;</span>
 
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">makeDataset</span> <span class="kn">import</span> <span class="n">getDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">makeDataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">getDataset</span>
 
-<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 
 <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--month&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Month to fit&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -106,10 +110,11 @@
     <span class="n">startyear</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">startyear</span><span class="p">,</span>
     <span class="n">endyear</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">endyear</span><span class="p">,</span>
     <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">blur</span><span class="o">=</span><span class="mf">1.0e-9</span><span class="p">,</span>
+    <span class="n">blur</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">mean</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">721</span><span class="p">,</span> <span class="mi">1440</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 <span class="n">count</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">721</span><span class="p">,</span> <span class="mi">1440</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">trainingData</span><span class="p">:</span>
     <span class="n">month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">5</span><span class="p">:</span><span class="mi">7</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">month</span> <span class="o">==</span> <span class="n">args</span><span class="o">.</span><span class="n">month</span><span class="p">:</span>
@@ -195,48 +200,61 @@
 <p>The data are taken from the <cite>tf.tensor</cite> datasets of raw data created during the normalization process. Functions to present these as <cite>tf.data.DataSets</cite>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create raw data dataset for normalization</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-
-
-<span class="c1"># Load a pre-prepared tensor from a file</span>
-<span class="k">def</span> <span class="nf">load_tensor</span><span class="p">(</span><span class="n">file_name</span><span class="p">):</span>
-    <span class="n">sict</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
-    <span class="n">imt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">parse_tensor</span><span class="p">(</span><span class="n">sict</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-    <span class="n">imt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">imt</span><span class="p">,</span> <span class="p">[</span><span class="mi">721</span><span class="p">,</span> <span class="mi">1440</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">imt</span>
-
-
-<span class="c1"># Get a list of filenames containing tensors</span>
-<span class="k">def</span> <span class="nf">getFileNames</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">startyear</span><span class="o">=</span><span class="mi">1850</span><span class="p">,</span> <span class="n">endyear</span><span class="o">=</span><span class="mi">2050</span><span class="p">):</span>
-    <span class="n">inFiles</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span>
-            <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/raw_datasets/ERA5/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span> <span class="n">variable</span><span class="p">)</span>
-        <span class="p">)</span>
-    <span class="p">)</span>
-    <span class="n">inFiles</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">fn</span> <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">inFiles</span> <span class="k">if</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">fn</span><span class="p">[:</span><span class="mi">4</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="n">startyear</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">fn</span><span class="p">[:</span><span class="mi">4</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">endyear</span><span class="p">)</span>
-    <span class="p">]</span>
-    <span class="k">return</span> <span class="n">inFiles</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">zarr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorstore</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ts</span>
 
 
 <span class="c1"># Get a dataset - all the tensors for a given and variable</span>
-<span class="k">def</span> <span class="nf">getDataset</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">startyear</span><span class="o">=</span><span class="mi">1850</span><span class="p">,</span> <span class="n">endyear</span><span class="o">=</span><span class="mi">2050</span><span class="p">,</span> <span class="n">blur</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="c1"># Get a list of years to include</span>
-    <span class="n">inFiles</span> <span class="o">=</span> <span class="n">getFileNames</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">startyear</span><span class="o">=</span><span class="n">startyear</span><span class="p">,</span> <span class="n">endyear</span><span class="o">=</span><span class="n">endyear</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">getDataset</span><span class="p">(</span>
+    <span class="n">variable</span><span class="p">,</span>
+    <span class="n">startyear</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">endyear</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">blur</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
 
-    <span class="c1"># Create TensorFlow Dataset object from the source file names</span>
-    <span class="n">tn_data</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">inFiles</span><span class="p">))</span>
+    <span class="c1"># Get the index of the last month in the raw tensors</span>
+    <span class="n">fn</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/raw_datasets/ERA5/</span><span class="si">%s</span><span class="s2">_zarr&quot;</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span>
+        <span class="n">variable</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">zarr_array</span> <span class="o">=</span> <span class="n">zarr</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+    <span class="n">AvailableMonths</span> <span class="o">=</span> <span class="n">zarr_array</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;AvailableMonths&quot;</span><span class="p">]</span>
+    <span class="n">dates</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">AvailableMonths</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">AvailableMonths</span><span class="p">[</span><span class="n">date</span><span class="p">]</span> <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">dates</span><span class="p">]</span>
 
-    <span class="c1"># Convert from list of file names to Dataset of source file contents</span>
-    <span class="n">fnFiles</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/raw_datasets/ERA5/</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span> <span class="n">variable</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">inFiles</span>
-    <span class="p">]</span>
-    <span class="n">ts_data</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">fnFiles</span><span class="p">))</span>
-    <span class="n">ts_data</span> <span class="o">=</span> <span class="n">ts_data</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">load_tensor</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">AUTOTUNE</span><span class="p">)</span>
+    <span class="c1"># Create TensorFlow Dataset object from the source file dates</span>
+    <span class="n">tn_data</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">dates</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">))</span>
+    <span class="n">ts_data</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
+
+    <span class="c1"># Convert from list ofavailable months to Dataset of source file contents</span>
+    <span class="n">tsa</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;driver&quot;</span><span class="p">:</span> <span class="s2">&quot;zarr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kvstore&quot;</span><span class="p">:</span> <span class="s2">&quot;file://&quot;</span> <span class="o">+</span> <span class="n">fn</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+    <span class="c1"># Need the indirect function as zarr can&#39;t take tensor indices and .map prohibits .numpy()</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_tensor_from_index_py</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">tsa</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">idx</span><span class="o">.</span><span class="n">numpy</span><span class="p">()]</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">result</span><span class="p">(),</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_tensor_from_index</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">py_function</span><span class="p">(</span>
+            <span class="n">load_tensor_from_index_py</span><span class="p">,</span>
+            <span class="p">[</span><span class="n">idx</span><span class="p">],</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="p">[</span><span class="mi">721</span><span class="p">,</span> <span class="mi">1440</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="n">ts_data</span> <span class="o">=</span> <span class="n">ts_data</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+        <span class="n">load_tensor_from_index</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">AUTOTUNE</span>
+    <span class="p">)</span>
     <span class="c1"># Add noise to data - needed for some cases where the data is all zero</span>
     <span class="k">if</span> <span class="n">blur</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">ts_data</span> <span class="o">=</span> <span class="n">ts_data</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
@@ -264,10 +282,10 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
-              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo"/>
+              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo of A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder"/>
             </a></p>
 <h3><a href="../index.html">Table of Contents</a></h3>
 <ul>
@@ -304,7 +322,7 @@ Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">

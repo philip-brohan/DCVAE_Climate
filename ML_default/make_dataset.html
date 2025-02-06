@@ -6,17 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Make the tf.data.Dataset inputs and outputs for the DCVAE &#8212; DIY ML Climate Model</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=87629129" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=34905f61" />
     <script src="../_static/documentation_options.js?v=8d563738"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Generic model specification file" href="specify.html" />
     <link rel="prev" title="Default model fixed structure" href="VAE.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -47,53 +47,28 @@
 <span class="c1"># This is a generic script to make a TensorFlow Dataset</span>
 <span class="c1"># Follow the instructions in autoencoder.py to use it.</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">zarr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorstore</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ts</span>
 
 
-<span class="c1"># Load a pre-standardised tensor from a list of files</span>
-<span class="k">def</span> <span class="nf">load_tensor</span><span class="p">(</span><span class="n">file_names</span><span class="p">):</span>
-    <span class="n">sict</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">file_names</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="n">imt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">parse_tensor</span><span class="p">(</span><span class="n">sict</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-    <span class="n">ima</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">imt</span><span class="p">,</span> <span class="p">[</span><span class="mi">721</span><span class="p">,</span> <span class="mi">1440</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-    <span class="k">for</span> <span class="n">fni</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_names</span><span class="p">)):</span>
-        <span class="n">sict</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">file_names</span><span class="p">[</span><span class="n">fni</span><span class="p">])</span>
-        <span class="n">imt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">parse_tensor</span><span class="p">(</span><span class="n">sict</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-        <span class="n">imt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">imt</span><span class="p">,</span> <span class="p">[</span><span class="mi">721</span><span class="p">,</span> <span class="mi">1440</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-        <span class="n">ima</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ima</span><span class="p">,</span> <span class="n">imt</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">ima</span>
+<span class="c1"># Find out how what months are available from a source</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">getDataAvailability</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
+    <span class="n">zfile</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/normalized_datasets/</span><span class="si">%s</span><span class="s2">_zarr&quot;</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span>
+        <span class="n">source</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">zarr_array</span> <span class="o">=</span> <span class="n">zarr</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">zfile</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+    <span class="n">AvailableMonths</span> <span class="o">=</span> <span class="n">zarr_array</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;AvailableMonths&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">AvailableMonths</span>
 
 
-<span class="c1"># Find out how many tensors available for each month from a source</span>
-<span class="k">def</span> <span class="nf">getDataAvailability</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
-    <span class="nb">dir</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/normalized_datasets/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span> <span class="n">source</span><span class="p">)</span>
-    <span class="n">aFiles</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span>
-    <span class="n">firstYr</span> <span class="o">=</span> <span class="mi">3000</span>
-    <span class="n">lastYr</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">maxCount</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">filesYM</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">fN</span> <span class="ow">in</span> <span class="n">aFiles</span><span class="p">:</span>
-        <span class="n">year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fN</span><span class="p">[:</span><span class="mi">4</span><span class="p">])</span>
-        <span class="n">month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fN</span><span class="p">[</span><span class="mi">5</span><span class="p">:</span><span class="mi">7</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">year</span> <span class="o">&lt;</span> <span class="n">firstYr</span><span class="p">:</span>
-            <span class="n">firstYr</span> <span class="o">=</span> <span class="n">year</span>
-        <span class="k">if</span> <span class="n">year</span> <span class="o">&gt;</span> <span class="n">lastYr</span><span class="p">:</span>
-            <span class="n">lastYr</span> <span class="o">=</span> <span class="n">year</span>
-        <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%04d%02d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">filesYM</span><span class="p">:</span>
-            <span class="n">filesYM</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">filesYM</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="n">fN</span><span class="p">))</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">filesYM</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">maxCount</span><span class="p">:</span>
-            <span class="n">maxCount</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filesYM</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">firstYr</span><span class="p">,</span> <span class="n">lastYr</span><span class="p">,</span> <span class="n">maxCount</span><span class="p">,</span> <span class="n">filesYM</span><span class="p">)</span>
-
-
-<span class="c1"># Make a set of input filenames</span>
-<span class="k">def</span> <span class="nf">getFileNames</span><span class="p">(</span>
+<span class="c1"># Make a set of months available in all of a set of sources</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">getMonths</span><span class="p">(</span>
     <span class="n">sources</span><span class="p">,</span>
     <span class="n">purpose</span><span class="p">,</span>
     <span class="n">firstYr</span><span class="p">,</span>
@@ -101,86 +76,72 @@
     <span class="n">testSplit</span><span class="p">,</span>
     <span class="n">maxTrainingMonths</span><span class="p">,</span>
     <span class="n">maxTestMonths</span><span class="p">,</span>
-    <span class="n">correlatedEnsembles</span><span class="p">,</span>
-    <span class="n">maxEnsembleCombinations</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="n">avail</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">maxCount</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">months_in_all</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">:</span>
         <span class="n">avail</span><span class="p">[</span><span class="n">source</span><span class="p">]</span> <span class="o">=</span> <span class="n">getDataAvailability</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">firstYr</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">avail</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">firstYr</span><span class="p">:</span>
-            <span class="n">firstYr</span> <span class="o">=</span> <span class="n">avail</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">lastYr</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">avail</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">lastYr</span><span class="p">:</span>
-            <span class="n">lastYr</span> <span class="o">=</span> <span class="n">avail</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">correlatedEnsembles</span><span class="p">:</span>
-            <span class="n">maxCount</span> <span class="o">=</span> <span class="n">avail</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># always the same</span>
+        <span class="k">if</span> <span class="n">months_in_all</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">months_in_all</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">avail</span><span class="p">[</span><span class="n">source</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">maxCount</span> <span class="o">*=</span> <span class="n">avail</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">months_in_all</span> <span class="o">=</span> <span class="n">months_in_all</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">avail</span><span class="p">[</span><span class="n">source</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
 
-    <span class="c1"># Make file name lists for available months - repeating if there are multiple ensemble members</span>
-    <span class="n">aMonths</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">fNames</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">rep</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">maxCount</span><span class="p">,</span> <span class="n">maxEnsembleCombinations</span><span class="p">)):</span>
-        <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">firstYr</span><span class="p">,</span> <span class="n">lastYr</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">):</span>
-                <span class="n">mnth</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%04d%02d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">)</span>
-                <span class="n">smnth</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="n">bad</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">mnth</span> <span class="ow">in</span> <span class="n">avail</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="mi">3</span><span class="p">]:</span>
-                        <span class="k">if</span> <span class="n">correlatedEnsembles</span><span class="p">:</span>
-                            <span class="n">smnth</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">avail</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="mi">3</span><span class="p">][</span><span class="n">mnth</span><span class="p">][</span><span class="n">rep</span><span class="p">])</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">smnth</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">avail</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="mi">3</span><span class="p">][</span><span class="n">mnth</span><span class="p">],</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">bad</span> <span class="o">=</span> <span class="kc">True</span>
-                        <span class="k">break</span>
-                <span class="k">if</span> <span class="n">bad</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="n">mnth</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%05d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rep</span>
-                <span class="n">aMonths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mnth</span><span class="p">)</span>
-                <span class="n">fNames</span><span class="p">[</span><span class="n">mnth</span><span class="p">]</span> <span class="o">=</span> <span class="n">smnth</span>
+    <span class="c1"># Filter by range of years</span>
+    <span class="n">filtered</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="n">months_in_all</span><span class="p">:</span>
+        <span class="n">year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">month</span><span class="p">[:</span><span class="mi">4</span><span class="p">])</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">firstYr</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">year</span> <span class="o">&gt;=</span> <span class="n">firstYr</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">lastYr</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">year</span> <span class="o">&lt;=</span> <span class="n">lastYr</span><span class="p">):</span>
+            <span class="n">filtered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">month</span><span class="p">)</span>
+    <span class="n">months_in_all</span> <span class="o">=</span> <span class="n">filtered</span>
+
+    <span class="n">months_in_all</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>  <span class="c1"># Months in time order (validation plots)</span>
 
     <span class="c1"># Test/Train split</span>
     <span class="k">if</span> <span class="n">purpose</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">test_ns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">aMonths</span><span class="p">),</span> <span class="n">testSplit</span><span class="p">))</span>
+        <span class="n">test_ns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">months_in_all</span><span class="p">),</span> <span class="n">testSplit</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">purpose</span> <span class="o">==</span> <span class="s2">&quot;Train&quot;</span><span class="p">:</span>
-            <span class="n">aMonths</span> <span class="o">=</span> <span class="p">[</span><span class="n">aMonths</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">aMonths</span><span class="p">))</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">test_ns</span><span class="p">]</span>
+            <span class="n">months_in_all</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">months_in_all</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">months_in_all</span><span class="p">))</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">test_ns</span>
+            <span class="p">]</span>
         <span class="k">elif</span> <span class="n">purpose</span> <span class="o">==</span> <span class="s2">&quot;Test&quot;</span><span class="p">:</span>
-            <span class="n">aMonths</span> <span class="o">=</span> <span class="p">[</span><span class="n">aMonths</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">aMonths</span><span class="p">))</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">test_ns</span><span class="p">]</span>
+            <span class="n">months_in_all</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">months_in_all</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">months_in_all</span><span class="p">))</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">test_ns</span>
+            <span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unsupported purpose &quot;</span> <span class="o">+</span> <span class="n">purpose</span><span class="p">)</span>
 
-    <span class="n">aMonths</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>  <span class="c1"># Months in time order (validation plots)</span>
-
     <span class="c1"># Limit maximum data size</span>
     <span class="k">if</span> <span class="n">purpose</span> <span class="o">==</span> <span class="s2">&quot;Train&quot;</span> <span class="ow">and</span> <span class="n">maxTrainingMonths</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">aMonths</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">maxTrainingMonths</span><span class="p">:</span>
-            <span class="n">aMonths</span> <span class="o">=</span> <span class="n">aMonths</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">maxTrainingMonths</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">months_in_all</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">maxTrainingMonths</span><span class="p">:</span>
+            <span class="n">months_in_all</span> <span class="o">=</span> <span class="n">months_in_all</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">maxTrainingMonths</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Only </span><span class="si">%d</span><span class="s2"> months available, can&#39;t provide </span><span class="si">%d</span><span class="s2">&quot;</span>
-                <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">aMonths</span><span class="p">),</span> <span class="n">maxTrainingMonths</span><span class="p">)</span>
+                <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">months_in_all</span><span class="p">),</span> <span class="n">maxTrainingMonths</span><span class="p">)</span>
             <span class="p">)</span>
     <span class="k">if</span> <span class="n">purpose</span> <span class="o">==</span> <span class="s2">&quot;Test&quot;</span> <span class="ow">and</span> <span class="n">maxTestMonths</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">aMonths</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">maxTestMonths</span><span class="p">:</span>
-            <span class="n">aMonths</span> <span class="o">=</span> <span class="n">aMonths</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">maxTestMonths</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">months_in_all</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">maxTestMonths</span><span class="p">:</span>
+            <span class="n">months_in_all</span> <span class="o">=</span> <span class="n">months_in_all</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">maxTestMonths</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Only </span><span class="si">%d</span><span class="s2"> months available, can&#39;t provide </span><span class="si">%d</span><span class="s2">&quot;</span>
-                <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">aMonths</span><span class="p">),</span> <span class="n">maxTestMonths</span><span class="p">)</span>
+                <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">months_in_all</span><span class="p">),</span> <span class="n">maxTestMonths</span><span class="p">)</span>
             <span class="p">)</span>
-    <span class="c1"># Return a list of lists of filenames</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">aMonths</span><span class="p">:</span>
-        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fNames</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">result</span>
+
+    <span class="c1"># Return a list of months</span>
+    <span class="c1">#  and a list of lists of indices - onje list per source</span>
+    <span class="n">indices</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">:</span>
+        <span class="n">indices</span><span class="p">[</span><span class="n">source</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">months_in_all</span><span class="p">:</span>
+            <span class="n">indices</span><span class="p">[</span><span class="n">source</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">avail</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="n">key</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">months_in_all</span><span class="p">,</span> <span class="n">indices</span>
 
 
 <span class="c1"># Get a dataset</span>
-<span class="k">def</span> <span class="nf">getDataset</span><span class="p">(</span><span class="n">specification</span><span class="p">,</span> <span class="n">purpose</span><span class="p">):</span>
-    <span class="c1"># Get a list of filename sets</span>
-    <span class="n">inFiles</span> <span class="o">=</span> <span class="n">getFileNames</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">getDataset</span><span class="p">(</span><span class="n">specification</span><span class="p">,</span> <span class="n">purpose</span><span class="p">):</span>
+    <span class="c1"># Get a list of months to use - inputs</span>
+    <span class="n">inMonths</span><span class="p">,</span> <span class="n">inIndices</span> <span class="o">=</span> <span class="n">getMonths</span><span class="p">(</span>
         <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;inputTensors&quot;</span><span class="p">],</span>
         <span class="n">purpose</span><span class="p">,</span>
         <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;startYear&quot;</span><span class="p">],</span>
@@ -188,20 +149,13 @@
         <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;testSplit&quot;</span><span class="p">],</span>
         <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;maxTrainingMonths&quot;</span><span class="p">],</span>
         <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;maxTestMonths&quot;</span><span class="p">],</span>
-        <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;correlatedEnsembles&quot;</span><span class="p">],</span>
-        <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;maxEnsembleCombinations&quot;</span><span class="p">],</span>
     <span class="p">)</span>
 
-    <span class="c1"># Create TensorFlow Dataset object from the source file names</span>
-    <span class="n">tnIData</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">inFiles</span><span class="p">))</span>
-
-    <span class="c1"># Create Dataset from the source file contents</span>
-    <span class="n">tsIData</span> <span class="o">=</span> <span class="n">tnIData</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">load_tensor</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">AUTOTUNE</span><span class="p">)</span>
-
+    <span class="c1"># If the outputs are not the same as the inputs, get them too and use only months in both</span>
     <span class="k">if</span> <span class="p">(</span>
         <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;outputTensors&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
     <span class="p">):</span>  <span class="c1"># I.e. input and output are not the same</span>
-        <span class="n">outFiles</span> <span class="o">=</span> <span class="n">getFileNames</span><span class="p">(</span>
+        <span class="n">outMonths</span><span class="p">,</span> <span class="n">outIndices</span> <span class="o">=</span> <span class="n">getMonths</span><span class="p">(</span>
             <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;outputTensors&quot;</span><span class="p">],</span>
             <span class="n">purpose</span><span class="p">,</span>
             <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;startYear&quot;</span><span class="p">],</span>
@@ -209,12 +163,103 @@
             <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;testSplit&quot;</span><span class="p">],</span>
             <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;maxTrainingMonths&quot;</span><span class="p">],</span>
             <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;maxTestMonths&quot;</span><span class="p">],</span>
-            <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;correlatedEnsembles&quot;</span><span class="p">],</span>
-            <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;maxEnsembleCombinations&quot;</span><span class="p">],</span>
         <span class="p">)</span>
-        <span class="n">tnOData</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">outFiles</span><span class="p">))</span>
-        <span class="n">tsOData</span> <span class="o">=</span> <span class="n">tnOData</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
-            <span class="n">load_tensor</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">AUTOTUNE</span>
+
+        <span class="n">outMonths</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">inMonths</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">outMonths</span><span class="p">)))</span>
+        <span class="p">)</span>  <span class="c1"># Shared Months</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">outMonths</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inMonths</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Input and output tensors have different months available&quot;</span>
+            <span class="p">)</span>  <span class="c1"># Deal with this when it becomes a problem</span>
+
+    <span class="c1"># Create TensorFlow Dataset object from the date strings</span>
+    <span class="n">tnIData</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">inMonths</span><span class="p">))</span>
+
+    <span class="c1"># Open all the source tensorstores</span>
+    <span class="n">tsa_in</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;inputTensors&quot;</span><span class="p">]:</span>
+        <span class="n">zfile</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/normalized_datasets/</span><span class="si">%s</span><span class="s2">_zarr&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span>
+            <span class="n">source</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">tsa_in</span><span class="p">[</span><span class="n">source</span><span class="p">]</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;driver&quot;</span><span class="p">:</span> <span class="s2">&quot;zarr&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;kvstore&quot;</span><span class="p">:</span> <span class="s2">&quot;file://&quot;</span> <span class="o">+</span> <span class="n">zfile</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+    <span class="c1"># Map functions to get tensors from dates and indices</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_input_tensors_from_month_py</span><span class="p">(</span><span class="n">month</span><span class="p">):</span>
+        <span class="n">mnth</span> <span class="o">=</span> <span class="n">month</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;inputTensors&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">tsa</span> <span class="o">=</span> <span class="n">tsa_in</span><span class="p">[</span><span class="n">source</span><span class="p">]</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">inIndices</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="n">inMonths</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">mnth</span><span class="p">)]</span>
+        <span class="n">ima</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">tsa</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">result</span><span class="p">(),</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">ima</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ima</span><span class="p">,</span> <span class="p">[</span><span class="mi">721</span><span class="p">,</span> <span class="mi">1440</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">fni</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;inputTensors&quot;</span><span class="p">])):</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;inputTensors&quot;</span><span class="p">][</span><span class="n">fni</span><span class="p">]</span>
+            <span class="n">tsa</span> <span class="o">=</span> <span class="n">tsa_in</span><span class="p">[</span><span class="n">source</span><span class="p">]</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">inIndices</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="n">inMonths</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">mnth</span><span class="p">)]</span>
+            <span class="n">imt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">tsa</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">result</span><span class="p">(),</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="n">imt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">imt</span><span class="p">,</span> <span class="p">[</span><span class="mi">721</span><span class="p">,</span> <span class="mi">1440</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">ima</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ima</span><span class="p">,</span> <span class="n">imt</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ima</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_input_tensor</span><span class="p">(</span><span class="n">month</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">py_function</span><span class="p">(</span>
+            <span class="n">load_input_tensors_from_month_py</span><span class="p">,</span>
+            <span class="p">[</span><span class="n">month</span><span class="p">],</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="c1"># Create Dataset from the source file contents</span>
+    <span class="n">tsIData</span> <span class="o">=</span> <span class="n">tnIData</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+        <span class="n">load_input_tensor</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">AUTOTUNE</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;outputTensors&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">tsa_out</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;outputTensors&quot;</span><span class="p">]:</span>
+            <span class="n">zfile</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/DCVAE-Climate/normalized_datasets/</span><span class="si">%s</span><span class="s2">_zarr&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SCRATCH&quot;</span><span class="p">),</span>
+                <span class="n">source</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">tsa_out</span><span class="p">[</span><span class="n">source</span><span class="p">]</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;driver&quot;</span><span class="p">:</span> <span class="s2">&quot;zarr&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;kvstore&quot;</span><span class="p">:</span> <span class="s2">&quot;file://&quot;</span> <span class="o">+</span> <span class="n">zfile</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">load_output_tensors_from_month_py</span><span class="p">(</span><span class="n">month</span><span class="p">):</span>
+            <span class="n">mnth</span> <span class="o">=</span> <span class="n">month</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;outputTensors&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">tsa</span> <span class="o">=</span> <span class="n">tsa_out</span><span class="p">[</span><span class="n">source</span><span class="p">]</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">outIndices</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="n">outMonths</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">mnth</span><span class="p">)]</span>
+            <span class="n">ima</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">tsa</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">result</span><span class="p">(),</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="n">ima</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ima</span><span class="p">,</span> <span class="p">[</span><span class="mi">721</span><span class="p">,</span> <span class="mi">1440</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">fni</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">specification</span><span class="p">[</span><span class="s2">&quot;outputTensors&quot;</span><span class="p">])):</span>
+                <span class="n">source</span> <span class="o">=</span> <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;outputTensors&quot;</span><span class="p">][</span><span class="n">fni</span><span class="p">]</span>
+                <span class="n">tsa</span> <span class="o">=</span> <span class="n">tsa_out</span><span class="p">[</span><span class="n">source</span><span class="p">]</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">outIndices</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="n">outMonths</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">mnth</span><span class="p">)]</span>
+                <span class="n">imt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">tsa</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">result</span><span class="p">(),</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+                <span class="n">imt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">imt</span><span class="p">,</span> <span class="p">[</span><span class="mi">721</span><span class="p">,</span> <span class="mi">1440</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="n">ima</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ima</span><span class="p">,</span> <span class="n">imt</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ima</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">load_output_tensor</span><span class="p">(</span><span class="n">month</span><span class="p">):</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">py_function</span><span class="p">(</span>
+                <span class="n">load_output_tensors_from_month_py</span><span class="p">,</span>
+                <span class="p">[</span><span class="n">month</span><span class="p">],</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+        <span class="n">tsOData</span> <span class="o">=</span> <span class="n">tnIData</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+            <span class="n">load_output_tensor</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">AUTOTUNE</span>
         <span class="p">)</span>
 
     <span class="c1"># Zip the data together with the filenames (so we can find the date and source of each</span>
@@ -242,10 +287,10 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
-              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo"/>
+              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo of A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder"/>
             </a></p>
 <h3><a href="../index.html">Table of Contents</a></h3>
 <ul>
@@ -282,7 +327,7 @@ Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">

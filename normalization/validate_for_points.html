@@ -6,17 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Check gamma distributions for ERA5 data &#8212; DIY ML Climate Model</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=87629129" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=34905f61" />
     <script src="../_static/documentation_options.js?v=8d563738"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Check gamma parameters for ERA5 data" href="validate_for_fields.html" />
     <link rel="prev" title="Estimate normalization parameters for ERA5 data" href="estimate_parameters.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -42,7 +42,8 @@
   <section id="check-gamma-distributions-for-era5-data">
 <h1>Check gamma distributions for ERA5 data<a class="headerlink" href="#check-gamma-distributions-for-era5-data" title="Link to this heading">¶</a></h1>
 <figure class="align-center" id="id1" style="width: 95%">
-<a class="reference internal image-reference" href="../_images/samples_2m_temperature_m03.png"><img alt="../_images/samples_2m_temperature_m03.png" src="../_images/samples_2m_temperature_m03.png" style="width: 95%;" /></a>
+<a class="reference internal image-reference" href="../_images/samples_2m_temperature_m03.png"><img alt="../_images/samples_2m_temperature_m03.png" src="../_images/samples_2m_temperature_m03.png" style="width: 95%;" />
+</a>
 <figcaption>
 <p><span class="caption-text">Data histograms and fitted gamma distributions for 25 random grid points of ERA5 March temperature.</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
 </figcaption>
@@ -53,33 +54,33 @@
 
 <span class="c1"># Plot gamma fits to sample data points</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">iris</span>
-<span class="kn">import</span> <span class="nn">iris.cube</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">iris</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">iris.cube</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="c1"># Supress TensorFlow moaning about cuda - we don&#39;t need a GPU for this</span>
 <span class="c1"># Also the warning message confuses people.</span>
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TF_CPP_MIN_LOG_LEVEL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;3&quot;</span>
 
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">makeDataset</span> <span class="kn">import</span> <span class="n">getDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">makeDataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">getDataset</span>
 
 
-<span class="kn">from</span> <span class="nn">normalize</span> <span class="kn">import</span> <span class="n">load_fitted</span>
-<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">gamma</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">normalize</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_fitted</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">gamma</span>
 
-<span class="kn">from</span> <span class="nn">utilities</span> <span class="kn">import</span> <span class="n">plots</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">plots</span>
 
-<span class="kn">import</span> <span class="nn">matplotlib</span>
-<span class="kn">from</span> <span class="nn">matplotlib.backends.backend_agg</span> <span class="kn">import</span> <span class="n">FigureCanvasAgg</span> <span class="k">as</span> <span class="n">FigureCanvas</span>
-<span class="kn">from</span> <span class="nn">matplotlib.figure</span> <span class="kn">import</span> <span class="n">Figure</span>
-<span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="kn">import</span> <span class="n">Rectangle</span>
-<span class="kn">from</span> <span class="nn">matplotlib.lines</span> <span class="kn">import</span> <span class="n">Line2D</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.backends.backend_agg</span><span class="w"> </span><span class="kn">import</span> <span class="n">FigureCanvasAgg</span> <span class="k">as</span> <span class="n">FigureCanvas</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.patches</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rectangle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.lines</span><span class="w"> </span><span class="kn">import</span> <span class="n">Line2D</span>
 
 <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">()</span>
 
@@ -99,9 +100,6 @@
 <span class="p">)</span>
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
     <span class="s2">&quot;--endyear&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;End Year&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">2022</span>
-<span class="p">)</span>
-<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-    <span class="s2">&quot;--epoch&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Epoch to plot&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span>
 <span class="p">)</span>
 <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
@@ -158,7 +156,7 @@
 <span class="n">canvas</span> <span class="o">=</span> <span class="n">FigureCanvas</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
 <span class="n">font</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;family&quot;</span><span class="p">:</span> <span class="s2">&quot;sans-serif&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;sans-serif&quot;</span><span class="p">:</span> <span class="s2">&quot;Arial&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sans-serif&quot;</span><span class="p">:</span> <span class="s2">&quot;DejaVu Sans&quot;</span><span class="p">,</span>
     <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="s2">&quot;normal&quot;</span><span class="p">,</span>
     <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
 <span class="p">}</span>
@@ -178,7 +176,7 @@
 
 
 <span class="c1"># Make an axes for each sample</span>
-<span class="k">def</span> <span class="nf">make_axes</span><span class="p">(</span><span class="n">sample_i</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_axes</span><span class="p">(</span><span class="n">sample_i</span><span class="p">):</span>
     <span class="n">x_i</span> <span class="o">=</span> <span class="n">sample_i</span> <span class="o">%</span> <span class="mi">5</span>
     <span class="n">y_i</span> <span class="o">=</span> <span class="n">sample_i</span> <span class="o">//</span> <span class="mi">5</span>
     <span class="n">xmargin</span> <span class="o">=</span> <span class="mf">0.05</span>
@@ -198,7 +196,7 @@
     <span class="n">ax</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="n">Line2D</span><span class="p">(</span><span class="n">m_values</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">m_fit</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
 
 
-<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;samples_</span><span class="si">%s</span><span class="s2">_m</span><span class="si">%02d</span><span class="s2">.png&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">month</span><span class="p">))</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;samples_</span><span class="si">%s</span><span class="s2">_m</span><span class="si">%02d</span><span class="s2">.webp&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">month</span><span class="p">))</span>
 </pre></div>
 </div>
 </section>
@@ -208,10 +206,10 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
-              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo"/>
+              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo of A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder"/>
             </a></p>
 <h3><a href="../index.html">Table of Contents</a></h3>
 <ul>
@@ -248,7 +246,7 @@ Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">

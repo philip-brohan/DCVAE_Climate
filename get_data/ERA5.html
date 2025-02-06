@@ -6,17 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>ERA5 data download and access &#8212; DIY ML Climate Model</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=87629129" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=34905f61" />
     <script src="../_static/documentation_options.js?v=8d563738"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Land mask download" href="land_mask.html" />
     <link rel="prev" title="Get the data to be used" href="index.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -44,11 +44,11 @@
 <p>Functions to access downloaded ERA5 data:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Functions to load ERA5 monthly data</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">iris</span>
-<span class="kn">import</span> <span class="nn">iris.util</span>
-<span class="kn">import</span> <span class="nn">iris.coord_systems</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">iris</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">iris.util</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">iris.coord_systems</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="c1"># Don&#39;t really understand this, but it gets rid of the error messages.</span>
 <span class="n">iris</span><span class="o">.</span><span class="n">FUTURE</span><span class="o">.</span><span class="n">datum_support</span> <span class="o">=</span> <span class="kc">True</span>
@@ -59,12 +59,12 @@
 
 
 <span class="c1"># And a function to add the coord system to a cube (in-place)</span>
-<span class="k">def</span> <span class="nf">add_coord_system</span><span class="p">(</span><span class="n">cbe</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_coord_system</span><span class="p">(</span><span class="n">cbe</span><span class="p">):</span>
     <span class="n">cbe</span><span class="o">.</span><span class="n">coord</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">coord_system</span> <span class="o">=</span> <span class="n">cs_ERA5</span>
     <span class="n">cbe</span><span class="o">.</span><span class="n">coord</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">coord_system</span> <span class="o">=</span> <span class="n">cs_ERA5</span>
 
 
-<span class="k">def</span> <span class="nf">load</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span>
     <span class="n">variable</span><span class="o">=</span><span class="s2">&quot;total_precipitation&quot;</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">):</span>
     <span class="k">if</span> <span class="n">variable</span> <span class="o">==</span> <span class="s2">&quot;land_mask&quot;</span><span class="p">:</span>
@@ -97,15 +97,16 @@
 
 </pre></div>
 </div>
-<p>Script to download a year of ERA5 data:</p>
+<p>Script to download a year of ERA5 data:
+The <a class="reference external" href="https://www.unidata.ucar.edu/software/netcdf/">netCDF</a> files provided by the <a class="reference external" href="https://cds.climate.copernicus.eu/cdsapp#!/home">Copernicus Climate Data Store</a> are no-longer <a class="reference external" href="https://cfconventions.org/">CF-compliant</a>. This means that <a class="reference external" href="https://scitools.org.uk/iris/docs/latest/">iris</a> (which we use to read in the data) can’t read them. The fix for this is something of a fudge - we use the <a class="reference external" href="http://nco.sourceforge.net/">netcdf operators</a> to delete a problematic attribute from the files (all included in the script below). This in turn means that reading the files will generate a warning about missing variables, but this is harmless.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
 
 <span class="c1"># Retrieve ERA5 monthly averages.</span>
 <span class="c1">#  Every month in one year</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">cdsapi</span>
-<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cdsapi</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 
 <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--variable&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Variable name&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -136,6 +137,13 @@
     <span class="n">ctrlB</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">.nc&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">opdir</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">),</span>
 <span class="p">)</span>
+
+<span class="c1"># Use system call to run ncks on output file</span>
+<span class="c1"># To remove &#39;expver&#39; variable (otherwise iris won&#39;t load it)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span>
+    <span class="s2">&quot;ncks -O -C -x -v expver </span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">.nc </span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">.nc&quot;</span>
+    <span class="o">%</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">opdir</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">opdir</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">variable</span><span class="p">)</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <p>Script to download all the ERA5 data:</p>
@@ -143,12 +151,12 @@
 
 <span class="c1"># Get monthly ERA5 data for several years, and store on SCRATCH.</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 
 <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--startyear&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1940</span><span class="p">)</span>
-<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--endyear&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">2023</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--endyear&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">2024</span><span class="p">)</span>
 <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
 <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">startyear</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">endyear</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
@@ -180,10 +188,10 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
-              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo"/>
+              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo of A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder"/>
             </a></p>
 <h3><a href="../index.html">Table of Contents</a></h3>
 <ul>
@@ -220,7 +228,7 @@ Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">

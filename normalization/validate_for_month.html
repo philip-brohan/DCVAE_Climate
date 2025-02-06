@@ -6,17 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Check normalization of ERA5 data &#8212; DIY ML Climate Model</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=87629129" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=34905f61" />
     <script src="../_static/documentation_options.js?v=8d563738"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Assemble ERA5 normalized data into a set of tf.tensors" href="make_normalized_tensors.html" />
     <link rel="prev" title="Check gamma parameters for ERA5 data" href="validate_for_fields.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -42,7 +42,8 @@
   <section id="check-normalization-of-era5-data">
 <h1>Check normalization of ERA5 data<a class="headerlink" href="#check-normalization-of-era5-data" title="Link to this heading">¶</a></h1>
 <figure class="align-center" id="id1" style="width: 95%">
-<a class="reference internal image-reference" href="../_images/monthly_precip_1969_03.png"><img alt="../_images/monthly_precip_1969_03.png" src="../_images/monthly_precip_1969_03.png" style="width: 95%;" /></a>
+<a class="reference internal image-reference" href="../_images/monthly_precip_1969_03.png"><img alt="../_images/monthly_precip_1969_03.png" src="../_images/monthly_precip_1969_03.png" style="width: 95%;" />
+</a>
 <figcaption>
 <p><span class="caption-text">Raw precipitation (top) and normalized equivalent (bottom) for a March 1969.</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
 </figcaption>
@@ -54,24 +55,24 @@
 <span class="c1"># Plot raw and normalized variable for a selected month</span>
 <span class="c1"># Map and distribution.</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">utilities</span> <span class="kn">import</span> <span class="n">plots</span><span class="p">,</span> <span class="n">grids</span>
-<span class="kn">from</span> <span class="nn">get_data.ERA5</span> <span class="kn">import</span> <span class="n">ERA5_monthly</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">plots</span><span class="p">,</span> <span class="n">grids</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">get_data.ERA5</span><span class="w"> </span><span class="kn">import</span> <span class="n">ERA5_monthly</span>
 
-<span class="kn">from</span> <span class="nn">normalize</span> <span class="kn">import</span> <span class="n">load_fitted</span><span class="p">,</span> <span class="n">normalize_cube</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">normalize</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_fitted</span><span class="p">,</span> <span class="n">normalize_cube</span>
 
-<span class="kn">import</span> <span class="nn">matplotlib</span>
-<span class="kn">from</span> <span class="nn">matplotlib.backends.backend_agg</span> <span class="kn">import</span> <span class="n">FigureCanvasAgg</span> <span class="k">as</span> <span class="n">FigureCanvas</span>
-<span class="kn">from</span> <span class="nn">matplotlib.figure</span> <span class="kn">import</span> <span class="n">Figure</span>
-<span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="kn">import</span> <span class="n">Rectangle</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.backends.backend_agg</span><span class="w"> </span><span class="kn">import</span> <span class="n">FigureCanvasAgg</span> <span class="k">as</span> <span class="n">FigureCanvas</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.patches</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rectangle</span>
 
-<span class="kn">import</span> <span class="nn">cmocean</span>
-<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cmocean</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 
-<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">gamma</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">gamma</span>
 
 <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -116,7 +117,7 @@
 <span class="n">canvas</span> <span class="o">=</span> <span class="n">FigureCanvas</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
 <span class="n">font</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;family&quot;</span><span class="p">:</span> <span class="s2">&quot;sans-serif&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;sans-serif&quot;</span><span class="p">:</span> <span class="s2">&quot;Arial&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sans-serif&quot;</span><span class="p">:</span> <span class="s2">&quot;DejaVu Sans&quot;</span><span class="p">,</span>
     <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="s2">&quot;normal&quot;</span><span class="p">,</span>
     <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
 <span class="p">}</span>
@@ -171,7 +172,7 @@
 <span class="n">plots</span><span class="o">.</span><span class="n">plotHistAxes</span><span class="p">(</span><span class="n">ax_hist_normalized</span><span class="p">,</span> <span class="n">normalized</span><span class="p">,</span> <span class="n">vMin</span><span class="o">=-</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">vMax</span><span class="o">=</span><span class="mf">1.25</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
 
 
-<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;monthly.png&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;monthly.webp&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -181,10 +182,10 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
-              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo"/>
+              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo of A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder"/>
             </a></p>
 <h3><a href="../index.html">Table of Contents</a></h3>
 <ul>
@@ -221,7 +222,7 @@ Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">

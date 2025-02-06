@@ -6,17 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Generic model specification file &#8212; DIY ML Climate Model</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=87629129" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css?v=34905f61" />
     <script src="../_static/documentation_options.js?v=8d563738"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Default model training script" href="training.html" />
     <link rel="prev" title="Make the tf.data.Dataset inputs and outputs for the DCVAE" href="make_dataset.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -50,7 +50,7 @@
 <span class="c1"># Then the model spec. and dataset input scripts can be generic.</span>
 <span class="c1"># Follow the instructions in autoencoder.py to use this.</span>
 
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
 
 <span class="n">specification</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -95,7 +95,7 @@
 <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nMonthsInEpoch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
     <span class="kc">None</span>  <span class="c1"># Length of an epoch - if None, use all the data once</span>
 <span class="p">)</span>
-<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nEpochs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>  <span class="c1"># How many epochs to train for</span>
+<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;nEpochs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">50</span>  <span class="c1"># How many epochs to train for</span>
 <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;shuffleBufferSize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1000</span>  <span class="c1"># Buffer size for shuffling</span>
 <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;batchSize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">32</span>  <span class="c1"># Arbitrary</span>
 <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;beta&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.05</span>  <span class="c1"># Weighting factor for KL divergence of latent space</span>
@@ -108,13 +108,11 @@
 <span class="p">)</span>
 
 <span class="c1"># Optimization</span>
-<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;strategy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distribute</span><span class="o">.</span><span class="n">MirroredStrategy</span><span class="p">()</span>
-<span class="n">specification</span><span class="p">[</span><span class="s2">&quot;optimizer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="mf">5e-4</span><span class="p">)</span>
 <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;trainCache&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="kc">False</span>  <span class="c1"># True will be faster, but needs a *lot* of RAM (try 100Gb)</span>
+    <span class="kc">True</span>  <span class="c1"># True will be faster, but needs a *lot* of RAM (try 100Gb)</span>
 <span class="p">)</span>
 <span class="n">specification</span><span class="p">[</span><span class="s2">&quot;testCache&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="kc">False</span>  <span class="c1"># True will be faster, but needs a *lot* of RAM (try 100Gb)</span>
+    <span class="kc">True</span>  <span class="c1"># True will be faster, but needs a *lot* of RAM (try 100Gb)</span>
 <span class="p">)</span>
 
 
@@ -129,10 +127,10 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
-              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo"/>
+              <img class="logo" src="../_static/DIY_Climate.png" alt="Logo of A Machine Learning Climate Model based on a Deep Convolutional Variational AutoEncoder"/>
             </a></p>
 <h3><a href="../index.html">Table of Contents</a></h3>
 <ul>
@@ -169,7 +167,7 @@ Please <a href="https://github.com/philip-brohan/DCVAE_Climate/issues/new">raise
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
