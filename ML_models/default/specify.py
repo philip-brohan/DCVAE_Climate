@@ -50,7 +50,7 @@ specification["correlatedEnsembles"] = (
 specification["nMonthsInEpoch"] = (
     None  # Length of an epoch - if None, use all the data once
 )
-specification["nEpochs"] = 50  # How many epochs to train for
+specification["nEpochs"] = 500  # How many epochs to train for
 specification["shuffleBufferSize"] = 1000  # Buffer size for shuffling
 specification["batchSize"] = 32  # Arbitrary
 specification["beta"] = 0.05  # Weighting factor for KL divergence of latent space

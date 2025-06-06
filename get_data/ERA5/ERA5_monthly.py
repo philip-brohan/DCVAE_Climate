@@ -31,7 +31,7 @@ def load(
     if year is None or month is None:
         raise Exception("Year and month must be specified")
     fname = "%s/ERA5/monthly/reanalysis/%04d/%s.nc" % (
-        os.getenv("SCRATCH"),
+        os.getenv("PDIR"),
         year,
         variable,
     )
@@ -49,5 +49,3 @@ def load(
     if constraint is not None:
         varC = varC.extract(constraint)
     return varC
-
-

@@ -73,9 +73,7 @@ def plot_cube(
 
 # High res land mask for plots
 def get_land_mask(grid_cube=None):
-    lm = iris.load_cube(
-        "%s/ERA5/monthly/reanalysis/land_mask.nc" % os.getenv("SCRATCH")
-    )
+    lm = iris.load_cube("%s/ERA5/monthly/reanalysis/land_mask.nc" % os.getenv("PDIR"))
     lm = iris.util.squeeze(lm)
     lm.coord("latitude").coord_system = iris.coord_systems.RotatedGeogCS(90, 180, 0)
     lm.coord("longitude").coord_system = iris.coord_systems.RotatedGeogCS(90, 180, 0)

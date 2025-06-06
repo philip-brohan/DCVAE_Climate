@@ -19,7 +19,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--epoch", help="Epoch", type=int, required=False, default=500)
+parser.add_argument("--epoch", help="Epoch", type=int, required=False, default=None)
 parser.add_argument(
     "--startyear", help="First year to plot", type=int, required=False, default=None
 )
@@ -80,7 +80,7 @@ dataset = getDataset(specification, purpose=purpose)
 dataset = dataset.batch(1)
 
 # Load the trained model
-autoencoder = getModel(specification, optimizer=None, epoch=args.epoch)
+autoencoder, epoch = getModel(optimizer=None, epoch=args.epoch)
 
 # Go through the data and get the scalar stat for each test month
 all_stats = {}
@@ -108,4 +108,4 @@ for case in dataset:
             all_stats["generated"][key] = [stats["generated"][key]]
 
 # Make the plot
-plotScalarStats(all_stats, specification, fileName="multi.webp")
+plotScalarStats(all_stats, specification, fileName="outputs/multi.png")

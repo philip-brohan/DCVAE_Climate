@@ -14,8 +14,8 @@ import tensorstore as ts
 
 # Find out how what months are available from a source
 def getDataAvailability(source):
-    zfile = "%s/DCVAE-Climate/normalized_datasets/%s_zarr" % (
-        os.getenv("SCRATCH"),
+    zfile = "%s/normalized_datasets/%s_zarr" % (
+        os.getenv("PDIR"),
         source,
     )
     zarr_array = zarr.open(zfile, mode="r")
@@ -135,8 +135,8 @@ def getDataset(specification, purpose):
     # Open all the source tensorstores
     tsa_in = {}
     for source in specification["inputTensors"]:
-        zfile = "%s/DCVAE-Climate/normalized_datasets/%s_zarr" % (
-            os.getenv("SCRATCH"),
+        zfile = "%s/normalized_datasets/%s_zarr" % (
+            os.getenv("PDIR"),
             source,
         )
         tsa_in[source] = ts.open(
@@ -179,8 +179,8 @@ def getDataset(specification, purpose):
     if specification["outputTensors"] is not None:
         tsa_out = {}
         for source in specification["outputTensors"]:
-            zfile = "%s/DCVAE-Climate/normalized_datasets/%s_zarr" % (
-                os.getenv("SCRATCH"),
+            zfile = "%s/normalized_datasets/%s_zarr" % (
+                os.getenv("PDIR"),
                 source,
             )
             tsa_out[source] = ts.open(

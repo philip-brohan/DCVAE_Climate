@@ -24,7 +24,7 @@ from specify import specification
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--epoch", help="Epoch", type=int, required=False, default=500)
+parser.add_argument("--epoch", help="Epoch", type=int, required=False, default=None)
 parser.add_argument(
     "--year", help="Year to fit to", type=int, required=False, default=None
 )
@@ -94,7 +94,7 @@ for batch in dataset:
 if input is None:
     raise Exception("Month %04d-%02d not in %s dataset" % (year, month, purpose))
 
-autoencoder = getModel(specification, optimizer=None, epoch=args.epoch)
+autoencoder, epoch = getModel(optimizer=None, epoch=args.epoch)
 
 # We are using the model in inference mode - (does this have any effect?)
 autoencoder.trainable = False
@@ -143,4 +143,6 @@ if any(fitted.values()):
 generated = autoencoder.generate(latent, training=False)
 
 # Make the plot - same as for validation script
-plotValidationField(specification, input, generated, year, month, "assimilated.webp")
+plotValidationField(
+    specification, input, generated, year, month, "outputs/assimilated.png"
+)

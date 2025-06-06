@@ -14,7 +14,6 @@ from tensorflow.python.framework import tensor_util
 import matplotlib
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
-from matplotlib.patches import Rectangle
 from matplotlib.lines import Line2D
 
 import cmocean
@@ -40,7 +39,7 @@ def listify(input):
 # Load the history of a model from the Tensorboard logs
 def loadHistory(LSC, offset=-1, max_epoch=None):
     history = {}
-    summary_dir = "%s/DCVAE-Climate/%s/logs/Training" % (os.getenv("SCRATCH"), LSC)
+    summary_dir = "%s/%s/logs/Training" % (os.getenv("PDIR"), LSC)
     Rfiles = os.listdir(summary_dir)
     Rfiles.sort(key=lambda x: os.path.getmtime(os.path.join(summary_dir, x)))
     filename = Rfiles[offset]
@@ -130,7 +129,7 @@ def plotValidationField(specification, input, output, year, month, fileName):
 
     for varI in range(nFields):
         ax_var = subfigs[varI].subplots(
-            nrows=1, ncols=len(wRatios), width_ratios=wRatios
+            nrows=1, ncols=len(wRatios), gridspec_kw={"width_ratios": wRatios}
         )
         # Left - map of target
         varx = grids.E5sCube.copy()
@@ -456,7 +455,9 @@ def plotScalarStats(all_stats, specification, fileName="multi.webp"):
     # Plot a variable in its subfigure
     def plot_var(sfig, ts, t, m, label):
         # Get two axes in the subfig
-        var_axes = sfig.subplots(nrows=1, ncols=2, width_ratios=wRatios, squeeze=False)
+        var_axes = sfig.subplots(
+            nrows=1, ncols=2, squeeze=False, gridspec_kw={"width_ratios": wRatios}
+        )
 
         # Calculate y range
         ymin = min(min(t), min(m))

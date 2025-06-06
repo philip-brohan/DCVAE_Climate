@@ -1,45 +1,67 @@
 name: DCVAE-Climate
 
-# Updated 2025-02-06 to use only the conda-forge channel and to update cdsapi to use the new climate data store.
-# Also updates various software packages to more recent versions.
+# Updated 2025-06-04 to support H100 GPUs
 
 channels:
   - conda-forge
 dependencies:
-  # Basics
-  - python=3.11
-  - libwebp>=1.3.2 # Earlier versions have a security vulnerability
-  - iris=3
-  - pandas=2
-  - cmocean=4
-  - parallel
-  - zarr=2
+
+  - python=3.10
+  - pip=22.3.1
+  - pandas=2.2.2
+  - numpy=1.23.5
+  - scipy~=1.14.0
+
   # Older matplotlib - 3.10 screws up pcolorfast and background colour (why?)
   - matplotlib=3.9.2
-  # GPU support - need these for tensorflow to pick up GPU versions
-  - cuda
-  - cudnn
+
+  # Extras
+  - libwebp>=1.3.2 # Earlier versions have a security vulnerability
+  - iris>=3.6
+  - cmocean>=4.0
+  - parallel
+  # Efficient disc storage
+  - zarr>=2.18
   # Get data from ERA5
   # You'll need to register, see https://cds.climate.copernicus.eu/api-how-to
   - cdsapi>=0.7.2
-  - nco=5 # Need ncks to fix broken CDS files
   # Optional, code formatter
   - black
   # Optional - documentation generator
   - sphinx
 
+  # Azure
+  - marshmallow = 3.23.3 # later versions break the azure API
+  - azure-ai-ml = 1.21
+  - azure-identity = 1.21
+  - azure-storage-file-datalake = 12.17
+
   # Some packages are only available via pip
+  # Almost certainly I don't need all these, but I have not done the work to prune them.
   - pip
   - pip:
-      - tensorflow
-      # For bilinear interpolation
-      - tensorflow-addons
-      # For input space search
-      - tensorflow-probability
-      # Unused, but required by tfp?
-      - tf-keras
-      # For efficient data IO
-      - tensorstore
+    - setuptools==72.1.0
+    - wheel==0.44.0
+    - matplotlib~=3.5.0
+    - psutil~=5.8.0
+    - tqdm~=4.66.3
+    - ipykernel~=6.20.2
+    - azureml-core==1.59.0
+    - azureml-defaults==1.59.0
+    - azureml-mlflow==1.59.0.post1
+    - azureml-telemetry==1.59.0
+    - tensorboard~=2.16.0
+    - tensorflow[and-cuda]==2.16.2
+    - tensorflow-datasets~=4.9.0
+    - keras==3.3.2
+    - tf-keras==2.16.0
+    - debugpy~=1.6.3
+    - cryptography>=41.0.4
+    - idna>=3.
+    - scikit-learn
+    - tensorflow-probability==0.24.0
+    - tensorstore
+  
 
 # Tell python to look for modules in the root directory of the project
 # (A hack, needs to be edited for every installation, but makes code
@@ -48,8 +70,13 @@ dependencies:
 
 variables:
   PYTHONPATH: /home/users/philip.brohan/Projects/DCVAE_Climate
-
+# Project directory
+  PDIR: /data/scratch/philip.brohan/DCVAE-Climate
 # Fix really weird error in scipy optimize (loaded by iris)
 # This should be $CONDA_ENVS_PATH/DCVAE-Climate/lib
 #   but you can't do variable expansion here - so set it for each system.
   LD_LIBRARY_PATH: /data/users/philip.brohan/conda/environments/DCVAE-Climate/lib
+# Also the Azure ML subscription, workspace and resource group
+  AZML_SUBSCRIPTION_ID: 79c7890c-2a30-44ef-aa8d-419d25b7bb8e
+  AZML_WORKSPACE_NAME: mlw-exploratory-uksouth-01
+  AZML_RESOURCE_GROUP: rg-climate-ai4climate-exploratory

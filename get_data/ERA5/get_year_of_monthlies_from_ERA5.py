@@ -13,7 +13,7 @@ parser.add_argument("--year", help="Year", type=int, required=True)
 parser.add_argument(
     "--opdir",
     help="Directory for output files",
-    default="%s/ERA5/monthly/reanalysis" % os.getenv("SCRATCH"),
+    default="%s/ERA5/monthly/reanalysis" % os.getenv("PDIR"),
 )
 args = parser.parse_args()
 args.opdir += "/%04d" % args.year

@@ -25,7 +25,7 @@ strategy = tf.distribute.get_strategy()  # No distribution for simple validation
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--epoch", help="Epoch", type=int, required=False, default=500)
+parser.add_argument("--epoch", help="Epoch", type=int, required=False, default=None)
 parser.add_argument("--year", help="Test year", type=int, required=False, default=None)
 parser.add_argument(
     "--month", help="Test month", type=int, required=False, default=None
@@ -63,10 +63,10 @@ for batch in dataset:
 if input is None:
     raise Exception("Month %04d-%02d not in %s dataset" % (year, month, purpose))
 
-autoencoder = getModel(specification, optimizer=None, epoch=args.epoch)
+autoencoder, epoch = getModel(optimizer=None, epoch=args.epoch)
 
 # Get autoencoded tensors
 output = autoencoder.call(input, training=False)
 
 # Make the plot
-plotValidationField(specification, input, output, year, month, "comparison.webp")
+plotValidationField(specification, input, output, year, month, "outputs/comparison.png")

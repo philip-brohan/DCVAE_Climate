@@ -6,18 +6,19 @@
 import os
 import tensorflow as tf
 
+from specify import specification
+
 
 class DCVAE(tf.keras.Model):
     # Initialiser - set up instance and define the models
-    def __init__(self, specification):
-        super(DCVAE, self).__init__()
-        self.specification = specification
+    def __init__(self, **kwargs):
+        super(DCVAE, self).__init__(**kwargs)
 
         # Model to encode input to latent space distribution
         self.encoder = tf.keras.Sequential(
             [
                 tf.keras.layers.InputLayer(
-                    shape=(721, 1440, self.specification["nInputChannels"])
+                    shape=(721, 1440, specification["nInputChannels"])
                 ),
                 tf.keras.layers.Conv2D(
                     filters=5,
@@ -187,7 +188,7 @@ class DCVAE(tf.keras.Model):
                     activation="elu",
                 ),
                 tf.keras.layers.Conv2DTranspose(
-                    filters=self.specification["nOutputChannels"],
+                    filters=specification["nOutputChannels"],
                     kernel_size=3,
                     strides=2,
                     padding="same",
@@ -198,10 +199,10 @@ class DCVAE(tf.keras.Model):
 
         # Metrics for training and test loss
         self.train_rmse = tf.Variable(
-            tf.zeros([self.specification["nOutputChannels"]]), trainable=False
+            tf.zeros([specification["nOutputChannels"]]), trainable=False
         )
         self.train_rmse_m = tf.Variable(
-            tf.zeros([self.specification["nOutputChannels"]]), trainable=False
+            tf.zeros([specification["nOutputChannels"]]), trainable=False
         )
         self.train_logpz = tf.Variable(0.0, trainable=False)
         self.train_logqz_x = tf.Variable(0.0, trainable=False)
@@ -209,10 +210,10 @@ class DCVAE(tf.keras.Model):
         self.train_logqz_g = tf.Variable(0.0, trainable=False)
         self.train_loss = tf.Variable(0.0, trainable=False)
         self.test_rmse = tf.Variable(
-            tf.zeros([self.specification["nOutputChannels"]]), trainable=False
+            tf.zeros([specification["nOutputChannels"]]), trainable=False
         )
         self.test_rmse_m = tf.Variable(
-            tf.zeros([self.specification["nOutputChannels"]]), trainable=False
+            tf.zeros([specification["nOutputChannels"]]), trainable=False
         )
         self.test_logpz = tf.Variable(0.0, trainable=False)
         self.test_logqz_x = tf.Variable(0.0, trainable=False)
@@ -221,14 +222,6 @@ class DCVAE(tf.keras.Model):
         self.test_loss = tf.Variable(0.0, trainable=False)
         # And regularization loss
         self.regularization_loss = tf.Variable(0.0, trainable=False)
-
-    # Methods needed to load and save the model
-    def get_config(self):
-        return {"specification": self.specification}
-
-    @classmethod
-    def from_config(cls, config):
-        return cls(**config)
 
     # Call the encoder model with a batch of input examples and return a batch of
     #  means and a batch of variances of the encoded latent space PDFs.
@@ -301,16 +294,16 @@ class DCVAE(tf.keras.Model):
 
         logpz = (
             tf.reduce_mean(self.log_normal_pdf(latent, 0.0, 0.0) * -1)
-            * self.specification["beta"]
+            * specification["beta"]
         )
         logqz_x = (
             tf.reduce_mean(self.log_normal_pdf(latent, mean, logvar))
-            * self.specification["beta"]
+            * specification["beta"]
         )
         # Distribution fit
         logpz_g = (
             tf.reduce_mean(self.log_normal_pdf(generated, 0.5, -1.61) * -1)
-            * self.specification["gamma"]
+            * specification["gamma"]
         )
         logqz_g = (
             tf.reduce_mean(
@@ -320,7 +313,7 @@ class DCVAE(tf.keras.Model):
                     tf.math.log(tf.math.reduce_std(generated)),
                 )
             )
-            * self.specification["gamma"]
+            * specification["gamma"]
         )
 
         regularization = 0.0  # tf.add_n(self.losses)
@@ -350,16 +343,16 @@ class DCVAE(tf.keras.Model):
             )
         gradients = tape.gradient(overall_loss, self.trainable_variables)
         # Clip the gradients - helps against sudden numerical problems
-        if self.specification["maxGradient"] is not None:
+        if specification["maxGradient"] is not None:
             gradients = [
-                tf.clip_by_norm(g, self.specification["maxGradient"]) for g in gradients
+                tf.clip_by_norm(g, specification["maxGradient"]) for g in gradients
             ]
         self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
 
     # Update the metrics
     def update_metrics(self, strategy, trainDS, testDS):
-        self.train_rmse.assign(tf.zeros([self.specification["nOutputChannels"]]))
-        self.train_rmse_m.assign(tf.zeros([self.specification["nOutputChannels"]]))
+        self.train_rmse.assign(tf.zeros([specification["nOutputChannels"]]))
+        self.train_rmse_m.assign(tf.zeros([specification["nOutputChannels"]]))
         self.train_logpz_g.assign(0.0)
         self.train_logqz_g.assign(0.0)
         self.train_logpz.assign(0.0)
@@ -368,12 +361,8 @@ class DCVAE(tf.keras.Model):
         validation_batch_count = 0
         for batch in trainDS:
             # Metrics over masked area
-            if (
-                self.specification["trainingMask"] is not None
-            ):  # Metrics over masked area
-                mbatch = tf.where(
-                    self.specification["trainingMask"] == 0, batch[-1], 0.0
-                )
+            if specification["trainingMask"] is not None:  # Metrics over masked area
+                mbatch = tf.where(specification["trainingMask"] == 0, batch[-1], 0.0)
                 per_replica_losses = strategy.run(
                     self.compute_loss, args=((batch[:-1], mbatch), False)
                 )
@@ -382,10 +371,8 @@ class DCVAE(tf.keras.Model):
                 )
                 self.train_rmse_m.assign_add(batch_losses[0])
             # Metrics over unmasked area
-            if self.specification["trainingMask"] is not None:
-                mbatch = tf.where(
-                    self.specification["trainingMask"] != 0, batch[-1], 0.0
-                )
+            if specification["trainingMask"] is not None:
+                mbatch = tf.where(specification["trainingMask"] != 0, batch[-1], 0.0)
                 batch = (batch[:-1], mbatch)
             per_replica_losses = strategy.run(self.compute_loss, args=(batch, False))
             batch_losses = strategy.reduce(
@@ -414,8 +401,8 @@ class DCVAE(tf.keras.Model):
         self.train_loss.assign(self.train_loss / validation_batch_count)
 
         # Same, but for the test data
-        self.test_rmse.assign(tf.zeros([self.specification["nOutputChannels"]]))
-        self.test_rmse_m.assign(tf.zeros([self.specification["nOutputChannels"]]))
+        self.test_rmse.assign(tf.zeros([specification["nOutputChannels"]]))
+        self.test_rmse_m.assign(tf.zeros([specification["nOutputChannels"]]))
         self.test_logpz_g.assign(0.0)
         self.test_logqz_g.assign(0.0)
         self.test_logpz.assign(0.0)
@@ -424,12 +411,8 @@ class DCVAE(tf.keras.Model):
         test_batch_count = 0
         for batch in testDS:
             # Metrics over masked area
-            if (
-                self.specification["trainingMask"] is not None
-            ):  # Metrics over masked area
-                mbatch = tf.where(
-                    self.specification["trainingMask"] == 0, batch[-1], 0.0
-                )
+            if specification["trainingMask"] is not None:  # Metrics over masked area
+                mbatch = tf.where(specification["trainingMask"] == 0, batch[-1], 0.0)
                 per_replica_losses = strategy.run(
                     self.compute_loss, args=((batch[:-1], mbatch), False)
                 )
@@ -438,10 +421,8 @@ class DCVAE(tf.keras.Model):
                 )
                 self.test_rmse_m.assign_add(batch_losses[0])
             # Metrics over unmasked area
-            if self.specification["trainingMask"] is not None:
-                mbatch = tf.where(
-                    self.specification["trainingMask"] != 0, batch[-1], 0.0
-                )
+            if specification["trainingMask"] is not None:
+                mbatch = tf.where(specification["trainingMask"] != 0, batch[-1], 0.0)
                 batch = (batch[:-1], mbatch)
             per_replica_losses = strategy.run(self.compute_loss, args=(batch, False))
             batch_losses = strategy.reduce(
@@ -509,11 +490,11 @@ class DCVAE(tf.keras.Model):
 
     # Print out the current metrics
     def printState(self):
-        for i in range(self.specification["nOutputChannels"]):
-            if self.specification["trainingMask"] is not None:
+        for i in range(specification["nOutputChannels"]):
+            if specification["trainingMask"] is not None:
                 print(
                     "{:<10s}: {:>9.3f}, {:>9.3f}, {:>9.3f}, {:>9.3f}".format(
-                        self.specification["outputNames"][i],
+                        specification["outputNames"][i],
                         self.train_rmse.numpy()[i],
                         self.test_rmse.numpy()[i],
                         self.train_rmse_m.numpy()[i],
@@ -523,7 +504,7 @@ class DCVAE(tf.keras.Model):
             else:
                 print(
                     "{:<10s}: {:>9.3f}, {:>9.3f}".format(
-                        self.specification["outputNames"][i],
+                        specification["outputNames"][i],
                         self.train_rmse.numpy()[i],
                         self.test_rmse.numpy()[i],
                     )
@@ -566,24 +547,48 @@ class DCVAE(tf.keras.Model):
 
 
 # Load model and initial weights
-def getModel(specification, optimizer, epoch=1):
-    # Instantiate the model
-    autoencoder = DCVAE(specification)
+def getModel(optimizer, epoch=None):
+
+    # If Epoch is None - set it to latest saved value
+    if epoch is None:
+        try:
+            weights_dir = ("%s/ML_models/%s/weights") % (
+                os.getenv("PDIR"),
+                specification["modelName"],
+            )
+            # Find all the subdirectories in the weights directory
+            subdirs = [
+                os.path.join(weights_dir, d)
+                for d in os.listdir(weights_dir)
+                if os.path.isdir(os.path.join(weights_dir, d))
+            ]
+            # Sort the subdirectories by name (which includes the epoch number)
+            subdirs.sort()
+            # Get the latest subdirectory with
+            latest_subdir = subdirs[
+                -2
+            ]  # not -1 because it might have died in the middle of saving
+            # Get the epoch number from the subdirectory name
+            epoch = int(os.path.basename(latest_subdir).split("_")[1])
+            print("Continuing from epoch: %d" % epoch)
+        except Exception as e:
+            print("No saved weights found - starting from scratch")
+            epoch = 1
 
     # If we are doing a restart, load the weights
     if epoch > 1:
-        weights_dir = ("%s/DCVAE-Climate/%s/weights/Epoch_%04d") % (
-            os.getenv("SCRATCH"),
+        weights_dir = ("%s/ML_models/%s/weights/Epoch_%04d") % (
+            os.getenv("PDIR"),
             specification["modelName"],
             epoch,
         )
         autoencoder = tf.keras.models.load_model(
-            "%s/ckpt.keras" % weights_dir, compile=False
+            "%s/ckpt.keras" % weights_dir,
+            compile=True,
+            # custom_objects={"DCVAE": DCVAELoader},
         )
-        # Seperate compile to eliminate strange error message about 2 optimizers
-        autoencoder.compile()
     else:
-        autoencoder = DCVAE(specification)
+        autoencoder = DCVAE()
         autoencoder.compile(optimizer=optimizer)
 
-    return autoencoder
+    return (autoencoder, epoch)

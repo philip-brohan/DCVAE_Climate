@@ -21,7 +21,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--epoch", help="Restart from epoch", type=int, required=False, default=1
+    "--epoch", help="Restart from epoch", type=int, required=False, default=None
 )
 args = parser.parse_args()
 
@@ -63,11 +63,11 @@ def getDatasets():
 with strategy.scope():
     trainingData, validationData, testData = getDatasets()
 
-    autoencoder = getModel(specification, optimizer, epoch=args.epoch)
+    autoencoder, start_epoch = getModel(optimizer, epoch=args.epoch)
 
     # logfile to output the metrics
-    log_FN = ("%s/DCVAE-Climate/%s/logs/Training") % (
-        os.getenv("SCRATCH"),
+    log_FN = ("%s/ML_models/%s/logs/Training") % (
+        os.getenv("PDIR"),
         specification["modelName"],
     )
     if not os.path.isdir(os.path.dirname(log_FN)):
@@ -81,7 +81,7 @@ with strategy.scope():
         )
 
     # For each Epoch: train, save state, and report progress
-    for epoch in range(args.epoch, specification["nEpochs"] + args.epoch + 1):
+    for epoch in range(start_epoch, specification["nEpochs"] + 1):
         start_time = time.time()
 
         # Train on all batches in the training data
@@ -118,8 +118,8 @@ with strategy.scope():
         )
 
         # Save model state
-        save_dir = "%s/DCVAE-Climate/%s/weights/Epoch_%04d" % (
-            os.getenv("SCRATCH"),
+        save_dir = "%s/ML_models/%s/weights/Epoch_%04d" % (
+            os.getenv("PDIR"),
             specification["modelName"],
             epoch,
         )

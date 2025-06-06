@@ -28,7 +28,7 @@ from ML_models.default.gmUtils import (
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--epoch", help="Epoch", type=int, required=False, default=500)
+parser.add_argument("--epoch", help="Epoch", type=int, required=False, default=None)
 parser.add_argument(
     "--startyear", help="First year to plot", type=int, required=False, default=None
 )
@@ -97,7 +97,7 @@ testData = testData.batch(1)
 
 
 # Load the trained model
-autoencoder = getModel(specification, optimizer=None, epoch=args.epoch)
+autoencoder, epoch = getModel(optimizer=None, epoch=args.epoch)
 
 
 def decodeFit():
@@ -158,4 +158,4 @@ for case in testData:
             all_stats["generated"][key] = [stats["generated"][key]]
 
 # Make the plot
-plotScalarStats(all_stats, specification, fileName="assimilate_multi.webp")
+plotScalarStats(all_stats, specification, fileName="outputs/assimilate_multi.png")

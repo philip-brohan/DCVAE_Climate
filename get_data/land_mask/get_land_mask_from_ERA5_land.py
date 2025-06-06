@@ -7,7 +7,7 @@
 import os
 import cdsapi
 
-opdir = "%s/ERA5/monthly/reanalysis" % os.getenv("SCRATCH")
+opdir = "%s/ERA5/monthly/reanalysis" % os.getenv("PDIR")
 if not os.path.isdir(opdir):
     os.makedirs(opdir, exist_ok=True)
 

@@ -148,3 +148,6 @@ SCRATCH
 
 # ? Some kind of temporary backup?
 ~$*
+
+# VSCode settings
+.vscode/
