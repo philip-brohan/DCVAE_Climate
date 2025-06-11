@@ -3,7 +3,7 @@ A DIY Machine Learning Climate Model
 
 .. note::
 
-   Updated 2025-02-06 - to a newer conda environment with updated versions of various software packages, and to support the new Copernicus climate Data Store. Updating to Tensorflow 18 has compelled modest changes to the model code, but the model is essentially the same.
+   Retired 2025-06-11 - This model is now retired. I can't spare the time to keep it up to date.
 
 This is an example of how to build a climate model using Machine Learning (ML). It's designed to be used as a training tool for those new to ML, but to be powerful enough to be adapted into something of value for science work.
 
